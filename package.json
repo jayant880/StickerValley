@@ -1,0 +1,36 @@
+{
+  "name": "sticker-valley",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/"
+  ],
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/jayant880/StickerValley#readme",
+  "bugs": {
+    "url": "https://github.com/jayant880/StickerValley/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jayant880/StickerValley.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:client\" \"npm run dev:server\"",
+    "dev:client": "cd apps/client && npm run dev",
+    "dev:server": "cd apps/server && npm run dev",
+    "build:client": "cd apps/client && npm run build",
+    "build:server": "cd apps/server && npm run build",
+    "db:push": "cd apps/server && npx drizzle-kit push",
+    "db:generate": "cd apps/server && npx drizzle-kit generate",
+    "db:studio": "cd apps/server && npx drizzle-kit studio"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "typescript": "^5.9.3"
+  }
+}
