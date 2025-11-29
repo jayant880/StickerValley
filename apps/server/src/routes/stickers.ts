@@ -1,7 +1,9 @@
 import express from "express";
 import { db } from "../db";
-import { stickers } from "../db/schema";
+import { shops, Sticker, stickers } from "../db/schema";
 import { ilike, and, gte, lte, inArray, asc, desc, eq } from "drizzle-orm";
+import { getAuth } from "@clerk/express";
+import { randomUUID } from "crypto";
 
 const router = express.Router();
 
@@ -45,6 +47,45 @@ router.get("/", async (req, res) => {
     return res.json({ success: true, data: result });
   } catch (error) {
     return res.status(500).json({ success: false, error: "Failed to fetch stickers" });
+  }
+});
+
+router.post("/", async (req, res) => {
+  try {
+    const { userId } = getAuth(req);
+    if (!userId) {
+      return res.status(401).json({ success: false, error: "Unauthorized" });
+    }
+    const shop = await db.query.shops.findFirst({
+      where: eq(shops.userId, userId.toString()),
+    });
+    if (!shop) {
+      return res.status(403).json({ success: false, error: "Vendor shop required" });
+    }
+
+    const { name, description, images, price, type, stock } = req.body;
+
+    if (!name || !description || !images || !price || !type || !stock) {
+      return res.status(400).json({ success: false, error: "Missing required fields" });
+    }
+
+    const newSticker: Sticker = {
+      id: randomUUID(),
+      name: name.toString() as string,
+      description: description.toString() as string,
+      images: images.toString() as string[],
+      price: price.toString() as string,
+      type: type.toString() as ("DIGITAL" | "PHYSICAL"),
+      stock: Number(stock.toString()),
+      shopId: shop.id,
+      isPublished: false,
+      createdAt: new Date(),
+    }
+    const result = await db.insert(stickers).values(newSticker);
+
+    return res.json({ success: true, data: result });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: "Failed to create sticker" });
   }
 });
 

@@ -2,9 +2,9 @@ import { pgTable, text, integer, decimal, boolean, timestamp, pgEnum } from 'dri
 import { relations } from 'drizzle-orm';
 import { randomUUID } from 'crypto';
 
-export const roleEnum = pgEnum('Role', ['CUSTOMER', 'VENDOR', 'ADMIN']); // ORDER MATTERS
+export const roleEnum = pgEnum('Role', ['CUSTOMER', 'VENDOR', 'ADMIN']);
 export const orderStatusEnum = pgEnum('OrderStatus', ['PENDING', 'PAID', 'SHIPPED', 'DELIVERED']);
-export const stickerTypeEnum = pgEnum('StickerType', ['PHYSICAL', 'DIGITAL']); // YOU MISSED THIS
+export const stickerTypeEnum = pgEnum('StickerType', ['PHYSICAL', 'DIGITAL']);
 
 export const users = pgTable('User', {
     id: text('id').primaryKey(),
@@ -29,8 +29,8 @@ export const stickers = pgTable('Sticker', {
     description: text('description').notNull(),
     images: text('images').array(),
     price: decimal('price').notNull(),
-    type: stickerTypeEnum('type').notNull(), // CRITICAL: YOU MISSED THIS
-    stock: integer('stock').default(0).notNull(), // CRITICAL: YOU MISSED THIS  
+    type: stickerTypeEnum('type').notNull(),
+    stock: integer('stock').default(0).notNull(),
     shopId: text('shopId').notNull().references(() => shops.id),
     isPublished: boolean('isPublished').default(true).notNull(),
     createdAt: timestamp('createdAt').defaultNow().notNull(),
