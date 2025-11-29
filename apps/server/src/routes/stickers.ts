@@ -1,27 +1,10 @@
 import express from "express";
 import { db } from "../db";
-import { shops, Sticker, stickers } from "../db/schema";
+import { stickers } from "../db/schema";
 import { ilike, and, gte, lte, inArray, asc, desc, eq } from "drizzle-orm";
-import { getAuth } from "@clerk/express";
-import { randomUUID } from "crypto";
+import { requireVendor } from "../middleware/vendorAuth";
 
 const router = express.Router();
-
-export const requireVendor = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-  const { userId } = getAuth(req);
-  if (!userId) {
-    return res.status(401).json({ success: false, error: "Unauthorized" });
-  }
-  const shop = await db.query.shops.findFirst({
-    where: eq(shops.userId, userId.toString()),
-  });
-  if (!shop) {
-    return res.status(403).json({ success: false, error: "Vendor shop required" });
-  }
-  req.body.shop = shop.id;
-  next();
-}
-
 
 router.get("/", async (req, res) => {
   const page = Math.max(1, Number(req.query.page) || 1);
@@ -79,22 +62,22 @@ router.post("/", requireVendor, async (req, res) => {
       return res.status(400).json({ success: false, error: "Missing required fields" });
     }
 
-    const newSticker: Sticker = {
-      id: randomUUID(),
-      name: name.toString() as string,
-      description: description.toString() as string,
-      images: images.toString() as string[],
-      price: price.toString() as string,
+    const newSticker: typeof stickers.$inferInsert = {
+      name: name.toString(),
+      description: description.toString(),
+      images: Array.isArray(images) ? images.map(String) : [String(images)],
+      price: price.toString(),
       type: type.toString() as ("DIGITAL" | "PHYSICAL"),
-      stock: Number(stock.toString()),
+      stock: Number(stock),
       shopId: shop.id,
       isPublished: false,
-      createdAt: new Date(),
     }
-    const result = await db.insert(stickers).values(newSticker);
 
-    return res.json({ success: true, data: result });
+    const result = await db.insert(stickers).values(newSticker).returning();
+
+    return res.json({ success: true, data: result[0], message: "Sticker created successfully" });
   } catch (error) {
+    console.error("Create sticker error:", error);
     return res.status(500).json({ success: false, error: "Failed to create sticker" });
   }
 });
@@ -108,7 +91,7 @@ router.get("/:id", async (req, res) => {
     const result = await db.query.stickers.findFirst({
       where: eq(stickers.id, id),
     });
-    return res.json({ success: true, data: result });
+    return res.json({ success: true, data: result, message: "Sticker fetched successfully" });
   } catch (error) {
     return res.status(500).json({ success: false, error: "Failed to fetch sticker" });
   }
@@ -117,8 +100,20 @@ router.get("/:id", async (req, res) => {
 router.put("/:id", requireVendor, async (req, res) => {
   try {
     const id = req.params.id;
+    const { shop } = req.body;
     if (!id) {
       return res.status(404).json({ success: false, error: "sticker not found" });
+    }
+    const existingSticker = await db.query.stickers.findFirst({
+      where: eq(stickers.id, id),
+    });
+
+    if (!existingSticker) {
+      return res.status(404).json({ success: false, error: "Sticker not found" });
+    }
+
+    if (existingSticker.shopId !== shop.id) {
+      return res.status(403).json({ success: false, error: "Unauthorized: You do not own this sticker" });
     }
 
     const { name, description, images, price, type, stock } = req.body;
@@ -127,19 +122,24 @@ router.put("/:id", requireVendor, async (req, res) => {
       return res.status(400).json({ success: false, error: "Missing required fields" });
     }
 
-    const updateSticker: Partial<Sticker> = {
-      name: name.toString() as string,
-      description: description.toString() as string,
-      images: images.toString() as string[],
-      price: price.toString() as string,
+    const updateSticker: Partial<typeof stickers.$inferInsert> = {
+      name: name.toString(),
+      description: description.toString(),
+      images: Array.isArray(images) ? images.map(String) : [String(images)],
+      price: price.toString(),
       type: type.toString() as ("DIGITAL" | "PHYSICAL"),
-      stock: Number(stock.toString()),
+      stock: Number(stock),
     }
 
-    const result = await db.update(stickers).set(updateSticker).where(eq(stickers.id, id));
-    return res.json({ success: true, data: result });
+    const result = await db.update(stickers)
+      .set(updateSticker)
+      .where(eq(stickers.id, id))
+      .returning();
+
+    return res.json({ success: true, data: result[0], message: "Sticker updated successfully" });
 
   } catch (error) {
+    console.error("Update sticker error:", error);
     return res.status(500).json({ success: false, error: "Failed to update sticker" });
   }
 });
@@ -148,12 +148,31 @@ router.put("/:id", requireVendor, async (req, res) => {
 router.delete("/:id", requireVendor, async (req, res) => {
   try {
     const id = req.params.id;
+    const { shop } = req.body;
+
     if (!id) {
       return res.status(404).json({ success: false, error: "sticker not found" });
     }
-    const result = await db.delete(stickers).where(eq(stickers.id, id));
-    return res.json({ success: true, data: result });
+
+    const existingSticker = await db.query.stickers.findFirst({
+      where: eq(stickers.id, id),
+    });
+
+    if (!existingSticker) {
+      return res.status(404).json({ success: false, error: "Sticker not found" });
+    }
+
+    if (existingSticker.shopId !== shop.id) {
+      return res.status(403).json({ success: false, error: "Unauthorized: You do not own this sticker" });
+    }
+
+    const result = await db.delete(stickers)
+      .where(eq(stickers.id, id))
+      .returning();
+
+    return res.json({ success: true, data: result[0], message: "Sticker deleted successfully" });
   } catch (error) {
+    console.error("Delete sticker error:", error);
     return res.status(500).json({ success: false, error: "Failed to delete sticker" });
   }
 })
