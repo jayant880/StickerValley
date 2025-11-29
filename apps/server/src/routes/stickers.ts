@@ -1,7 +1,7 @@
 import express from "express";
 import { db } from "../db";
 import { stickers } from "../db/schema";
-import { ilike, and, gte, lte, inArray, asc, desc } from "drizzle-orm";
+import { ilike, and, gte, lte, inArray, asc, desc, eq } from "drizzle-orm";
 
 const router = express.Router();
 
@@ -42,10 +42,25 @@ router.get("/", async (req, res) => {
       limit: limit,
       offset: (page - 1) * limit,
     });
-    return res.json({ data: result });
+    return res.json({ success: true, data: result });
   } catch (error) {
-    return res.status(500).json({ error: "Failed to fetch stickers" });
+    return res.status(500).json({ success: false, error: "Failed to fetch stickers" });
   }
 });
+
+router.get("/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    if (!id) {
+      return res.status(404).json({ success: false, error: "sticker not found" });
+    }
+    const result = await db.query.stickers.findFirst({
+      where: eq(stickers.id, id),
+    });
+    return res.json({ success: true, data: result });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: "Failed to fetch sticker" });
+  }
+})
 
 export default router;
