@@ -90,6 +90,9 @@ router.get("/:id", async (req, res) => {
     }
     const result = await db.query.stickers.findFirst({
       where: eq(stickers.id, id),
+      with: {
+        shop: true,
+      }
     });
     return res.json({ success: true, data: result, message: "Sticker fetched successfully" });
   } catch (error) {
@@ -106,6 +109,9 @@ router.put("/:id", requireVendor, async (req, res) => {
     }
     const existingSticker = await db.query.stickers.findFirst({
       where: eq(stickers.id, id),
+      with: {
+        shop: true,
+      }
     });
 
     if (!existingSticker) {

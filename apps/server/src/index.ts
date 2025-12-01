@@ -8,6 +8,7 @@ import { db } from "./db";
 import webhookRoutes from "./routes/webhooks";
 import apiRoutes from "./routes/api";
 import stickerRoutes from "./routes/stickers";
+import cartRoutes from "./routes/cart";
 
 const PORT = process.env.PORT || 5000;
 
@@ -38,6 +39,7 @@ app.use(express.json());
 // API Routes
 app.use("/api", apiRoutes);
 app.use("/api/stickers", stickerRoutes);
+app.use("/api/cart", cartRoutes);
 
 db.execute("SELECT 1")
   .then(() => console.log("Database connection successful"))

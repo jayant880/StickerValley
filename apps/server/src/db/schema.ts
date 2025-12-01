@@ -42,7 +42,7 @@ export const carts = pgTable('Cart', {
     updatedAt: timestamp('updatedAt').defaultNow().notNull(),
 });
 
-export const cartItems = pgTable('CartItem', { // FIXED: was 'CartItems'
+export const cartItems = pgTable('CartItem', {
     id: text('id').primaryKey().$defaultFn(() => randomUUID()),
     cartId: text('cartId').notNull().references(() => carts.id),
     stickerId: text('stickerId').notNull().references(() => stickers.id),
