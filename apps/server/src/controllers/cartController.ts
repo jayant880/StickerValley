@@ -100,5 +100,34 @@ export const cartController = {
             console.error("Error adding to cart:", error);
             return res.status(500).json({ success: false, error: "Internal server error" });
         }
+    },
+
+    removeCartItem: async (req: express.Request, res: express.Response) => {
+        try {
+            const { userId } = getAuth(req);
+            const { stickerId } = req.params;
+
+            if (!userId) return res.status(401).json({ success: false, error: "Unauthorized" });
+            if (!stickerId) return res.status(400).json({ success: false, error: "Sticker ID is required" });
+
+            await getOrSyncUser(userId);
+
+            const userCart = await db.query.carts.findFirst({
+                where: eq(carts.userId, userId),
+            });
+
+            if (!userCart) return res.status(404).json({ success: false, error: "Cart not found" });
+
+            await db.delete(cartItems)
+                .where(and(
+                    eq(cartItems.stickerId, stickerId),
+                    eq(cartItems.cartId, userCart.id)
+                ));
+
+            return res.status(200).json({ success: true, message: "Item removed from cart" });
+        } catch (error) {
+            console.error("Error removing from cart:", error);
+            return res.status(500).json({ success: false, error: "Internal server error" });
+        }
     }
 }   
