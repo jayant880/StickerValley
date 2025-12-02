@@ -4,6 +4,7 @@ import { getOrSyncUser } from "../services/userService";
 import { db } from "../db";
 import { eq, and } from "drizzle-orm";
 import { carts, cartItems, stickers } from "../db/schema";
+import { calculateCartTotal } from "../services/cartService";
 
 export const cartController = {
     getCart: async (req: express.Request, res: express.Response) => {
@@ -37,7 +38,8 @@ export const cartController = {
                 });
             }
 
-            return res.status(200).json({ success: true, data: userCart });
+            const { totalItems, totalAmount } = calculateCartTotal(userCart);
+            return res.status(200).json({ success: true, data: { ...userCart, totalItems, totalAmount } });
         } catch (error) {
             console.error("Error fetching cart:", error);
             return res.status(500).json({ success: false, error: "Internal server error" });
@@ -46,7 +48,8 @@ export const cartController = {
     addToCart: async (req: express.Request, res: express.Response) => {
         try {
             const { userId } = getAuth(req);
-            const { stickerId, quantity = 1 } = req.body;
+            const { stickerId } = req.body;
+            const quantity = Math.max(1, Number(req.body.quantity) || 1);
 
             if (!userId) return res.status(401).json({ success: false, error: "Unauthorized" });
             if (!stickerId) return res.status(400).json({ success: false, error: "Sticker ID is required" });
@@ -72,9 +75,20 @@ export const cartController = {
                 )
             });
 
+            const finalQuantity = existingItem ? existingItem.quantity + quantity : quantity;
+
+            if (sticker.type === "PHYSICAL") {
+                if (finalQuantity > sticker.stock) {
+                    return res.status(400).json({
+                        success: false,
+                        error: `Not enough stock available. Only ${sticker.stock} left.`
+                    });
+                }
+            }
+
             if (existingItem) {
                 await db.update(cartItems)
-                    .set({ quantity: existingItem.quantity + quantity })
+                    .set({ quantity: finalQuantity })
                     .where(eq(cartItems.id, existingItem.id));
             } else {
                 await db.insert(cartItems).values({
@@ -92,12 +106,103 @@ export const cartController = {
                             sticker: true
                         }
                     }
+                },
+            });
+
+            const { totalItems, totalAmount } = calculateCartTotal(updatedCart);
+
+            return res.status(200).json({ success: true, data: { ...updatedCart, totalItems, totalAmount } });
+        } catch (error) {
+            console.error("Error adding to cart:", error);
+            return res.status(500).json({ success: false, error: "Internal server error" });
+        }
+    },
+
+    clearCart: async (req: express.Request, res: express.Response) => {
+        try {
+            const { userId } = getAuth(req);
+
+            if (!userId) return res.status(401).json({ success: false, error: "Unauthorized" });
+
+            await getOrSyncUser(userId);
+
+            const userCart = await db.query.carts.findFirst({
+                where: eq(carts.userId, userId),
+            });
+
+            if (!userCart) return res.status(404).json({ success: false, error: "Cart not found" });
+
+            await db.delete(cartItems)
+                .where(eq(cartItems.cartId, userCart.id));
+
+            return res.status(200).json({ success: true, message: "Cart cleared successfully" });
+        } catch (error) {
+            console.error("Error clearing cart:", error);
+            return res.status(500).json({ success: false, error: "Internal server error" });
+        }
+    },
+
+    updateCartItem: async (req: express.Request, res: express.Response) => {
+        try {
+            const { userId } = getAuth(req);
+            const { stickerId } = req.params;
+            const quantity = Number(req.body.quantity);
+
+            if (!userId) return res.status(401).json({ success: false, error: "Unauthorized" });
+            if (!stickerId) return res.status(400).json({ success: false, error: "Sticker ID is required" });
+            if (!quantity || quantity < 1) return res.status(400).json({ success: false, error: "Quantity must be at least 1" });
+
+            await getOrSyncUser(userId);
+
+            const userCart = await db.query.carts.findFirst({
+                where: eq(carts.userId, userId),
+            });
+
+            if (!userCart) return res.status(404).json({ success: false, error: "Cart not found" });
+
+            const existingItem = await db.query.cartItems.findFirst({
+                where: and(
+                    eq(cartItems.cartId, userCart.id),
+                    eq(cartItems.stickerId, stickerId)
+                ),
+                with: {
+                    sticker: true
                 }
             });
 
-            return res.status(200).json({ success: true, data: updatedCart });
+            if (!existingItem) return res.status(404).json({ success: false, error: "Item not found in cart" });
+
+            const sticker = existingItem.sticker;
+
+            if (sticker.type === "PHYSICAL") {
+                if (quantity > sticker.stock) {
+                    return res.status(400).json({
+                        success: false,
+                        error: `Not enough stock available. Only ${sticker.stock} left.`
+                    });
+                }
+            }
+
+            await db.update(cartItems)
+                .set({ quantity })
+                .where(eq(cartItems.id, existingItem.id));
+
+            const updatedCart = await db.query.carts.findFirst({
+                where: eq(carts.userId, userId),
+                with: {
+                    items: {
+                        with: {
+                            sticker: true
+                        }
+                    }
+                }
+            });
+
+            const { totalItems, totalAmount } = calculateCartTotal(updatedCart);
+
+            return res.status(200).json({ success: true, data: { ...updatedCart, totalItems, totalAmount } });
         } catch (error) {
-            console.error("Error adding to cart:", error);
+            console.error("Error updating cart item:", error);
             return res.status(500).json({ success: false, error: "Internal server error" });
         }
     },
