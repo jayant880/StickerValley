@@ -2,6 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import type { Sticker } from '@sticker-valley/shared-types';
+import { ShoppingCart, Zap } from 'lucide-react';
 
 const StickerCard = ({ sticker }: { sticker: Partial<Sticker> }) => {
     const imageSrc = (sticker.images && sticker.images.length > 0)
@@ -9,47 +10,43 @@ const StickerCard = ({ sticker }: { sticker: Partial<Sticker> }) => {
         : 'https://placehold.co/400x400/png?text=' + (sticker.name || 'Sticker');
 
     return (
-        <Card className='hover:shadow-lg max-w-sm overflow-hidden hover:scale-[1.02] transition-transform duration-300 transform'>
-            <CardHeader className='bg-gray-50'>
-                <div className='relative rounded-md w-full aspect-square overflow-hidden'>
+        <Card className='group h-full flex flex-col overflow-hidden border-border/50 bg-card hover:bg-card/80 transition-all duration-300'>
+            <CardHeader className='p-0'>
+                <div className='relative w-full pt-[100%] overflow-hidden bg-muted/20'>
                     <img
                         src={imageSrc}
                         alt={sticker.name || 'Sticker'}
-                        className='w-full h-full object-contain hover:scale-105 transition-transform duration-300'
+                        className='absolute top-0 left-0 w-full h-full object-contain p-4 transition-transform duration-500 group-hover:scale-110'
                     />
                 </div>
             </CardHeader>
 
-            <CardContent>
-                <div>
-                    <CardTitle className='text-lg line-clamp-1'>{sticker.name || 'Untitled'}</CardTitle>
-                    <CardDescription className='text-sm line-clamp-2'>{sticker.description || 'No description available'}</CardDescription>
-                </div>
-
-                <div className='flex justify-between items-center'>
-                    <Badge variant="secondary" className='px-3 py-1'>
-                        {sticker.type || 'Unknown'}
-                    </Badge>
-                    <p className='font-bold text-green-600 text-xl'>
-                        ${sticker.price ? Number(sticker.price).toFixed(2) : '0.00'}
-                    </p>
+            <CardContent className='flex-1 p-4 space-y-3'>
+                <div className='space-y-1'>
+                    <div className='flex justify-between items-start gap-2'>
+                        <Badge variant="secondary" className='font-normal text-xs uppercase tracking-wider shrink-0'>
+                            {sticker.type || 'Unknown'}
+                        </Badge>
+                        <span className='font-bold text-lg text-primary tabular-nums shrink-0'>
+                            ${sticker.price ? Number(sticker.price).toFixed(2) : '0.00'}
+                        </span>
+                    </div>
+                    <CardTitle className='text-base font-semibold line-clamp-1 group-hover:text-primary transition-colors'>
+                        {sticker.name || 'Untitled'}
+                    </CardTitle>
+                    <CardDescription className='text-sm line-clamp-2 leading-relaxed'>
+                        {sticker.description || 'No description available'}
+                    </CardDescription>
                 </div>
             </CardContent>
 
-            <CardFooter className='flex gap-2 p-4 pt-0'>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    className='flex-1 bg-amber-100 hover:bg-amber-200 border-amber-300 text-amber-900'
-                // onClick={() => onAddToCart?.(sticker)}
-                >
-                    Add To Cart
+            <CardFooter className='p-4 pt-0 gap-2 grid grid-cols-2'>
+                <Button variant="outline" size="sm" className='w-full'>
+                    <ShoppingCart className="w-4 h-4 mr-2" />
+                    Cart
                 </Button>
-                <Button
-                    size="sm"
-                    className='flex-1 bg-green-500 hover:bg-green-600 text-white'
-                // onClick={() => onBuyNow?.(sticker)}
-                >
+                <Button size="sm" className='w-full'>
+                    <Zap className="w-4 h-4 mr-2" />
                     Buy Now
                 </Button>
             </CardFooter>
