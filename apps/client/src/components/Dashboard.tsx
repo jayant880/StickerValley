@@ -1,4 +1,4 @@
-import { ApiTester } from './ApiTester';
+
 
 export function Dashboard() {
     return (
@@ -17,8 +17,6 @@ export function Dashboard() {
                     <p className="text-gray-500">No recent activity to show.</p>
                 </div>
             </div>
-
-            <ApiTester />
         </div>
     );
 }

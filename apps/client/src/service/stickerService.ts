@@ -1,4 +1,7 @@
 import { api } from "@/lib/axios";
+import type { Shop, Sticker } from "@sticker-valley/shared-types";
+
+type StickerWithShop = Sticker & { shop: Shop };
 
 export const stickerService = {
   getStickers: async () => {
@@ -42,6 +45,21 @@ export const stickerService = {
       }
     } catch (error) {
       console.error(error);
+      throw error;
     }
   },
+
+  getStickerById: async (id: string): Promise<StickerWithShop> => {
+    try {
+      const res = await api.get("/stickers/" + id);
+      if (res.data.success) {
+        return res.data.data;
+      } else {
+        throw new Error("Sticker not found");
+      }
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
 };

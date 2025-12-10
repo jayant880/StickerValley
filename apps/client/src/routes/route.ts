@@ -1,6 +1,7 @@
 import App from "@/App";
 import Home from "@/pages/Home";
 import Stickers from "@/pages/Stickers";
+import StickerDetail from "@/pages/StickerDetail";
 import { createBrowserRouter } from "react-router";
 
 export const router = createBrowserRouter([
@@ -14,8 +15,12 @@ export const router = createBrowserRouter([
       },
       {
         path: "stickers",
-        Component: Stickers,
+        Component: Stickers
       },
+      {
+        path: "stickers/:id",
+        Component: StickerDetail
+      }
     ],
   },
 ]);

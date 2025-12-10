@@ -1,3 +1,4 @@
+import { Toaster } from '@/components/ui/sonner';
 import { Header } from './components/Header';
 import { Outlet } from 'react-router';
 
@@ -10,6 +11,7 @@ function App() {
           <Outlet />
         </main>
       </div>
+      <Toaster />
     </div>
   );
 }

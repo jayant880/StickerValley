@@ -1,5 +1,6 @@
 import { stickerService } from "@/service/stickerService"
 import { useEffect, useState } from "react"
+import { toast } from "sonner"
 import type { Sticker } from '@sticker-valley/shared-types';
 import StickerFilters from "@/components/feature/product/StickerFilters";
 import StickerGrid from "@/components/feature/product/StickerGrid";
@@ -21,6 +22,7 @@ const Stickers = () => {
                 setStickers(stickersData);
             } catch (error) {
                 console.error("Failed to fetch stickers", error);
+                toast.error("Failed to load stickers");
             } finally {
                 setLoading(false);
             }
@@ -36,6 +38,7 @@ const Stickers = () => {
             setStickers(filteredSticker);
         } catch (error) {
             console.error("Failed to filter stickers", error);
+            toast.error("Failed to filter stickers");
         } finally {
             setLoading(false);
         }
