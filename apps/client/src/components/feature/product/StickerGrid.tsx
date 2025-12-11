@@ -39,7 +39,7 @@ const StickerGrid = ({ stickers, loading }: StickerGridProps) => {
 
 
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="flex flex-wrap gap-6">
             {stickers.map((sticker) => (
                 <div key={sticker.id} className="transform transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
                     <StickerCard sticker={sticker} />

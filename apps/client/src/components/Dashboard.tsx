@@ -1,10 +1,11 @@
-
+import { Link } from "react-router";
 
 export function Dashboard() {
     return (
         <div className="text-center py-10">
             <h2 className="text-3xl font-bold mb-4 text-gray-900">Welcome to your dashboard</h2>
             <p className="text-lg text-gray-600 mb-12">Sticker marketplace coming soon!</p>
+            <Link to="/stickers">View Stickers</Link>
 
             <div className="grid gap-8 md:grid-cols-2 max-w-4xl mx-auto">
                 <div className="p-6 bg-white rounded-xl shadow-sm border border-gray-100">

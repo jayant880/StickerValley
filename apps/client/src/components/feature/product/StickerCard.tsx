@@ -1,6 +1,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { CartService } from '@/service/cartService';
 import type { Sticker } from '@sticker-valley/shared-types';
 import { ShoppingCart, Zap } from 'lucide-react';
 
@@ -9,8 +10,13 @@ const StickerCard = ({ sticker }: { sticker: Partial<Sticker> }) => {
         ? sticker.images[0]
         : 'https://placehold.co/400x400/png?text=' + (sticker.name || 'Sticker');
 
+    const handleCart = () => {
+        if (!sticker.id) return;
+        CartService.addToCart({ stickerId: sticker.id });
+    }
+
     return (
-        <Card className='group h-full flex flex-col overflow-hidden border-border/50 bg-card hover:bg-card/80 transition-all duration-300'>
+        <Card className='group h-full flex flex-col overflow-hidden border-border/50 bg-card hover:bg-card/80 transition-all duration-300 min-w-64'>
             <CardHeader className='p-0'>
                 <div className='relative w-full pt-[100%] overflow-hidden bg-muted/20'>
                     <img
@@ -41,7 +47,7 @@ const StickerCard = ({ sticker }: { sticker: Partial<Sticker> }) => {
             </CardContent>
 
             <CardFooter className='p-4 pt-0 gap-2 grid grid-cols-2'>
-                <Button variant="outline" size="sm" className='w-full'>
+                <Button variant="outline" size="sm" className='w-full' onClick={handleCart}>
                     <ShoppingCart className="w-4 h-4 mr-2" />
                     Cart
                 </Button>
