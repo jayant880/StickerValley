@@ -6,9 +6,9 @@ import morgan from "morgan";
 import { clerkMiddleware } from "@clerk/express";
 import { db } from "./db";
 import webhookRoutes from "./routes/webhooks";
-import apiRoutes from "./routes/api";
-import stickerRoutes from "./routes/stickers";
-import cartRoutes from "./routes/cart";
+import apiRoutes from "./routes/apiRoutes";
+import stickerRoutes from "./routes/stickerRoutes";
+import cartRoutes from "./routes/cartRoutes";
 
 const PORT = process.env.PORT || 5000;
 

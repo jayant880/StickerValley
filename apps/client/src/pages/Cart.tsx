@@ -7,12 +7,12 @@ import { OrderSummary } from "@/components/cart/OrderSummary";
 import type { CartItemWithStickers } from "@/components/cart/types";
 import { CartService } from "@/service/cartService";
 import { useUser } from "@clerk/clerk-react";
-import type { Cart } from "@sticker-valley/shared-types";
+import type { Cart as CartType } from "@sticker-valley/shared-types";
 import { Loader2, ShoppingCart } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-interface CartWithCartItems extends Cart {
+interface CartWithCartItems extends CartType {
     items: CartItemWithStickers[];
     totalItems: number;
     totalAmount: number;
