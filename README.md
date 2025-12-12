@@ -2,6 +2,9 @@
 
 StickerValley is a modern e-commerce platform for purchasing unique stickers. It features a responsive user interface, secure authentication, and a streamlined checkout process.
 
+**[Live Demo](https://sticker-valley-client.vercel.app/)**
+
+
 ## 🚀 Tech Stack
 
 ### Frontend (`apps/client`)
