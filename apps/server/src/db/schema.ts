@@ -58,7 +58,7 @@ export const orders = pgTable('Order', {
     createdAt: timestamp('createdAt').defaultNow().notNull(),
 });
 
-export const orderItems = pgTable('OrderItem', { // FIXED: was 'Orderitem'
+export const orderItems = pgTable('OrderItem', {
     id: text('id').primaryKey().$defaultFn(() => randomUUID()),
     orderId: text('orderId').notNull().references(() => orders.id),
     stickerId: text('stickerId').notNull().references(() => stickers.id),

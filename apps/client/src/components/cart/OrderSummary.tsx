@@ -1,12 +1,22 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardFooter } from "@/components/ui/card";
+import { orderService } from "@/service/orderService";
 import { ArrowRight } from "lucide-react";
 
 interface OrderSummaryProps {
     totalAmount: number;
+    cartId: string;
 }
 
-export const OrderSummary = ({ totalAmount }: OrderSummaryProps) => {
+export const OrderSummary = ({ totalAmount, cartId }: OrderSummaryProps) => {
+    const handleCheckout = async () => {
+        try {
+            const res = await orderService.createOrder({ cartId });
+            window.location.href = `/checkout/${res.order.id}`;
+        } catch (error) {
+            console.error(error);
+        }
+    }
     return (
         <Card className="sticky top-24 shadow-lg border-2 border-primary/10">
             <div className="p-6 space-y-6">
@@ -34,7 +44,7 @@ export const OrderSummary = ({ totalAmount }: OrderSummaryProps) => {
                 </div>
 
                 <CardFooter className="p-0 pt-2">
-                    <Button className="w-full h-12 text-base font-semibold shadow-md active:scale-95 transition-transform" size="lg">
+                    <Button className="w-full h-12 text-base font-semibold shadow-md active:scale-95 transition-transform" size="lg" onClick={handleCheckout}>
                         Checkout Now
                         <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>

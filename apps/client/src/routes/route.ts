@@ -4,6 +4,7 @@ import Stickers from "@/pages/Stickers";
 import StickerDetail from "@/pages/StickerDetail";
 import { createBrowserRouter } from "react-router";
 import Cart from "@/pages/Cart";
+import Checkout from "@/pages/Checkout";
 
 export const router = createBrowserRouter([
   {
@@ -25,6 +26,10 @@ export const router = createBrowserRouter([
       {
         path: "cart",
         Component: Cart
+      },
+      {
+        path: "checkout/:orderId",
+        Component: Checkout
       }
     ],
   },

@@ -5,10 +5,11 @@ import cors from "cors";
 import morgan from "morgan";
 import { clerkMiddleware } from "@clerk/express";
 import { db } from "./db";
-import webhookRoutes from "./routes/webhooks";
 import apiRoutes from "./routes/apiRoutes";
+import webhookRoutes from "./routes/webhooks";
 import stickerRoutes from "./routes/stickerRoutes";
 import cartRoutes from "./routes/cartRoutes";
+import orderRoutes from "./routes/orderRoutes";
 
 const PORT = process.env.PORT || 5000;
 
@@ -40,6 +41,7 @@ app.use(express.json());
 app.use("/api", apiRoutes);
 app.use("/api/stickers", stickerRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/orders", orderRoutes);
 
 db.execute("SELECT 1")
   .then(() => console.log("Database connection successful"))

@@ -149,6 +149,7 @@ const Cart = () => {
                 <div className="col-span-1">
                     <OrderSummary
                         totalAmount={cart.totalAmount}
+                        cartId={cart.id}
                     />
 
                     <div className="mt-6 p-4 bg-muted/50 rounded-lg text-sm text-center text-muted-foreground">
