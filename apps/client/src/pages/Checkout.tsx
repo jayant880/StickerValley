@@ -2,7 +2,7 @@ import { orderService } from "@/service/orderService";
 import { RedirectToSignIn, useAuth } from "@clerk/clerk-react";
 import type { Order, OrderItem, Sticker } from "@sticker-valley/shared-types";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ interface OrderWithItems extends Order {
 
 const Checkout = () => {
     const { orderId } = useParams();
+    const navigate = useNavigate();
     const { isLoaded, isSignedIn, getToken } = useAuth();
     const [order, setOrder] = useState<OrderWithItems | null>(null);
     const [loading, setLoading] = useState(true);
@@ -45,10 +46,10 @@ const Checkout = () => {
             const res = await orderService.payForOrder({ orderId });
             if (res.success) {
                 toast.success("Order paid successfully");
-                window.location.href = `/payment/${orderId}/success`;
+                navigate(`/payment/${orderId}/success`);
             } else {
                 toast.error("Failed to pay for order");
-                window.location.href = `/payment/${orderId}/failed`;
+                navigate(`/payment/${orderId}/failed`);
             }
         } catch (error) {
             console.error(error);

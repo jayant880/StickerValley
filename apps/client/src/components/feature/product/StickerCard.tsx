@@ -2,17 +2,50 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { CartService } from '@/service/cartService';
+import { useAuth } from '@clerk/clerk-react';
 import type { Sticker } from '@sticker-valley/shared-types';
 import { ShoppingCart, Zap } from 'lucide-react';
+import { useNavigate } from 'react-router';
+import { toast } from 'sonner';
 
 const StickerCard = ({ sticker }: { sticker: Partial<Sticker> }) => {
+    const { isSignedIn } = useAuth();
+    const navigate = useNavigate();
+
     const imageSrc = (sticker.images && sticker.images.length > 0)
         ? sticker.images[0]
         : 'https://placehold.co/400x400/png?text=' + (sticker.name || 'Sticker');
 
-    const handleCart = () => {
+    const handleCart = async () => {
+        if (!isSignedIn) {
+            toast.error("Please sign in to add to cart");
+            return;
+        }
         if (!sticker.id) return;
-        CartService.addToCart({ stickerId: sticker.id });
+
+        try {
+            await CartService.addToCart({ stickerId: sticker.id });
+            toast.success("Added to cart");
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to add to cart");
+        }
+    }
+
+    const handleBuyNow = async () => {
+        if (!isSignedIn) {
+            toast.error("Please sign in to buy");
+            return;
+        }
+        if (!sticker.id) return;
+
+        try {
+            await CartService.addToCart({ stickerId: sticker.id });
+            navigate('/cart');
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to process");
+        }
     }
 
     return (
@@ -51,7 +84,7 @@ const StickerCard = ({ sticker }: { sticker: Partial<Sticker> }) => {
                     <ShoppingCart className="w-4 h-4 mr-2" />
                     Cart
                 </Button>
-                <Button size="sm" className='w-full'>
+                <Button size="sm" className='w-full' onClick={handleBuyNow}>
                     <Zap className="w-4 h-4 mr-2" />
                     Buy Now
                 </Button>

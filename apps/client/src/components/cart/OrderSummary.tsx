@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardFooter } from "@/components/ui/card";
 import { orderService } from "@/service/orderService";
 import { ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router";
+import { toast } from "sonner";
 
 interface OrderSummaryProps {
     totalAmount: number;
@@ -9,12 +11,19 @@ interface OrderSummaryProps {
 }
 
 export const OrderSummary = ({ totalAmount, cartId }: OrderSummaryProps) => {
+    const navigate = useNavigate();
+
     const handleCheckout = async () => {
         try {
             const res = await orderService.createOrder({ cartId });
-            window.location.href = `/checkout/${res.order.id}`;
+            if (res && res.order) {
+                navigate(`/checkout/${res.order.id}`);
+            } else {
+                toast.error("Failed to create order");
+            }
         } catch (error) {
             console.error(error);
+            toast.error("An error occurred");
         }
     }
     return (

@@ -3,18 +3,54 @@ import { Badge } from "@/components/ui/badge";
 import { stickerService } from "@/service/stickerService";
 import type { Sticker, Shop } from "@sticker-valley/shared-types";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
+import { useAuth } from "@clerk/clerk-react";
+import { CartService } from "@/service/cartService";
 
 type StickerWithShop = Sticker & { shop: Shop };
 
 const StickerDetail = () => {
     const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate();
+    const { isSignedIn } = useAuth();
     const [sticker, setSticker] = useState<StickerWithShop | null>(null);
     const [loading, setLoading] = useState(true);
 
+
+    const handleCart = async () => {
+        if (!isSignedIn) {
+            toast.error("Please sign in to add to cart");
+            return;
+        }
+        if (!sticker?.id) return;
+
+        try {
+            await CartService.addToCart({ stickerId: sticker.id });
+            toast.success("Added to cart");
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to add to cart");
+        }
+    }
+
+    const handleBuyNow = async () => {
+        if (!isSignedIn) {
+            toast.error("Please sign in to buy");
+            return;
+        }
+        if (!sticker?.id) return;
+
+        try {
+            await CartService.addToCart({ stickerId: sticker.id });
+            navigate('/cart');
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to process");
+        }
+    }
 
     useEffect(() => {
         if (!id) {
@@ -89,8 +125,8 @@ const StickerDetail = () => {
                     )}
                     <p className="text-muted-foreground">{new Date(sticker.createdAt).toLocaleDateString()}</p>
                     <div className="flex gap-4">
-                        <Button className="bg-primary text-primary-foreground">Add to Cart</Button> { /* TODO: Add to cart functionality */}
-                        <Button className="bg-primary text-primary-foreground" variant="outline">Buy Now</Button> { /* TODO: Buy now functionality */}
+                        <Button className="bg-primary text-primary-foreground" onClick={handleCart}>Add to Cart</Button>
+                        <Button className="bg-primary text-primary-foreground" variant="outline" onClick={handleBuyNow}>Buy Now</Button>
                     </div>
                 </main>
             </div>
