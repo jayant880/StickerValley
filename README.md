@@ -47,8 +47,8 @@ StickerValley is a modern e-commerce platform for purchasing unique stickers. It
     ```
 
 3.  Environment Setup:
-    - Create a `.env` file in `apps/server` and configure your database URL and Clerk keys.
-    - Create a `.env` file in `apps/client` for Clerk public keys.
+    - In `apps/server`, copy `.env.example` to `.env.local` and fill in your secrets.
+    - In `apps/client`, copy `.env.example` to `.env.local` and fill in your secrets.
 
 ### Running the Application
 
