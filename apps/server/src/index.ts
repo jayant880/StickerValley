@@ -11,12 +11,21 @@ import stickerRoutes from "./routes/stickerRoutes";
 import cartRoutes from "./routes/cartRoutes";
 import orderRoutes from "./routes/orderRoutes";
 
-const PORT = process.env.PORT || 5000;
-
+const PORT = parseInt(process.env.PORT || "5000", 10);
 const app = express();
 
+app.set("trust proxy", 1);
+
 app.use(helmet());
-app.use(cors());
+
+app.use(
+  cors({
+    origin: process.env.ALLOWED_ORIGINS
+      ? process.env.ALLOWED_ORIGINS.split(",")
+      : "*",
+    credentials: true,
+  })
+);
 app.use(morgan("combined"));
 
 app.use((req, res, next) => {
@@ -25,6 +34,14 @@ app.use((req, res, next) => {
 });
 
 app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "OK",
+    timestamp: new Date().toISOString(),
+    service: "StickerValley API",
+  });
+});
+
+app.get("/api/health", (req, res) => {
   res.status(200).json({
     status: "OK",
     timestamp: new Date().toISOString(),
