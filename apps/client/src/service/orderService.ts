@@ -19,4 +19,24 @@ export const orderService = {
             return null;
         }
     },
+
+    payForOrder: async ({ orderId }: { orderId: string }) => {
+        try {
+            const res = await api.put(`/orders/${orderId}/pay`);
+            return res.data;
+        } catch (error) {
+            console.error(error);
+            return null;
+        }
+    },
+
+    getOrders: async () => {
+        try {
+            const res = await api.get("/orders");
+            return res.data;
+        } catch (error) {
+            console.error(error);
+            return null;
+        }
+    }
 }

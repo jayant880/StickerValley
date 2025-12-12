@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Loader2, Package, Calendar, CreditCard } from "lucide-react";
+import { toast } from "sonner";
 
 interface OrderWithItems extends Order {
     items: (OrderItem & {
@@ -19,6 +20,7 @@ const Checkout = () => {
     const { isLoaded, isSignedIn, getToken } = useAuth();
     const [order, setOrder] = useState<OrderWithItems | null>(null);
     const [loading, setLoading] = useState(true);
+    const [paying, setPaying] = useState(false);
 
     useEffect(() => {
         const fetchOrder = async () => {
@@ -35,6 +37,26 @@ const Checkout = () => {
         };
         fetchOrder();
     }, [orderId, isLoaded, isSignedIn, getToken]);
+
+    const handlePay = async () => {
+        if (!orderId) return;
+        try {
+            setPaying(true);
+            const res = await orderService.payForOrder({ orderId });
+            if (res.success) {
+                toast.success("Order paid successfully");
+                window.location.href = `/payment/${orderId}/success`;
+            } else {
+                toast.error("Failed to pay for order");
+                window.location.href = `/payment/${orderId}/failed`;
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to pay for order");
+        } finally {
+            setPaying(false);
+        }
+    }
 
     if (!isLoaded || loading) {
         return (
@@ -152,7 +174,7 @@ const Checkout = () => {
                             </div>
                         </CardContent>
                         <CardFooter>
-                            <Button className="w-full" size="lg">
+                            <Button className="w-full" size="lg" onClick={handlePay} disabled={paying}>
                                 <CreditCard className="mr-2 h-4 w-4" />
                                 Proceed to Payment
                             </Button>

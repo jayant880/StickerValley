@@ -84,4 +84,54 @@ export const orderController = {
             });
         }
     },
+
+    payForOrder: async (req: Request, res: Response) => {
+        try {
+            const { orderId } = req.params;
+            const { userId } = getAuth(req);
+            if (!userId) return res.status(401).json({ success: false, error: "Unauthorized" });
+            if (!orderId) return res.status(400).json({ success: false, error: "Order ID is required" });
+            const order = await db.query.orders.findFirst({ where: eq(orders.id, orderId) });
+            if (!order) return res.status(404).json({ success: false, error: "Order not found" });
+            if (order.userId !== userId) return res.status(403).json({ success: false, error: "Forbidden" });
+            if (order.status !== "PENDING") return res.status(400).json({ success: false, error: "Order is not pending" });
+            await db.update(orders).set({ status: "PAID" }).where(eq(orders.id, orderId));
+            return res.status(200).json({ success: true, message: "Order paid successfully" });
+        } catch (error: any) {
+            console.error(error);
+            return res.status(500).json({
+                success: false,
+                error: "Internal Server Error",
+            });
+        }
+    },
+
+    getAllOrders: async (req: Request, res: Response) => {
+        try {
+            const { userId } = getAuth(req);
+            if (!userId) return res.status(401).json({ success: false, error: "Unauthorized" });
+
+            await getOrSyncUser(userId);
+
+            const userOrders = await db.query.orders.findMany({
+                where: eq(orders.userId, userId),
+                orderBy: (orders, { desc }) => [desc(orders.createdAt)],
+                with: {
+                    items: {
+                        columns: {
+                            id: true
+                        }
+                    }
+                }
+            });
+
+            return res.status(200).json({ success: true, orders: userOrders });
+        } catch (error: any) {
+            console.error(error);
+            return res.status(500).json({
+                success: false,
+                error: "Internal Server Error",
+            });
+        }
+    }
 }
