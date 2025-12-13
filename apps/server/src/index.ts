@@ -10,6 +10,7 @@ import webhookRoutes from "./routes/webhooks";
 import stickerRoutes from "./routes/stickerRoutes";
 import cartRoutes from "./routes/cartRoutes";
 import orderRoutes from "./routes/orderRoutes";
+import invoiceRoutes from "./routes/invoiceRoute";
 
 const PORT = parseInt(process.env.PORT || "5000", 10);
 const app = express();
@@ -59,6 +60,7 @@ app.use("/api", apiRoutes);
 app.use("/api/stickers", stickerRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/invoice", invoiceRoutes);
 
 db.execute("SELECT 1")
   .then(() => console.log("Database connection successful"))

@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Loader2, Package, Calendar, CreditCard } from "lucide-react";
 import { toast } from "sonner";
+import { invoiceService } from "@/service/invoiceService";
 
 interface OrderWithItems extends Order {
     items: (OrderItem & {
@@ -96,6 +97,11 @@ const Checkout = () => {
         });
     };
 
+    const handleDownloadInvoice = async () => {
+        const invoice = await invoiceService.downloadInvoice(order.id);
+        console.log(invoice);
+    }
+
     return (
         <div className="container mx-auto max-w-6xl px-4 py-8">
             <div className="mb-8 flex flex-col gap-2">
@@ -175,10 +181,18 @@ const Checkout = () => {
                             </div>
                         </CardContent>
                         <CardFooter>
-                            <Button className="w-full" size="lg" onClick={handlePay} disabled={paying}>
-                                <CreditCard className="mr-2 h-4 w-4" />
-                                Proceed to Payment
-                            </Button>
+                            {
+                                order.status === 'PENDING' ? (
+                                    <Button className="w-full" size="lg" onClick={handlePay} disabled={paying}>
+                                        <CreditCard className="mr-2 h-4 w-4" />
+                                        Proceed to Payment
+                                    </Button>
+                                ) : (
+                                    <Button className="w-full" size="lg" onClick={handleDownloadInvoice}>
+                                        Download Invoice
+                                    </Button>
+                                )
+                            }
                         </CardFooter>
                     </Card>
                 </div>
