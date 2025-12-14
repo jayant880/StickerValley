@@ -61,5 +61,19 @@ export const stickerService = {
       console.error(error);
       throw error;
     }
-  }
+  },
+
+  createSticker: async (sticker: Partial<Sticker>) => {
+    try {
+      const res = await api.post("/stickers", sticker);
+      if (res.data.success) {
+        return res.data.data;
+      } else {
+        throw new Error("Failed to create sticker");
+      }
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  },
 };

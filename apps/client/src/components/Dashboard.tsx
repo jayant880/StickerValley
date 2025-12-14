@@ -54,7 +54,7 @@ export function Dashboard() {
                     <h3 className="text-xl font-semibold mb-4">My Stickers</h3>
                     <div className="flex flex-col items-center justify-center flex-1 text-gray-500 py-8">
                         <p>You haven't uploaded any stickers yet.</p>
-                        <Button variant="link" className="mt-2">Start Selling</Button>
+                        <Link to="/shop"><Button variant="link" className="mt-2">Start Selling</Button></Link>
                     </div>
                 </div>
 

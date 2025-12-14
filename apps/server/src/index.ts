@@ -11,6 +11,8 @@ import stickerRoutes from "./routes/stickerRoutes";
 import cartRoutes from "./routes/cartRoutes";
 import orderRoutes from "./routes/orderRoutes";
 import invoiceRoutes from "./routes/invoiceRoute";
+import shopRoutes from "./routes/shopRoutes";
+import userRoutes from "./routes/userRoutes";
 
 const PORT = parseInt(process.env.PORT || "5000", 10);
 const app = express();
@@ -61,6 +63,8 @@ app.use("/api/stickers", stickerRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/invoice", invoiceRoutes);
+app.use("/api/shop", shopRoutes);
+app.use("/api/user", userRoutes);
 
 db.execute("SELECT 1")
   .then(() => console.log("Database connection successful"))

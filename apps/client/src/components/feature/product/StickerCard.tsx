@@ -5,7 +5,7 @@ import { CartService } from '@/service/cartService';
 import { useAuth } from '@clerk/clerk-react';
 import type { Sticker } from '@sticker-valley/shared-types';
 import { ShoppingCart, Zap } from 'lucide-react';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { toast } from 'sonner';
 
 const StickerCard = ({ sticker }: { sticker: Partial<Sticker> }) => {
@@ -70,9 +70,11 @@ const StickerCard = ({ sticker }: { sticker: Partial<Sticker> }) => {
                             ${sticker.price ? Number(sticker.price).toFixed(2) : '0.00'}
                         </span>
                     </div>
-                    <CardTitle className='text-base font-semibold line-clamp-1 group-hover:text-primary transition-colors'>
-                        {sticker.name || 'Untitled'}
-                    </CardTitle>
+                    <Link to={`/stickers/${sticker.id}`}>
+                        <CardTitle className='text-base font-semibold line-clamp-1 group-hover:text-primary transition-colors'>
+                            {sticker.name || 'Untitled'}
+                        </CardTitle>
+                    </Link>
                     <CardDescription className='text-sm line-clamp-2 leading-relaxed'>
                         {sticker.description || 'No description available'}
                     </CardDescription>

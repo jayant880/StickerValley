@@ -3,12 +3,13 @@ import { Badge } from "@/components/ui/badge";
 import { stickerService } from "@/service/stickerService";
 import type { Sticker, Shop } from "@sticker-valley/shared-types";
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router";
+import { useParams, useNavigate, Link } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 import { useAuth } from "@clerk/clerk-react";
 import { CartService } from "@/service/cartService";
+import { Link2 } from "lucide-react";
 
 type StickerWithShop = Sticker & { shop: Shop };
 
@@ -119,7 +120,7 @@ const StickerDetail = () => {
                     )}
                     {sticker.shop && (
                         <>
-                            <p className="text-muted-foreground font-bold text-xl">{sticker.shop.name}</p> {/* TODO: Add shop link */}
+                            <Link to={`/shop/${sticker.shop.id}`} className="flex items-center"><Link2 className="mr-2" /><p className="text-muted-foreground font-bold text-xl">{sticker.shop.name}</p></Link>
                             <p className="text-muted-foreground font-bold text-xl">{sticker.shop.description}</p>
                         </>
                     )}

@@ -56,7 +56,7 @@ export const stickerController = {
 
             const { name, description, images, price, type, stock } = req.body;
 
-            if (!name || !description || !images || !price || !type || !stock) {
+            if (!name || !description || !images || !price || !type || stock === undefined) {
                 return res.status(400).json({ success: false, error: "Missing required fields" });
             }
 
@@ -122,7 +122,7 @@ export const stickerController = {
 
             const { name, description, images, price, type, stock } = req.body;
 
-            if (!name || !description || !images || !price || !type || !stock) {
+            if (!name || !description || !images || !price || !type || stock === undefined) {
                 return res.status(400).json({ success: false, error: "Missing required fields" });
             }
 
