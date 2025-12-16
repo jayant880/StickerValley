@@ -2,7 +2,6 @@ import App from "@/App";
 import Home from "@/pages/Home";
 import StickerDetail from "@/features/stickers/components/StickerDetail";
 import { createBrowserRouter } from "react-router";
-import Cart from "@/pages/Cart";
 import Checkout from "@/pages/Checkout";
 import PaymentFailed from "@/pages/payment/Failed";
 import PaymentSuccess from "@/pages/payment/Success";
@@ -10,6 +9,7 @@ import Shop from "@/pages/Shop";
 import CreateShop from "@/pages/CreateShop";
 import Stickers from "@/features/stickers/components/Stickers";
 import CreateSticker from "@/features/stickers/components/CreateSticker";
+import Cart from "@/features/cart/components/Cart";
 
 export const router = createBrowserRouter([
   {

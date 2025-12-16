@@ -1,7 +1,8 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { CartService } from '@/service/cartService';
+import { Spinner } from '@/components/ui/spinner';
+import useCart from '@/features/cart/hooks/useCart';
 import { useAuth } from '@clerk/clerk-react';
 import type { Sticker } from '@sticker-valley/shared-types';
 import { ShoppingCart, Zap } from 'lucide-react';
@@ -11,6 +12,7 @@ import { toast } from 'sonner';
 const StickerCard = ({ sticker }: { sticker: Partial<Sticker> }) => {
     const { isSignedIn } = useAuth();
     const navigate = useNavigate();
+    const { addToCart, isAdding } = useCart()
 
     const imageSrc = (sticker.images && sticker.images.length > 0)
         ? sticker.images[0]
@@ -23,13 +25,15 @@ const StickerCard = ({ sticker }: { sticker: Partial<Sticker> }) => {
         }
         if (!sticker.id) return;
 
-        try {
-            await CartService.addToCart({ stickerId: sticker.id });
-            toast.success("Added to cart");
-        } catch (error) {
-            console.error(error);
-            toast.error("Failed to add to cart");
-        }
+        addToCart({ stickerId: sticker.id }, {
+            onSuccess: () => {
+                toast.success("Added to cart");
+            },
+            onError: () => {
+                toast.error("Failed to add to cart");
+            }
+        })
+
     }
 
     const handleBuyNow = async () => {
@@ -39,13 +43,15 @@ const StickerCard = ({ sticker }: { sticker: Partial<Sticker> }) => {
         }
         if (!sticker.id) return;
 
-        try {
-            await CartService.addToCart({ stickerId: sticker.id });
-            navigate('/cart');
-        } catch (error) {
-            console.error(error);
-            toast.error("Failed to process");
-        }
+        addToCart({ stickerId: sticker.id }, {
+            onSuccess: () => {
+                toast.success("Added to cart");
+                navigate('/cart');
+            },
+            onError: () => {
+                toast.error("Failed to buy");
+            }
+        })
     }
 
     return (
@@ -82,13 +88,25 @@ const StickerCard = ({ sticker }: { sticker: Partial<Sticker> }) => {
             </CardContent>
 
             <CardFooter className='p-4 pt-0 gap-2 grid grid-cols-2'>
-                <Button variant="outline" size="sm" className='w-full' onClick={handleCart}>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    className='w-full'
+                    onClick={handleCart}
+                    disabled={isAdding}
+                >
                     <ShoppingCart className="w-4 h-4 mr-2" />
-                    Cart
+                    {isAdding ? <Spinner className="mr-2 w-4 h-4" /> : "Cart"}
                 </Button>
-                <Button size="sm" className='w-full' onClick={handleBuyNow}>
+                <Button
+                    size="sm"
+                    className='w-full'
+                    onClick={handleBuyNow}
+                    disabled={isAdding}
+                >
                     <Zap className="w-4 h-4 mr-2" />
-                    Buy Now
+                    {isAdding ? <Spinner className="mr-2 w-4 h-4" /> : "Buy Now"}
+
                 </Button>
             </CardFooter>
         </Card>

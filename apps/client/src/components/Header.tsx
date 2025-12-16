@@ -2,8 +2,10 @@ import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-reac
 import { Home, ShoppingBagIcon } from 'lucide-react';
 import { Link } from 'react-router';
 import { Button } from './ui/button';
+import { useCartQuery } from '@/features/cart/hooks/useCart';
 
 export function Header() {
+    const { data: cart } = useCartQuery();
     return (
         <header className="flex justify-between items-center mb-8 bg-white p-4 rounded-lg shadow-sm">
             <h1 className="text-3xl font-bold text-gray-900">StickerValley</h1>
@@ -25,8 +27,13 @@ export function Header() {
                     </div>
                     <div>
                         <Link to="/cart">
-                            <Button variant="ghost">
+                            <Button variant="ghost" className="relative">
                                 <ShoppingBagIcon />
+                                {cart?.totalItems ? (
+                                    <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                        {cart.totalItems}
+                                    </span>
+                                ) : null}
                             </Button>
                         </Link>
                     </div>

@@ -44,10 +44,7 @@ const CreateShop = () => {
             toast.success("Shop created successfully!");
 
             if (shop) {
-                toast.loading("Redirecting to your new shop...");
-                setTimeout(() => {
-                    navigate("/shop/me");
-                }, 2000);
+                navigate("/shop/me");
             }
         } catch (error) {
             toast.error("Failed to create shop. Please try again.");

@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 import { useAuth } from "@clerk/clerk-react";
-import { CartService } from "@/service/cartService";
-import { Link2 } from "lucide-react";
+import { Link2, ShoppingCart, Zap } from "lucide-react";
 import useStickers from "../hooks/useStickers";
+import useCart from "@/features/cart/hooks/useCart";
 
 const StickerDetail = () => {
     const { id } = useParams<{ id: string }>();
@@ -15,7 +15,7 @@ const StickerDetail = () => {
     const { useStickerQuery } = useStickers();
     const { data: sticker, isLoading, isError, error } = useStickerQuery(id);
     const { isSignedIn } = useAuth();
-
+    const { addToCart, isAdding } = useCart();
 
     const handleCart = async () => {
         if (!isSignedIn) {
@@ -23,13 +23,14 @@ const StickerDetail = () => {
             return;
         }
         if (!sticker?.id) return;
-        try {
-            await CartService.addToCart({ stickerId: sticker.id });
-            toast.success("Added to cart");
-        } catch (error) {
-            console.error(error);
-            toast.error("Failed to add to cart");
-        }
+        addToCart({ stickerId: sticker.id }, {
+            onSuccess: () => {
+                toast.success("Added to cart");
+            },
+            onError: () => {
+                toast.error("Failed to add to cart");
+            }
+        })
     }
 
     const handleBuyNow = async () => {
@@ -38,13 +39,17 @@ const StickerDetail = () => {
             return;
         }
         if (!sticker?.id) return;
-        try {
-            await CartService.addToCart({ stickerId: sticker.id });
-            navigate('/cart');
-        } catch (error) {
-            console.error(error);
-            toast.error("Failed to process");
-        }
+        addToCart({ stickerId: sticker.id }, {
+            onSuccess: () => {
+                toast.success("Added to cart");
+                setTimeout(() => {
+                    navigate('/cart');
+                }, 1000);
+            },
+            onError: () => {
+                toast.error("Failed to buy");
+            }
+        })
     }
 
     if (isLoading) {
@@ -90,7 +95,13 @@ const StickerDetail = () => {
                     <p className="text-muted-foreground font-bold text-xl">${Number(sticker.price).toFixed(2)}</p>
                     <Badge className="text-primary bg-secondary ">{sticker.type}</Badge>
                     {sticker.type === "PHYSICAL" && sticker.stock && (
-                        <p className="text-muted-foreground font-bold text-xl">{sticker.stock > 0 ? ("Only" + " " + <span className="text-primary">{sticker.stock}</span> + "left") : "Out of Stock"}</p>
+                        <p className="text-muted-foreground font-bold text-xl">
+                            {sticker.stock > 0 ? (
+                                <>Only <span className="text-primary">{sticker.stock}</span> left</>
+                            ) : (
+                                <span className="text-primary">Out of stock</span>
+                            )}
+                        </p>
                     )}
                     {sticker.shop && (
                         <>
@@ -100,8 +111,21 @@ const StickerDetail = () => {
                     )}
                     <p className="text-muted-foreground">{new Date(sticker.createdAt).toLocaleDateString()}</p>
                     <div className="flex gap-4">
-                        <Button className="bg-primary text-primary-foreground" onClick={handleCart}>Add to Cart</Button>
-                        <Button className="bg-primary text-primary-foreground" variant="outline" onClick={handleBuyNow}>Buy Now</Button>
+                        <Button
+                            className="bg-primary text-primary-foreground"
+                            onClick={handleCart}
+                            disabled={isAdding}
+                        >
+                            <ShoppingCart className="w-4 h-4 mr-2" />{isAdding ? <Spinner className="mr-2 w-4 h-4" /> : "Add to Cart"}
+                        </Button>
+                        <Button
+                            className="bg-primary text-primary-foreground"
+                            variant="outline"
+                            onClick={handleBuyNow}
+                            disabled={isAdding}
+                        >
+                            <Zap className="w-4 h-4 mr-2" />{isAdding ? <Spinner className="mr-2 w-4 h-4" /> : "Buy Now"}
+                        </Button>
                     </div>
                 </main>
             </div>
