@@ -1,9 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectItem, SelectTrigger, SelectValue, SelectContent } from "@/components/ui/select"
-import { stickerService } from "@/service/stickerService"
-import type { Sticker } from "@sticker-valley/shared-types"
-import { useEffect, useState } from "react"
+import { useEffect, type FormEvent } from "react"
 import { useNavigate } from "react-router"
 import shopService from "@/service/shopService"
 import { toast } from "sonner"
@@ -13,15 +11,22 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { DollarSign, Package, Image as ImageIcon } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
 import userService from "@/service/userService"
+import { useStickerStore } from "../store/stickersStore"
+import useStickers from "../hooks/useStickers"
 
 const CreateSticker = () => {
     const navigate = useNavigate();
-    const [loading, setLoading] = useState(true);
-    const [submitting, setSubmitting] = useState(false);
+    const { stickerForm, stickerFormActions } = useStickerStore();
+    const { useCreateSticker } = useStickers();
+
+    const createStickerMutation = useCreateSticker();
+    const { data, isSuccess, isPending, isError, error } = createStickerMutation;
+
+    const { name, description, price, type, stock, images } = stickerForm;
+    const { setName, setDescription, setPrice, setType, setStock, setImages, resetStickerForm } = stickerFormActions;
 
 
     useEffect(() => {
-
         const fetchShop = async () => {
             try {
                 const user = await userService.getMe();
@@ -32,12 +37,14 @@ const CreateSticker = () => {
                         toast.warning("Redirecting to home page");
                         navigate('/');
                     }, 2000);
+                    return;
                 }
                 const shop = await shopService.getMyShop();
                 if (!shop) {
                     navigate('/shop/create');
+                    return;
                 }
-                console.log(user, shop);
+
                 if (shop.userId !== user.id) {
                     toast.error("You are not authorized to create a sticker");
                     setTimeout(() => {
@@ -48,72 +55,44 @@ const CreateSticker = () => {
                 }
             } catch (error) {
                 console.error(error)
-            } finally {
-                setLoading(false);
             }
         }
         fetchShop();
-    }, [])
+    }, [navigate])
 
-
-    const [stickerForm, setStickerForm] = useState<Partial<Sticker>>({
-        name: "",
-        description: "",
-        price: "0",
-        images: [],
-        type: "DIGITAL",
-        stock: 0,
-        isPublished: false,
-    });
-
-    const [imageUrl, setImageUrl] = useState("");
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setStickerForm({
-            ...stickerForm,
-            [name]: name === 'stock' ? parseInt(value) || 0 : value,
-        })
-    }
-
-    const handleSelectChange = (value: string) => {
-        setStickerForm({
-            ...stickerForm,
-            type: value as Sticker['type'],
-        })
-    }
-
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        try {
-            setSubmitting(true);
-
-            const imagesToSubmit = imageUrl ? [imageUrl] : stickerForm.images;
-
-            const sticker = await stickerService.createSticker({
-                ...stickerForm,
-                images: imagesToSubmit
-            });
+    useEffect(() => {
+        if (isSuccess && data) {
+            const createdSticker = data;
             toast.success("Sticker created successfully");
-            navigate(`/stickers/${sticker.id}`);
-        } catch (error) {
-            console.error(error)
-            toast.error("Failed to create sticker");
-        } finally {
-            setSubmitting(false);
+
+            const timer = setTimeout(() => {
+                navigate(`/stickers/${createdSticker.id}`);
+                resetStickerForm();
+            }, 1000);
+
+            return () => {
+                toast.dismiss();
+                clearTimeout(timer);
+            }
         }
+    }, [isSuccess, data, navigate, resetStickerForm]);
+
+    const handleSubmit = async (e: FormEvent) => {
+        e.preventDefault();
+        createStickerMutation.mutate();
     }
 
-    if (loading) {
+    if (isPending && !isPending) {
         return (
-            <div className="flex h-[80vh] items-center justify-center">
+            <div className="flex justify-center items-center h-[80vh]">
                 <Spinner className="w-8 h-8" />
+                <span className="ml-2">Verifying permission...</span>
             </div>
         )
     }
 
     return (
-        <div className="container max-w-2xl py-10">
+        <div className="py-10 max-w-2xl container">
             <Card>
                 <CardHeader>
                     <CardTitle className="text-2xl">Create New Sticker</CardTitle>
@@ -129,8 +108,8 @@ const CreateSticker = () => {
                                 id="name"
                                 name="name"
                                 placeholder="e.g. Grumpy Cat"
-                                value={stickerForm.name}
-                                onChange={handleChange}
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
                                 required
                             />
                         </div>
@@ -141,18 +120,18 @@ const CreateSticker = () => {
                                 id="description"
                                 name="description"
                                 placeholder="Describe your sticker..."
-                                value={stickerForm.description}
-                                onChange={handleChange}
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
                                 required
                                 rows={4}
                             />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="gap-4 grid grid-cols-2">
                             <div className="space-y-2">
                                 <Label htmlFor="price">Price ($)</Label>
                                 <div className="relative">
-                                    <DollarSign className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                    <DollarSign className="top-2.5 left-3 absolute w-4 h-4 text-muted-foreground" />
                                     <Input
                                         id="price"
                                         type="number"
@@ -160,8 +139,8 @@ const CreateSticker = () => {
                                         min="0"
                                         step="0.01"
                                         className="pl-9"
-                                        value={stickerForm.price}
-                                        onChange={handleChange}
+                                        value={price}
+                                        onChange={(e) => setPrice(e.target.value)}
                                         required
                                     />
                                 </div>
@@ -169,7 +148,7 @@ const CreateSticker = () => {
 
                             <div className="space-y-2">
                                 <Label htmlFor="type">Type</Label>
-                                <Select onValueChange={handleSelectChange} defaultValue={stickerForm.type}>
+                                <Select onValueChange={setType} defaultValue={type}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select type" />
                                     </SelectTrigger>
@@ -185,15 +164,15 @@ const CreateSticker = () => {
                             <div className="space-y-2">
                                 <Label htmlFor="stock">Stock Quantity</Label>
                                 <div className="relative">
-                                    <Package className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                    <Package className="top-2.5 left-3 absolute w-4 h-4 text-muted-foreground" />
                                     <Input
                                         id="stock"
                                         type="number"
                                         name="stock"
                                         min="0"
                                         className="pl-9"
-                                        value={stickerForm.stock}
-                                        onChange={handleChange}
+                                        value={stock}
+                                        onChange={(e) => setStock(Number(e.target.value))}
                                         required
                                     />
                                 </div>
@@ -203,29 +182,37 @@ const CreateSticker = () => {
                         <div className="space-y-2">
                             <Label htmlFor="images">Image URL</Label>
                             <div className="relative">
-                                <ImageIcon className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <ImageIcon className="top-2.5 left-3 absolute w-4 h-4 text-muted-foreground" />
                                 <Input
                                     id="images"
                                     type="url"
                                     placeholder="https://example.com/sticker.png"
                                     className="pl-9"
-                                    value={imageUrl}
-                                    onChange={(e) => setImageUrl(e.target.value)}
+                                    value={images?.[0] || ""}
+                                    onChange={(e) => setImages([e.target.value])}
                                     required
                                 />
                             </div>
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-muted-foreground text-xs">
                                 Paste a direct link to your sticker image (e.g. from Imgur or Google Drive)
                             </p>
                         </div>
 
+                        {isError && (
+                            <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+                                <p className="text-red-600 text-sm">
+                                    Error: {error?.message || "Failed to create sticker"}
+                                </p>
+                            </div>
+                        )}
+
 
                     </CardContent>
                     <CardFooter>
-                        <Button type="submit" className="w-full" disabled={submitting}>
-                            {submitting ? (
+                        <Button type="submit" className="w-full" disabled={isPending}>
+                            {isPending ? (
                                 <>
-                                    <Spinner className="mr-2 h-4 w-4" /> Creating...
+                                    <Spinner className="mr-2 w-4 h-4" /> Creating...
                                 </>
                             ) : (
                                 "Create Sticker"

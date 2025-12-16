@@ -1,0 +1,40 @@
+import { api } from "@/lib/axios";
+import type { Shop } from "@sticker-valley/shared-types";
+import type { Sticker } from "@sticker-valley/shared-types";
+
+interface StickerWithShop extends Sticker {
+  shop: Shop;
+}
+
+export const getStickers = async (): Promise<Sticker[]> => {
+  const res = await api.get("/stickers");
+  return res.data.success ? res.data.data : [];
+};
+
+export const getFilteredStickers = async (
+  q?: string,
+  minPrice?: number,
+  maxPrice?: number,
+  selectedType?: "ALL" | "DIGITAL" | "PHYSICAL",
+  sort?: "price_asc" | "price_desc" | "newest" | "oldest"
+): Promise<Sticker[]> => {
+  const params = new URLSearchParams();
+  if (q && q.trim()) params.set("q", q.trim());
+  if (minPrice !== undefined) params.set("minPrice", minPrice.toString());
+  if (maxPrice !== undefined) params.set("maxPrice", maxPrice.toString());
+  if (selectedType && selectedType !== "ALL") params.set("type", selectedType);
+  if (sort) params.set("sort", sort);
+
+  const res = await api.get("/stickers", { params });
+  return res.data.success ? res.data.data : [];
+};
+
+export const getStickerById = async (id: string): Promise<StickerWithShop | null> => {
+  const res = await api.get(`/stickers/${id}`);
+  return res.data.success ? res.data.data : null;
+};
+
+export const createSticker = async (sticker: Partial<Sticker>): Promise<Sticker | null> => {
+  const res = await api.post("/stickers", sticker);
+  return res.data.success ? res.data.data : null;
+};

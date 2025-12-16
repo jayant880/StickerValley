@@ -18,6 +18,7 @@ interface StickerFiltersProps {
     sort: 'price_asc' | 'price_desc' | 'newest' | 'oldest';
     setSort: (value: 'price_asc' | 'price_desc' | 'newest' | 'oldest') => void;
     onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+    onReset?: () => void;
 }
 
 const StickerFilters = ({
@@ -31,7 +32,8 @@ const StickerFilters = ({
     setSelectedType,
     sort,
     setSort,
-    onSubmit
+    onSubmit,
+    onReset
 }: StickerFiltersProps) => {
     return (
         <aside className="w-full md:w-72 shrink-0">
@@ -60,9 +62,9 @@ const StickerFilters = ({
                                 <span className="text-sm font-medium tabular-nums text-muted-foreground">${minPrice} - ${maxPrice}</span>
                             </div>
                             <Slider
-                                max={5}
+                                max={50}
                                 min={0}
-                                step={0.01}
+                                step={0.1}
                                 value={[minPrice, maxPrice]}
                                 onValueChange={(value: number[]) => {
                                     setMinPrice(value[0])
@@ -115,17 +117,12 @@ const StickerFilters = ({
                         <div className="flex gap-2">
                             <Button
                                 onClick={() => {
-                                    setQ("");
-                                    setMinPrice(0);
-                                    setMaxPrice(5);
-                                    setSelectedType("ALL");
-                                    setSort("newest");
+                                    onReset?.();
                                 }}
                                 className="w-1/2"
                                 size="lg"
                             >Reset Filters
                             </Button>
-                            <Button type="submit" className="w-1/2" size="lg">Apply Filters</Button>
                         </div>
                     </form>
                 </div>

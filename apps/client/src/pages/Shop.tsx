@@ -4,7 +4,7 @@ import { useUser } from "@clerk/clerk-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import type { Shop as ShopType, Sticker, User } from "@sticker-valley/shared-types";
-import StickerCard from "@/components/feature/product/StickerCard";
+import StickerCard from "@/features/stickers/components/StickerCard";
 import { Button } from "@/components/ui/button";
 import { Plus, Store, Package, Layers } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
