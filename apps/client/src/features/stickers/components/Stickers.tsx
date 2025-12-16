@@ -4,8 +4,6 @@ import { useStickerStore } from '../store/stickersStore'
 import useStickers from '../hooks/useStickers'
 import { Button } from '@/components/ui/button'
 
-
-
 const Stickers = () => {
     const { filters, filterActions } = useStickerStore();
     const { stickers, isLoading, isError, error } = useStickers();

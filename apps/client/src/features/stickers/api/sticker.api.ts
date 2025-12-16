@@ -1,10 +1,7 @@
 import { api } from "@/lib/axios";
-import type { Shop } from "@sticker-valley/shared-types";
 import type { Sticker } from "@sticker-valley/shared-types";
+import type { StickerWithShop } from "../types/stickers.type";
 
-interface StickerWithShop extends Sticker {
-  shop: Shop;
-}
 
 export const getStickers = async (): Promise<Sticker[]> => {
   const res = await api.get("/stickers");
