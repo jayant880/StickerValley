@@ -11,7 +11,6 @@ export const orderController = {
         try {
             const { userId } = getAuth(req);
             const { orderId } = req.params;
-            console.log(userId, "----", orderId);
             if (!userId) return res.status(401).json({ success: false, error: "Unauthorized" });
             if (!orderId) return res.status(400).json({ success: false, error: "Order ID is required" });
             const order = await db.query.orders.findFirst({ where: eq(orders.id, orderId), with: { items: { with: { sticker: true } } } });

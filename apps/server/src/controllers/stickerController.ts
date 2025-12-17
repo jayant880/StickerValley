@@ -1,10 +1,10 @@
-import express from "express";
-import { stickers } from "../db/schema";
+import { Request, Response } from "express";
+import { reviews, stickers } from "../db/schema";
 import { asc, desc, gte, ilike, lte, inArray, and, eq } from "drizzle-orm";
 import { db } from "../db";
 
 export const stickerController = {
-    getStickers: async (req: express.Request, res: express.Response) => {
+    getStickers: async (req: Request, res: Response) => {
         const page = Math.max(1, Number(req.query.page) || 1);
         const limit = Math.min(100, Number(req.query.limit) || 10);
 
@@ -47,7 +47,7 @@ export const stickerController = {
         }
     },
 
-    addSticker: async (req: express.Request, res: express.Response) => {
+    addSticker: async (req: Request, res: Response) => {
         try {
             const { shop } = req.body;
             if (!shop) {
@@ -80,7 +80,7 @@ export const stickerController = {
         }
     },
 
-    getStickerById: async (req: express.Request, res: express.Response) => {
+    getStickerById: async (req: Request, res: Response) => {
         try {
             const id = req.params.id;
             if (!id) {
@@ -90,6 +90,7 @@ export const stickerController = {
                 where: eq(stickers.id, id),
                 with: {
                     shop: true,
+                    reviews: true,
                 }
             });
             return res.json({ success: true, data: result, message: "Sticker fetched successfully" });
@@ -98,7 +99,7 @@ export const stickerController = {
         }
     },
 
-    updateSticker: async (req: express.Request, res: express.Response) => {
+    updateSticker: async (req: Request, res: Response) => {
         try {
             const id = req.params.id;
             const { shop } = req.body;
@@ -148,7 +149,7 @@ export const stickerController = {
         }
     },
 
-    deleteSticker: async (req: express.Request, res: express.Response) => {
+    deleteSticker: async (req: Request, res: Response) => {
         try {
             const id = req.params.id;
             const { shop } = req.body;
@@ -156,7 +157,6 @@ export const stickerController = {
             if (!id) {
                 return res.status(404).json({ success: false, error: "sticker not found" });
             }
-
             const existingSticker = await db.query.stickers.findFirst({
                 where: eq(stickers.id, id),
             });
@@ -177,6 +177,24 @@ export const stickerController = {
         } catch (error) {
             console.error("Delete sticker error:", error);
             return res.status(500).json({ success: false, error: "Failed to delete sticker" });
+        }
+    },
+
+    getStickerReviews: async (req: Request, res: Response) => {
+        try {
+            const id = req.params.id;
+            if (!id) return res.status(404).json({ success: false, error: "sticker not found" });
+
+            const result = await db.query.reviews.findMany({
+                where: eq(reviews.stickerId, id),
+                with: {
+                    user: true,
+                }
+            });
+            return res.json({ success: true, data: result, message: "Reviews fetched successfully" });
+        } catch (error) {
+            console.error("Failed to get Reviews for sticker:", error);
+            return res.status(500).json({ success: false, error: "Failed to get Reviews for sticker" });
         }
     }
 }

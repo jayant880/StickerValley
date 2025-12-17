@@ -13,6 +13,7 @@ import orderRoutes from "./routes/orderRoutes";
 import invoiceRoutes from "./routes/invoiceRoute";
 import shopRoutes from "./routes/shopRoutes";
 import userRoutes from "./routes/userRoutes";
+import reviewRoutes from "./routes/reviewRoute";
 
 const PORT = parseInt(process.env.PORT || "5000", 10);
 const app = express();
@@ -30,11 +31,6 @@ app.use(
   })
 );
 app.use(morgan("combined"));
-
-app.use((req, res, next) => {
-  console.log("Request received", req.method, req.url);
-  next();
-});
 
 app.get("/health", (req, res) => {
   res.status(200).json({
@@ -65,6 +61,7 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/invoice", invoiceRoutes);
 app.use("/api/shop", shopRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/reviews", reviewRoutes);
 
 db.execute("SELECT 1")
   .then(() => console.log("Database connection successful"))

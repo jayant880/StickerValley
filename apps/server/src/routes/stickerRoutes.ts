@@ -9,5 +9,6 @@ router.post("/", requireVendor, stickerController.addSticker);
 router.get("/:id", stickerController.getStickerById);
 router.put("/:id", requireVendor, stickerController.updateSticker);
 router.delete("/:id", requireVendor, stickerController.deleteSticker);
+router.get("/:id/reviews", stickerController.getStickerReviews);
 
 export default router;

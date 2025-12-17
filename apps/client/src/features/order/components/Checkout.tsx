@@ -40,8 +40,7 @@ const Checkout = () => {
     const handleDownloadInvoice = async () => {
         if (!orderById?.id) return;
         try {
-            const invoice = await downloadInvoice(orderById.id);
-            console.log("Invoice downloaded successfully", invoice);
+            await downloadInvoice(orderById.id);
             toast.success("Invoice downloaded successfully");
         } catch (error) {
             console.error("Failed to download invoice", error);

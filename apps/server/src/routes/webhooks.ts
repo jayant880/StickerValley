@@ -7,7 +7,6 @@ const router = express.Router();
 router.post('/', express.raw({ type: 'application/json' }), async (req, res) => {
     try {
         const evt = await verifyWebhook(req);
-        console.log(evt);
         const { id } = evt.data;
         const eventType = evt.type;
         console.log(`Recived webhook with ID ${id} and event type of ${eventType}`);

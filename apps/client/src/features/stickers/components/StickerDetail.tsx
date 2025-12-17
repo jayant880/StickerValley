@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 import { useAuth } from "@clerk/clerk-react";
-import { Link2, ShoppingCart, Zap } from "lucide-react";
+import { ShoppingCart, Zap, Store, Calendar } from "lucide-react";
 import useStickers from "../hooks/useStickers";
 import useCart from "@/features/cart/hooks/useCart";
+import ReviewList from "@/features/review/components/ReviewList";
 
 const StickerDetail = () => {
     const { id } = useParams<{ id: string }>();
@@ -54,80 +55,124 @@ const StickerDetail = () => {
 
     if (isLoading) {
         return (
-            <div className="flex items-center justify-center flex-col">
-                <Spinner className="mr-2 w-8 h-8 text-primary" />
-                <span className="text-center text-5xl font-bold mt-12 bg-linear-to-r from-gray-500 to-purple-500 bg-clip-text text-transparent p-4 rounded-lg animate-bounce">
-                    Loading...
-                </span>
+            <div className="flex flex-col items-center justify-center min-h-[60vh]">
+                <Spinner className="w-12 h-12 text-indigo-600 mb-4" />
+                <p className="text-xl font-medium text-gray-500 animate-pulse">Loading sticker details...</p>
             </div>
         );
     }
 
     if (isError || !sticker) {
         return (
-            <div className="container mx-auto px-4 py-8">
-                <h1 className="text-2xl font-bold text-center">
-                    {error?.message || "Sticker not found"}
-                </h1>
+            <div className="container mx-auto px-4 py-8 text-center min-h-[60vh] flex flex-col items-center justify-center">
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">Sticker Not Found</h1>
+                <p className="text-gray-500 mb-6">{error?.message || "The sticker you are looking for does not exist."}</p>
+                <Button onClick={() => navigate('/stickers')} variant="outline">Browse Stickers</Button>
             </div>
         );
     }
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="flex gap-8">
-                <aside className="w-1/3 mr-10">
-                    <Carousel className="w-full">
-                        <CarouselContent>
-                            {sticker.images?.map((image: string) => (
-                                <CarouselItem key={image} className="w-full flex justify-center">
-                                    <img src={image} alt={sticker.name} className="object-cover" />
-                                </CarouselItem>
-                            ))}
-                        </CarouselContent>
-                        <CarouselPrevious />
-                        <CarouselNext />
-                    </Carousel>
-                </aside>
-                <main className="flex-1 p-4 border-l-2 border-primary pl-8 ml-5 space-y-4">
-                    <h1 className="text-3xl font-bold">{sticker.name}</h1>
-                    <p className="text-muted-foreground">{sticker.description}</p>
-                    <p className="text-muted-foreground font-bold text-xl">${Number(sticker.price).toFixed(2)}</p>
-                    <Badge className="text-primary bg-secondary ">{sticker.type}</Badge>
-                    {sticker.type === "PHYSICAL" && sticker.stock && (
-                        <p className="text-muted-foreground font-bold text-xl">
-                            {sticker.stock > 0 ? (
-                                <>Only <span className="text-primary">{sticker.stock}</span> left</>
-                            ) : (
-                                <span className="text-primary">Out of stock</span>
-                            )}
-                        </p>
-                    )}
-                    {sticker.shop && (
-                        <>
-                            <Link to={`/shop/${sticker.shop.id}`} className="flex items-center"><Link2 className="mr-2" /><p className="text-muted-foreground font-bold text-xl">{sticker.shop.name}</p></Link>
-                            <p className="text-muted-foreground font-bold text-xl">{sticker.shop.description}</p>
-                        </>
-                    )}
-                    <p className="text-muted-foreground">{new Date(sticker.createdAt).toLocaleDateString()}</p>
-                    <div className="flex gap-4">
-                        <Button
-                            className="bg-primary text-primary-foreground"
-                            onClick={handleCart}
-                            disabled={isAdding}
-                        >
-                            <ShoppingCart className="w-4 h-4 mr-2" />{isAdding ? <Spinner className="mr-2 w-4 h-4" /> : "Add to Cart"}
-                        </Button>
-                        <Button
-                            className="bg-primary text-primary-foreground"
-                            variant="outline"
-                            onClick={handleBuyNow}
-                            disabled={isAdding}
-                        >
-                            <Zap className="w-4 h-4 mr-2" />{isAdding ? <Spinner className="mr-2 w-4 h-4" /> : "Buy Now"}
-                        </Button>
+        <div className="container mx-auto px-4 py-12 max-w-7xl">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+                <div className="space-y-4">
+                    <div className="bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 shadow-xs aspect-square flex items-center justify-center">
+                        <Carousel className="w-full h-fit">
+                            <CarouselContent>
+                                {sticker.images?.map((image: string, index: number) => (
+                                    <CarouselItem key={index} className="w-full h-full flex items-center justify-center p-4">
+                                        <div className="relative w-full h-full flex items-center justify-center">
+                                            <img
+                                                src={image}
+                                                alt={`${sticker.name} view ${index + 1}`}
+                                                className="max-w-full max-h-full object-contain drop-shadow-md hover:scale-105 transition-transform duration-300"
+                                            />
+                                        </div>
+                                    </CarouselItem>
+                                ))}
+                            </CarouselContent>
+                            <CarouselPrevious className="left-4" />
+                            <CarouselNext className="right-4" />
+                        </Carousel>
                     </div>
-                </main>
+                </div>
+
+                <div className="flex flex-col space-y-8">
+                    <div>
+                        <div className="flex items-center gap-3 mb-4">
+                            <Badge variant="secondary" className="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 px-3 py-1">
+                                {sticker.type}
+                            </Badge>
+                            {sticker.stock === 0 && (
+                                <Badge variant="destructive" className="bg-red-50 text-red-600 hover:bg-red-100 border-red-200">
+                                    Out of Stock
+                                </Badge>
+                            )}
+                        </div>
+                        <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight leading-tight mb-4">
+                            {sticker.name}
+                        </h1>
+                        <p className="text-3xl font-bold text-indigo-600">
+                            ${Number(sticker.price).toFixed(2)}
+                        </p>
+                    </div>
+
+                    <div className="prose prose-gray max-w-none">
+                        <p className="text-lg text-gray-600 leading-relaxed">
+                            {sticker.description}
+                        </p>
+                    </div>
+
+                    <div className="bg-gray-50 rounded-xl p-6 border border-gray-100">
+                        <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
+                            <div className="flex items-center gap-2 text-gray-600">
+                                <Store className="w-5 h-5 text-gray-400" />
+                                <span>Shop: <Link to={`/shop/${sticker.shop?.id}`} className="font-semibold text-indigo-600 hover:underline">{sticker.shop?.name}</Link></span>
+                            </div>
+                            <div className="flex items-center gap-2 text-gray-600">
+                                <Calendar className="w-5 h-5 text-gray-400" />
+                                <span>Released: <span className="font-medium text-gray-900">{new Date(sticker.createdAt).toLocaleDateString()}</span></span>
+                            </div>
+                            {sticker.type === "PHYSICAL" && (
+                                <div className="flex items-center gap-2 text-gray-600 col-span-2">
+                                    <div className={`w-2 h-2 rounded-full ${sticker.stock && sticker.stock > 0 ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                                    <span>Availability:
+                                        {sticker.stock && sticker.stock > 0 ? (
+                                            <span className="font-medium text-gray-900 ml-1">{sticker.stock} in stock</span>
+                                        ) : (
+                                            <span className="font-medium text-red-600 ml-1">Currently unavailable</span>
+                                        )}
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row gap-3">
+                            <Button
+                                size="lg"
+                                className="flex-1 bg-white text-gray-900 border-2 border-gray-200 hover:border-gray-900 hover:bg-gray-50 transition-colors font-semibold h-14"
+                                onClick={handleCart}
+                                disabled={isAdding || (sticker.type === 'PHYSICAL' && sticker.stock === 0)}
+                            >
+                                {isAdding ? <Spinner className="w-5 h-5 mr-2" /> : <ShoppingCart className="w-5 h-5 mr-2" />}
+                                Add to Cart
+                            </Button>
+                            <Button
+                                size="lg"
+                                className="flex-1 bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-200 font-semibold h-14"
+                                onClick={handleBuyNow}
+                                disabled={isAdding || (sticker.type === 'PHYSICAL' && sticker.stock === 0)}
+                            >
+                                {isAdding ? <Spinner className="w-5 h-5 mr-2" /> : <Zap className="w-5 h-5 mr-2" />}
+                                Buy Now
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="border-t border-gray-200 pt-16">
+                <ReviewList stickerId={sticker.id} />
             </div>
         </div>
     )

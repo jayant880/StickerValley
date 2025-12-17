@@ -17,7 +17,7 @@ const shopController = {
             return res.status(200).json({ success: true, message: "Shop fetched successfully", shop });
 
         } catch (error) {
-            console.log(error);
+            console.error(error);
             return res.status(500).json({ success: false, message: "Internal server error" });
         }
     },
@@ -45,7 +45,7 @@ const shopController = {
             return res.status(201).json({ success: true, message: "Shop created successfully", shop });
 
         } catch (error) {
-            console.log(error);
+            console.error(error);
             return res.status(500).json({ success: false, message: "Internal server error" });
         }
     },
@@ -61,7 +61,7 @@ const shopController = {
             return res.status(200).json({ success: true, message: "Shop fetched successfully", shop });
 
         } catch (error) {
-            console.log(error);
+            console.error(error);
             return res.status(500).json({ success: false, message: "Internal server error" });
         }
     },
