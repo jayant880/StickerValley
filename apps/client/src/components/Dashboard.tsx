@@ -1,41 +1,31 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { orderService } from "@/service/orderService";
-import type { Order } from "@sticker-valley/shared-types";
 import { Loader2, Package } from "lucide-react";
-import { useEffect, useState } from "react";
+
 import { Link } from "react-router";
 import { useUser } from "@clerk/clerk-react";
+import useOrder from "@/features/order/hooks/useOrder";
 
 export function Dashboard() {
     const { user, isLoaded } = useUser();
-    const [orders, setOrders] = useState<Order[]>([]);
-    const [loading, setLoading] = useState(true);
+    const { useOrderQuery } = useOrder();
+    const { data: orders, isLoading: isLoadingOrders, isError: isErrorOrders } = useOrderQuery();
 
-    useEffect(() => {
-        const fetchOrders = async () => {
-            if (!user) return;
-            try {
-                const data = await orderService.getOrders();
-                if (data?.orders) {
-                    setOrders(data.orders);
-                }
-            } catch (error) {
-                console.error("Failed to fetch orders", error);
-            } finally {
-                setLoading(false);
-            }
-        };
 
-        if (isLoaded) {
-            fetchOrders();
-        }
-    }, [user, isLoaded]);
-
-    if (!isLoaded || loading) {
+    if (!isLoaded || isLoadingOrders) {
         return (
             <div className="flex h-[50vh] w-full items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
+    }
+
+    if (isErrorOrders) {
+        return (
+            <div className="flex h-[50vh] flex-col items-center justify-center gap-2 text-center">
+                <Package className="h-12 w-12 text-muted-foreground" />
+                <h2 className="text-xl font-semibold">Error while fetching orders</h2>
+                <p className="text-muted-foreground">Something went wrong while fetching the orders.</p>
             </div>
         );
     }
@@ -60,14 +50,14 @@ export function Dashboard() {
 
                 <div className="p-6 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col h-full">
                     <h3 className="text-xl font-semibold mb-4">Recent Orders</h3>
-                    {orders.length === 0 ? (
+                    {orders && orders.length === 0 ? (
                         <div className="flex flex-col items-center justify-center flex-1 text-gray-500 py-8">
                             <Package className="w-12 h-12 mb-2 text-gray-300" />
                             <p>No recent orders found.</p>
                         </div>
                     ) : (
                         <div className="space-y-4">
-                            {orders.map((order) => (
+                            {orders?.map((order) => (
                                 <div key={order.id} className="flex items-center justify-between p-3 rounded-lg border bg-gray-50/50 hover:bg-gray-50 transition-colors">
                                     <div className="space-y-1">
                                         <p className="text-sm font-medium">Order #{order.id.slice(0, 8)}</p>

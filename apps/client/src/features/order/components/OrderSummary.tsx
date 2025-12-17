@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardFooter } from "@/components/ui/card";
-import { orderService } from "@/service/orderService";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
+import useOrder from "../hooks/useOrder";
 
 interface OrderSummaryProps {
     totalAmount: number;
@@ -12,19 +12,23 @@ interface OrderSummaryProps {
 
 export const OrderSummary = ({ totalAmount, cartId }: OrderSummaryProps) => {
     const navigate = useNavigate();
+    const { createOrder, isCreating } = useOrder();
 
-    const handleCheckout = async () => {
-        try {
-            const res = await orderService.createOrder({ cartId });
-            if (res && res.order) {
-                navigate(`/checkout/${res.order.id}`);
-            } else {
-                toast.error("Failed to create order");
+    const handleCheckout = () => {
+        createOrder({ cartId }, {
+            onSuccess: (data) => {
+                if (data && data.id) {
+                    setTimeout(() => {
+                        navigate(`/checkout/${data.id}`);
+                    }, 1000);
+                } else {
+                    toast.error("Failed to create order");
+                }
+            },
+            onError: () => {
+                toast.error("An error occurred");
             }
-        } catch (error) {
-            console.error(error);
-            toast.error("An error occurred");
-        }
+        });
     }
     return (
         <Card className="sticky top-24 shadow-lg border-2 border-primary/10">
@@ -53,9 +57,14 @@ export const OrderSummary = ({ totalAmount, cartId }: OrderSummaryProps) => {
                 </div>
 
                 <CardFooter className="p-0 pt-2">
-                    <Button className="w-full h-12 text-base font-semibold shadow-md active:scale-95 transition-transform" size="lg" onClick={handleCheckout}>
-                        Checkout Now
-                        <ArrowRight className="w-4 h-4 ml-2" />
+                    <Button
+                        className="w-full h-12 text-base font-semibold shadow-md active:scale-95 transition-transform"
+                        size="lg"
+                        onClick={handleCheckout}
+                        disabled={isCreating}
+                    >
+                        {isCreating ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <ArrowRight className="w-4 h-4 mr-2" />}
+                        {isCreating ? "Creating Order..." : "Checkout Now"}
                     </Button>
                 </CardFooter>
             </div>

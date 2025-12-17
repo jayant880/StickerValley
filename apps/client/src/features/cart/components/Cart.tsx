@@ -7,7 +7,7 @@ import useCart from "../hooks/useCart";
 import { CartSkeleton } from "./CartSkeleton";
 import { CartEmptyState } from "./CartEmptyState";
 import { CartItemCard } from "./CartItemCard";
-import { OrderSummary } from "./OrderSummary";
+import { OrderSummary } from "@/features/order/components/OrderSummary";
 
 const Cart = () => {
     const {

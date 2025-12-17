@@ -1,66 +1,55 @@
-import { orderService } from "@/service/orderService";
-import { RedirectToSignIn, useAuth } from "@clerk/clerk-react";
-import type { Order, OrderItem, Sticker } from "@sticker-valley/shared-types";
-import { useEffect, useState } from "react";
+import { RedirectToSignIn, useAuth } from "@clerk/clerk-react"
 import { useParams, useNavigate } from "react-router";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Loader2, Package, Calendar, CreditCard } from "lucide-react";
+import { Loader2, Package, Calendar, CreditCard, Download } from "lucide-react";
 import { toast } from "sonner";
 import { invoiceService } from "@/service/invoiceService";
-
-interface OrderWithItems extends Order {
-    items: (OrderItem & {
-        sticker: Sticker;
-    })[];
-}
+import useOrder from "../hooks/useOrder";
+import { useEffect } from "react";
 
 const Checkout = () => {
     const { orderId } = useParams();
     const navigate = useNavigate();
-    const { isLoaded, isSignedIn, getToken } = useAuth();
-    const [order, setOrder] = useState<OrderWithItems | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [paying, setPaying] = useState(false);
+    const { isLoaded, isSignedIn } = useAuth();
+    const { useOrderByIdQuery, usePayForOrderMutation } = useOrder();
+
+    const { data: orderById, isLoading: isLoadingOrderById, isError: isErrorOrderById } = useOrderByIdQuery(orderId);
+    const { mutate: payForOrder, isPending: isPaying } = usePayForOrderMutation();
 
     useEffect(() => {
-        const fetchOrder = async () => {
-            if (!isLoaded || !isSignedIn) return;
-            try {
-                await getToken();
-                const res = await orderService.getOrderById({ orderId: orderId! });
-                setOrder(res.order);
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchOrder();
-    }, [orderId, isLoaded, isSignedIn, getToken]);
+        if (!orderId) navigate('/cart');
+    }, [orderId, navigate]);
 
-    const handlePay = async () => {
+    const handlePay = () => {
         if (!orderId) return;
-        try {
-            setPaying(true);
-            const res = await orderService.payForOrder({ orderId });
-            if (res.success) {
+        payForOrder({ orderId }, {
+            onSuccess: () => {
                 toast.success("Order paid successfully");
                 navigate(`/payment/${orderId}/success`);
-            } else {
+            },
+            onError: (error: Error) => {
+                console.error("Payment error:", error);
                 toast.error("Failed to pay for order");
                 navigate(`/payment/${orderId}/failed`);
             }
+        });
+    }
+
+    const handleDownloadInvoice = async () => {
+        if (!orderById?.id) return;
+        try {
+            const invoice = await invoiceService.downloadInvoice(orderById.id);
+            console.log("Invoice downloaded successfully", invoice);
+            toast.success("Invoice downloaded successfully");
         } catch (error) {
-            console.error(error);
-            toast.error("Failed to pay for order");
-        } finally {
-            setPaying(false);
+            console.error("Failed to download invoice", error);
+            toast.error("Failed to download invoice");
         }
     }
 
-    if (!isLoaded || loading) {
+    if (!isLoaded || isLoadingOrderById) {
         return (
             <div className="flex h-[50vh] w-full items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -70,12 +59,12 @@ const Checkout = () => {
 
     if (!isSignedIn) return <RedirectToSignIn />;
 
-    if (!order) {
+    if (isErrorOrderById || !orderById) {
         return (
             <div className="flex h-[50vh] flex-col items-center justify-center gap-2 text-center">
                 <Package className="h-12 w-12 text-muted-foreground" />
-                <h2 className="text-xl font-semibold">Order not found</h2>
-                <p className="text-muted-foreground">The order you are looking for does not exist.</p>
+                <h2 className="text-xl font-semibold">Error while fetching order</h2>
+                <p className="text-muted-foreground">Something went wrong while fetching the order.</p>
             </div>
         );
     }
@@ -97,23 +86,28 @@ const Checkout = () => {
         });
     };
 
-    const handleDownloadInvoice = async () => {
-        const invoice = await invoiceService.downloadInvoice(order.id);
-        console.log(invoice);
-    }
+    const isPending = orderById!.status === 'PENDING';
+    const isPaid = orderById!.status === 'PAID';
+
 
     return (
         <div className="container mx-auto max-w-6xl px-4 py-8">
             <div className="mb-8 flex flex-col gap-2">
                 <div className="flex items-center gap-3">
                     <h1 className="text-3xl font-bold tracking-tight">Checkout</h1>
-                    <Badge variant={order.status === 'PENDING' ? 'secondary' : 'default'} className="text-sm">
-                        {order.status}
+                    <Badge
+                        variant={isPending ? 'secondary' : isPaid ? 'default' : 'destructive'}
+                        className="text-sm"
+                    >
+                        {orderById.status}
                     </Badge>
                 </div>
                 <p className="text-muted-foreground flex items-center gap-2">
                     <Calendar className="h-4 w-4" />
-                    Ordered on {formatDate(order.createdAt)}
+                    Ordered on {formatDate(orderById.createdAt)}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                    Order ID: {orderById.id}
                 </p>
             </div>
 
@@ -122,10 +116,10 @@ const Checkout = () => {
                     <Card>
                         <CardHeader>
                             <CardTitle>Order Items</CardTitle>
-                            <CardDescription>Order ID: {order.id}</CardDescription>
+                            <CardDescription>Review your items before payment</CardDescription>
                         </CardHeader>
                         <CardContent className="grid gap-6">
-                            {order.items.map((item) => (
+                            {orderById.items.map((item) => (
                                 <div key={item.id} className="flex items-start gap-4">
                                     <div className="relative aspect-square h-24 w-24 min-w-24 overflow-hidden rounded-lg border bg-muted">
                                         {item.sticker.images?.[0] ? (
@@ -150,8 +144,10 @@ const Checkout = () => {
                                         <p className="text-sm text-muted-foreground line-clamp-2">
                                             {item.sticker.description}
                                         </p>
-                                        <div className="mt-auto flex items-center text-sm text-muted-foreground">
-                                            Qty: {item.quantity} X {formatCurrency(item.price)}
+                                        <div className="mt-auto flex items-center gap-4 text-sm text-muted-foreground">
+                                            <span>Qty: {item.quantity}</span>
+                                            <span>×</span>
+                                            <span>{formatCurrency(item.price)} each</span>
                                         </div>
                                     </div>
                                 </div>
@@ -168,32 +164,59 @@ const Checkout = () => {
                         <CardContent className="space-y-4">
                             <div className="flex justify-between text-sm">
                                 <span className="text-muted-foreground">Subtotal</span>
-                                <span>{formatCurrency(order.totalAmount)}</span>
+                                <span>{formatCurrency(orderById.totalAmount)}</span>
                             </div>
                             <div className="flex justify-between text-sm">
                                 <span className="text-muted-foreground">Shipping</span>
-                                <span className="text-muted-foreground">Calculated at payment</span>
+                                <span className="text-green-600">Free</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                                <span className="text-muted-foreground">Tax</span>
+                                <span>$0.00</span>
                             </div>
                             <div className="my-4 h-px bg-border" />
-                            <div className="flex justify-between font-bold">
+                            <div className="flex justify-between font-bold text-lg">
                                 <span>Total</span>
-                                <span>{formatCurrency(order.totalAmount)}</span>
+                                <span>{formatCurrency(orderById.totalAmount)}</span>
                             </div>
                         </CardContent>
-                        <CardFooter>
-                            {
-                                order.status === 'PENDING' ? (
-                                    <Button className="w-full" size="lg" onClick={handlePay} disabled={paying}>
-                                        <CreditCard className="mr-2 h-4 w-4" />
-                                        Proceed to Payment
-                                    </Button>
-                                ) : (
-                                    <Button className="w-full" size="lg" onClick={handleDownloadInvoice}>
+                        <CardFooter className="flex flex-col gap-2">
+                            {isPending ? (
+                                <Button
+                                    className="w-full"
+                                    size="lg"
+                                    onClick={handlePay}
+                                    disabled={isPaying}
+                                >
+                                    <CreditCard className="mr-2 h-4 w-4" />
+                                    {isPaying ? "Processing..." : "Proceed to Payment"}
+                                </Button>
+                            ) : (
+                                <>
+                                    <Button
+                                        className="w-full"
+                                        size="lg"
+                                        onClick={handleDownloadInvoice}
+                                        variant="outline"
+                                    >
+                                        <Download className="mr-2 h-4 w-4" />
                                         Download Invoice
                                     </Button>
-                                )
-                            }
+                                    <p className="text-center text-sm text-muted-foreground mt-2">
+                                        Order status: <span className="font-medium">{orderById.status}</span>
+                                    </p>
+                                </>
+                            )}
                         </CardFooter>
+                    </Card>
+
+                    <Card className="bg-muted/50">
+                        <CardContent className="p-6">
+                            <h3 className="font-semibold mb-2">Payment Information</h3>
+                            <p className="text-sm text-muted-foreground">
+                                Payments are processed securely via Stripe. Your payment information is encrypted and never stored on our servers.
+                            </p>
+                        </CardContent>
                     </Card>
                 </div>
             </div>
@@ -202,4 +225,3 @@ const Checkout = () => {
 };
 
 export default Checkout;
-

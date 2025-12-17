@@ -2,7 +2,7 @@ import App from "@/App";
 import Home from "@/pages/Home";
 import StickerDetail from "@/features/stickers/components/StickerDetail";
 import { createBrowserRouter } from "react-router";
-import Checkout from "@/pages/Checkout";
+import Checkout from "@/features/order/components/Checkout";
 import PaymentFailed from "@/pages/payment/Failed";
 import PaymentSuccess from "@/pages/payment/Success";
 import Shop from "@/pages/Shop";

@@ -65,7 +65,17 @@ export const orderController = {
 
                 await tx.insert(orderItems).values(newOrderItems);
                 await tx.delete(cartItemsTable).where(eq(cartItemsTable.cartId, cartId));
-                return newOrder;
+
+                return await tx.query.orders.findFirst({
+                    where: eq(orders.id, newOrder.id),
+                    with: {
+                        items: {
+                            with: {
+                                sticker: true
+                            }
+                        }
+                    }
+                });
             })
 
             return res.status(201).json({
