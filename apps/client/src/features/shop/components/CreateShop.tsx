@@ -4,31 +4,27 @@ import { Spinner } from "@/components/ui/spinner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import shopService from "@/service/shopService";
 import { Store, Sparkles } from "lucide-react";
-import { useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
-
-interface ShopForm {
-    name: string;
-    description: string;
-}
+import useShop from "../hooks/useShop";
+import { useShopStore } from "../store/shopStore";
+import { useEffect } from "react";
 
 const CreateShop = () => {
     const navigate = useNavigate();
-    const [loading, setLoading] = useState(false);
-    const [shopForm, setShopForm] = useState<ShopForm>({
-        name: "",
-        description: "",
-    });
+    const { createShop, isCreating, createShopError } = useShop();
+    const { shopFormActions, shopForm, clearShopForm } = useShopStore();
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        setShopForm({
-            ...shopForm,
-            [e.target.name]: e.target.value,
-        });
-    };
+    const { name, description } = shopForm;
+    const { setName, setDescription } = shopFormActions;
+
+    useEffect(() => {
+        return () => {
+            clearShopForm()
+        }
+    }, [clearShopForm])
+
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -38,21 +34,26 @@ const CreateShop = () => {
             return;
         }
 
-        try {
-            setLoading(true);
-            const shop = await shopService.createShop(shopForm);
-            toast.success("Shop created successfully!");
-
-            if (shop) {
+        createShop(undefined, {
+            onSuccess: () => {
+                toast.success("Shop created successfully!");
+                clearShopForm();
                 navigate("/shop/me");
+            },
+            onError: (error: Error) => {
+                toast.error("Failed to create shop. Please try again.");
+                console.error(error);
             }
-        } catch (error) {
-            toast.error("Failed to create shop. Please try again.");
-            console.error(error);
-        } finally {
-            setLoading(false);
-        }
+        });
+
     };
+
+    useEffect(() => {
+        if (createShopError) {
+            toast.error("Failed to create shop. Please try again.");
+        }
+    }, [createShopError])
+
 
     return (
         <div className="min-h-[calc(100vh-4rem)] w-full flex items-center justify-center p-4 ">
@@ -88,8 +89,8 @@ const CreateShop = () => {
                                 <Input
                                     id="shopName"
                                     name="name"
-                                    value={shopForm.name}
-                                    onChange={handleChange}
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
                                     placeholder="e.g. Kawaii Stickers Co."
                                     className="interactive-input transition-all duration-300 focus:ring-2 focus:ring-primary/20"
                                 />
@@ -102,8 +103,8 @@ const CreateShop = () => {
                                 <Textarea
                                     id="shopDescription"
                                     name="description"
-                                    value={shopForm.description}
-                                    onChange={handleChange}
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
                                     placeholder="Describe your sticker style and what you offer..."
                                     className="min-h-[120px] resize-none interactive-input transition-all duration-300 focus:ring-2 focus:ring-primary/20"
                                 />
@@ -111,10 +112,10 @@ const CreateShop = () => {
 
                             <Button
                                 type="submit"
-                                disabled={loading}
+                                disabled={isCreating}
                                 className="w-full h-11 text-base font-medium transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                             >
-                                {loading ? (
+                                {isCreating ? (
                                     <>
                                         <Spinner className="mr-2 h-5 w-5 animate-spin" />
                                         Creating Shop...

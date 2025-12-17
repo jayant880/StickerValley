@@ -1,15 +1,15 @@
 import App from "@/App";
-import Home from "@/pages/Home";
+import Home from "@/features/home/components/Home";
 import StickerDetail from "@/features/stickers/components/StickerDetail";
 import { createBrowserRouter } from "react-router";
 import Checkout from "@/features/order/components/Checkout";
-import PaymentFailed from "@/pages/payment/Failed";
-import PaymentSuccess from "@/pages/payment/Success";
-import Shop from "@/pages/Shop";
-import CreateShop from "@/pages/CreateShop";
+import PaymentFailed from "@/features/payment/components/PaymentFailed";
+import PaymentSuccess from "@/features/payment/components/PaymentSuccess";
 import Stickers from "@/features/stickers/components/Stickers";
 import CreateSticker from "@/features/stickers/components/CreateSticker";
 import Cart from "@/features/cart/components/Cart";
+import Shop from "@/features/shop/components/Shop";
+import CreateShop from "@/features/shop/components/CreateShop";
 
 export const router = createBrowserRouter([
   {
@@ -53,12 +53,12 @@ export const router = createBrowserRouter([
         Component: Shop
       },
       {
-        path: "shop/:shopId",
-        Component: Shop
-      },
-      {
         path: "shop/create",
         Component: CreateShop
+      },
+      {
+        path: "shop/:shopId",
+        Component: Shop
       },
       {
         path: "shop/:shopId/stickers/create",

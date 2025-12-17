@@ -1,12 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { addToCart, clearCart, getCart, removeCartItem, updateCartItem } from "../api/cart.api";
 
+import { useAuth } from "@clerk/clerk-react";
+
 export const useCartQuery = () => {
+    const { isSignedIn } = useAuth();
+
     return useQuery({
         queryKey: ["cart"],
         queryFn: () => getCart(),
         retry: 2,
         retryDelay: 1000,
+        enabled: !!isSignedIn,
     })
 }
 

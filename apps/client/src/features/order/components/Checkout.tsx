@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Loader2, Package, Calendar, CreditCard, Download } from "lucide-react";
 import { toast } from "sonner";
-import { invoiceService } from "@/service/invoiceService";
+import { downloadInvoice } from "@/features/dashboard/api/invoice.api";
 import useOrder from "../hooks/useOrder";
 import { useEffect } from "react";
 
@@ -40,7 +40,7 @@ const Checkout = () => {
     const handleDownloadInvoice = async () => {
         if (!orderById?.id) return;
         try {
-            const invoice = await invoiceService.downloadInvoice(orderById.id);
+            const invoice = await downloadInvoice(orderById.id);
             console.log("Invoice downloaded successfully", invoice);
             toast.success("Invoice downloaded successfully");
         } catch (error) {

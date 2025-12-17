@@ -1,6 +1,6 @@
 import { SignedIn, SignedOut } from '@clerk/clerk-react';
-import { Landing } from '@/components/Landing';
-import { Dashboard } from '@/components/Dashboard';
+import { Landing } from './Landing';
+import { Dashboard } from '@/features/dashboard/components/Dashboard';
 
 const Home = () => {
     return (

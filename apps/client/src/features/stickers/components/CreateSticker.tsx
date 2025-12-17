@@ -3,16 +3,16 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectItem, SelectTrigger, SelectValue, SelectContent } from "@/components/ui/select"
 import { useEffect, type FormEvent } from "react"
 import { useNavigate } from "react-router"
-import shopService from "@/service/shopService"
 import { toast } from "sonner"
 import { Spinner } from "@/components/ui/spinner"
 import { Label } from "@/components/ui/label"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { DollarSign, Package, Image as ImageIcon } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
-import userService from "@/service/userService"
 import { useStickerStore } from "../store/stickersStore"
 import useStickers from "../hooks/useStickers"
+import useShop from "@/features/shop/hooks/useShop"
+import { useMeQuery } from "@/features/auth/hooks/useUser"
 
 const CreateSticker = () => {
     const navigate = useNavigate();
@@ -25,40 +25,26 @@ const CreateSticker = () => {
     const { name, description, price, type, stock, images } = stickerForm;
     const { setName, setDescription, setPrice, setType, setStock, setImages, resetStickerForm } = stickerFormActions;
 
+    const { myShop } = useShop();
+    const { data: user, isLoading: isUserLoading } = useMeQuery();
 
     useEffect(() => {
-        const fetchShop = async () => {
-            try {
-                const user = await userService.getMe();
-                if (!user) {
-                    toast.error("User not found");
-                    setTimeout(() => {
-                        toast.dismiss();
-                        toast.warning("Redirecting to home page");
-                        navigate('/');
-                    }, 2000);
-                    return;
-                }
-                const shop = await shopService.getMyShop();
-                if (!shop) {
-                    navigate('/shop/create');
-                    return;
-                }
+        const checkPermission = async () => {
+            if (isUserLoading) return;
 
-                if (shop.userId !== user.id) {
-                    toast.error("You are not authorized to create a sticker");
-                    setTimeout(() => {
-                        toast.dismiss();
-                        toast.warning("Redirecting to home page");
-                        navigate('/');
-                    }, 2000);
-                }
-            } catch (error) {
-                console.error(error)
+            if (!user) return;
+
+            if (myShop && user && myShop.userId !== user.id) {
+                toast.error("You are not authorized to create a sticker");
+                setTimeout(() => {
+                    toast.dismiss();
+                    toast.warning("Redirecting to home page");
+                    navigate('/');
+                }, 2000);
             }
         }
-        fetchShop();
-    }, [navigate])
+        checkPermission();
+    }, [user, myShop, navigate, isUserLoading])
 
     useEffect(() => {
         if (isSuccess && data) {

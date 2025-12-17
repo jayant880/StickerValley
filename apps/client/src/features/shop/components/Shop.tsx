@@ -1,15 +1,14 @@
-import userService from "@/service/userService";
-import shopService from "@/service/shopService";
 import { useUser } from "@clerk/clerk-react";
-import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import type { Shop as ShopType, Sticker, User } from "@sticker-valley/shared-types";
+import type { Shop as ShopType, Sticker } from "@sticker-valley/shared-types";
 import StickerCard from "@/features/stickers/components/StickerCard";
 import { Button } from "@/components/ui/button";
 import { Plus, Store, Package, Layers } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import useShop from "../hooks/useShop";
+import { useMeQuery } from "@/features/auth/hooks/useUser";
 
 interface ShopWithStickers extends ShopType {
     stickers: Sticker[];
@@ -19,46 +18,15 @@ const Shop = () => {
     const { user, isLoaded } = useUser();
     const navigate = useNavigate();
     const { shopId } = useParams();
-    const [currentUser, setCurrentUser] = useState<User | null>(null);
-    const [shop, setShop] = useState<ShopWithStickers | null>(null);
-    const [loading, setLoading] = useState(true);
+    const { data: currentUser, isLoading: isUserLoading } = useMeQuery();
+    const { myShop: myShopData, myShopLoading, useShopByIdQuery } = useShop();
+    const { data: shop, isLoading: shopLoading } = useShopByIdQuery(shopId);
 
-    useEffect(() => {
-        if (!isLoaded) return;
+    const currentShop = shop || myShopData;
+    const isLoading = shopLoading || myShopLoading || isUserLoading;
+    const isMyShopView = !shopId;
 
-        const fetchData = async () => {
-            try {
-                // Always fetch current user if logged in to know who is viewing
-                if (user) {
-                    const me = await userService.getMe();
-                    setCurrentUser(me);
-                }
-
-                if (shopId) {
-                    // Viewing a specific shop
-                    const shopData = await shopService.getShopById(shopId);
-                    setShop(shopData);
-                } else if (user) {
-                    // Viewing "my shop" (only if logged in)
-                    // We need to wait for currentUser to be set, or just use the response from getMe logic
-                    // But since we just called getMe above, we can assume we might need to rely on that logic or simple refetch
-                    // Optimization: if we already fetched 'me', use 'me.shop'
-                    // However, 'me' is inside that if block. 
-                    // Let's just do it cleanly:
-                    const me = await userService.getMe(); // Redundant if called above but safe
-                    setShop(me.shop);
-                }
-            } catch (error) {
-                console.error("Failed to fetch details", error);
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        fetchData();
-    }, [user, isLoaded, shopId]);
-
-    if (!isLoaded || loading) {
+    if (!isLoaded || isLoading) {
         return (
             <div className="container mx-auto px-4 py-8 space-y-8">
                 <div className="space-y-4">
@@ -74,8 +42,6 @@ const Shop = () => {
         );
     }
 
-    // Only show "Start Selling" if we are on "My Shop" view (no shopId) AND user is not a vendor
-    const isMyShopView = !shopId;
     if (isMyShopView && (!currentUser || currentUser.role !== "VENDOR")) {
         return (
             <div className="min-h-[60vh] flex flex-col items-center justify-center p-4">
@@ -95,7 +61,7 @@ const Shop = () => {
         );
     }
 
-    if (!shop) {
+    if (!currentShop) {
         return (
             <div className="min-h-[60vh] flex flex-col items-center justify-center p-4">
                 <div className="text-center space-y-4">
@@ -112,7 +78,8 @@ const Shop = () => {
         );
     }
 
-    const stickers = shop.stickers || [];
+    const shopWithStickers = currentShop as ShopWithStickers;
+    const stickers = shopWithStickers.stickers || [];
 
     return (
         <div className="min-h-screen bg-background pb-20">
@@ -126,23 +93,23 @@ const Shop = () => {
                                     <Store className="w-3 h-3 mr-1" />
                                     Vendor
                                 </Badge>
-                                {user?.id === shop.userId && (
+                                {user?.id === currentShop.userId && (
                                     <Badge variant="outline" className="h-6 border-primary/20 text-primary">
                                         Owner View
                                     </Badge>
                                 )}
                             </div>
                             <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight lg:text-6xl bg-clip-text text-transparent bg-linear-to-r from-foreground to-foreground/70">
-                                {shop.name}
+                                {currentShop.name}
                             </h1>
                             <p className="text-lg text-muted-foreground leading-relaxed">
-                                {shop.description}
+                                {currentShop.description}
                             </p>
                         </div>
 
-                        {user?.id === shop.userId && (
+                        {user?.id === currentShop.userId && (
                             <div className="flex gap-3">
-                                <Button onClick={() => navigate("/shop/" + shop.id + "/stickers/create")} className="shadow-lg hover:shadow-primary/25 transition-all">
+                                <Button onClick={() => navigate(`/shop/${currentShop.id}/stickers/create`)} className="shadow-lg hover:shadow-primary/25 transition-all">
                                     <Plus className="w-4 h-4 mr-2" />
                                     Create New Sticker
                                 </Button>
@@ -180,8 +147,8 @@ const Shop = () => {
                             <p className="text-muted-foreground mb-6 max-w-sm">
                                 Your shop is looking a bit empty. Create your first sticker to start selling!
                             </p>
-                            {user?.id === shop.userId && (
-                                <Button onClick={() => navigate("/shop/" + shop.id + "/stickers/create")} variant="secondary">
+                            {user?.id === currentShop.userId && (
+                                <Button onClick={() => navigate(`/shop/${currentShop.id}/stickers/create`)} variant="secondary">
                                     Create Your First Sticker
                                 </Button>
                             )}
