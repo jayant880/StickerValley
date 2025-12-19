@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { getMe, getUser, getMeKey, getUserKey } from "../api/user.api";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { getMe, getUser, getMeKey, getUserKey, updateMe } from "../api/user.api";
 import { useUser as useClerkUser } from "@clerk/clerk-react";
 
 export const useMeQuery = () => {
@@ -17,5 +17,18 @@ export const useUserQuery = (userId: string) => {
         queryKey: getUserKey(userId),
         queryFn: () => getUser(userId),
         enabled: !!userId,
+    });
+};
+
+export const useUpdateMeMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: updateMe,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: getMeKey() });
+        },
+        onError: (error) => {
+            console.error("Failed to update profile", error);
+        }
     });
 };

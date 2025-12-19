@@ -10,6 +10,7 @@ import CreateSticker from "@/features/stickers/components/CreateSticker";
 import Cart from "@/features/cart/components/Cart";
 import Shop from "@/features/shop/components/Shop";
 import CreateShop from "@/features/shop/components/CreateShop";
+import UserProfile from "@/features/auth/components/UserProfile";
 
 export const router = createBrowserRouter([
   {
@@ -19,6 +20,10 @@ export const router = createBrowserRouter([
       {
         index: true,
         Component: Home,
+      },
+      {
+        path: "profile/:userId",
+        Component: UserProfile
       },
       {
         path: "stickers",

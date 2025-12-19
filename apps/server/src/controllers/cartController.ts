@@ -1,13 +1,25 @@
 import { getAuth } from "@clerk/express";
-import express from "express";
+import { Request, Response } from "express";
 import { getOrSyncUser } from "../services/userService";
 import { db } from "../db";
 import { eq, and } from "drizzle-orm";
 import { carts, cartItems, stickers } from "../db/schema";
 import { calculateCartTotal } from "../services/cartService";
 
+/**
+ * Cart controller - Handles shopping cart operations for users
+ * 
+ * @namespace cartController
+ * @description Provides methods for managing user's shopping cart
+ * 
+ * @method getCart - Get user's cart
+ * @method addToCart - Add a sticker to the cart
+ * @method clearCart - Clear the user's cart
+ * @method updateCartItem - Update the quantity of a cart item
+ * @method removeCartItem - Remove a cart item
+ */
 export const cartController = {
-    getCart: async (req: express.Request, res: express.Response) => {
+    getCart: async (req: Request, res: Response): Promise<Response> => {
         try {
             const { userId } = getAuth(req);
             if (!userId) {
@@ -45,7 +57,7 @@ export const cartController = {
             return res.status(500).json({ success: false, error: "Internal server error" });
         }
     },
-    addToCart: async (req: express.Request, res: express.Response) => {
+    addToCart: async (req: Request, res: Response) => {
         try {
             const { userId } = getAuth(req);
             const { stickerId } = req.body;
@@ -118,7 +130,7 @@ export const cartController = {
         }
     },
 
-    clearCart: async (req: express.Request, res: express.Response) => {
+    clearCart: async (req: Request, res: Response) => {
         try {
             const { userId } = getAuth(req);
 
@@ -142,7 +154,7 @@ export const cartController = {
         }
     },
 
-    updateCartItem: async (req: express.Request, res: express.Response) => {
+    updateCartItem: async (req: Request, res: Response) => {
         try {
             const { userId } = getAuth(req);
             const { stickerId } = req.params;
@@ -207,7 +219,7 @@ export const cartController = {
         }
     },
 
-    removeCartItem: async (req: express.Request, res: express.Response) => {
+    removeCartItem: async (req: Request, res: Response) => {
         try {
             const { userId } = getAuth(req);
             const { stickerId } = req.params;

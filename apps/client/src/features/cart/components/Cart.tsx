@@ -116,7 +116,7 @@ const Cart = () => {
 
                 <div className="col-span-1">
                     <OrderSummary
-                        totalAmount={cart.totalAmount}
+                        totalAmount={cart.totalAmount || 0}
                         cartId={cart.id}
                     />
 

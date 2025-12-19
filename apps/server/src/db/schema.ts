@@ -3,7 +3,7 @@ import { relations } from 'drizzle-orm';
 import { randomUUID } from 'crypto';
 
 export const roleEnum = pgEnum('Role', ['CUSTOMER', 'VENDOR', 'ADMIN']);
-export const orderStatusEnum = pgEnum('OrderStatus', ['PENDING', 'PAID', 'SHIPPED', 'DELIVERED']);
+export const orderStatusEnum = pgEnum('OrderStatus', ['PENDING', 'PAID', 'SHIPPED', 'DELIVERED', 'CANCELLED']);
 export const stickerTypeEnum = pgEnum('StickerType', ['PHYSICAL', 'DIGITAL']);
 
 export const users = pgTable('User', {

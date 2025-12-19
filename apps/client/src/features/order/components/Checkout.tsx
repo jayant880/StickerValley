@@ -118,39 +118,42 @@ const Checkout = () => {
                             <CardDescription>Review your items before payment</CardDescription>
                         </CardHeader>
                         <CardContent className="grid gap-6">
-                            {orderById.items.map((item) => (
-                                <div key={item.id} className="flex items-start gap-4">
-                                    <div className="relative aspect-square h-24 w-24 min-w-24 overflow-hidden rounded-lg border bg-muted">
-                                        {item.sticker.images?.[0] ? (
-                                            <img
-                                                src={item.sticker.images[0]}
-                                                alt={item.sticker.name}
-                                                className="h-full w-full object-cover"
-                                            />
-                                        ) : (
-                                            <div className="flex h-full w-full items-center justify-center bg-gray-100 text-gray-400">
-                                                <Package className="h-8 w-8" />
+                            {(orderById.items || []).map((item) => {
+                                const sticker = item.sticker!;
+                                return (
+                                    <div key={item.id} className="flex items-start gap-4">
+                                        <div className="relative aspect-square h-24 w-24 min-w-24 overflow-hidden rounded-lg border bg-muted">
+                                            {sticker.images?.[0] ? (
+                                                <img
+                                                    src={sticker.images[0]}
+                                                    alt={sticker.name}
+                                                    className="h-full w-full object-cover"
+                                                />
+                                            ) : (
+                                                <div className="flex h-full w-full items-center justify-center bg-gray-100 text-gray-400">
+                                                    <Package className="h-8 w-8" />
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="flex flex-1 flex-col gap-1">
+                                            <div className="flex justify-between gap-2">
+                                                <h3 className="font-semibold">{sticker.name}</h3>
+                                                <p className="font-medium">
+                                                    {formatCurrency(Number(item.price) * item.quantity)}
+                                                </p>
                                             </div>
-                                        )}
-                                    </div>
-                                    <div className="flex flex-1 flex-col gap-1">
-                                        <div className="flex justify-between gap-2">
-                                            <h3 className="font-semibold">{item.sticker.name}</h3>
-                                            <p className="font-medium">
-                                                {formatCurrency(Number(item.price) * item.quantity)}
+                                            <p className="text-sm text-muted-foreground line-clamp-2">
+                                                {sticker.description}
                                             </p>
-                                        </div>
-                                        <p className="text-sm text-muted-foreground line-clamp-2">
-                                            {item.sticker.description}
-                                        </p>
-                                        <div className="mt-auto flex items-center gap-4 text-sm text-muted-foreground">
-                                            <span>Qty: {item.quantity}</span>
-                                            <span>×</span>
-                                            <span>{formatCurrency(item.price)} each</span>
+                                            <div className="mt-auto flex items-center gap-4 text-sm text-muted-foreground">
+                                                <span>Qty: {item.quantity}</span>
+                                                <span>×</span>
+                                                <span>{formatCurrency(item.price)} each</span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </CardContent>
                     </Card>
                 </div>

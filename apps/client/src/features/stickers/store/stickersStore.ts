@@ -53,7 +53,7 @@ const DEFAULT_STICKER_FORM: StickerFormState = {
   price: "0",
   type: "DIGITAL",
   stock: 0,
-  images: [],
+  images: [""],
 };
 
 export const useStickerStore = create<StickerStore>((set) => ({

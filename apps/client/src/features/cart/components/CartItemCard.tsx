@@ -4,13 +4,14 @@ import { Minus, Plus, Trash2 } from "lucide-react";
 import { Link } from "react-router";
 import useCart from "../hooks/useCart";
 import { toast } from "sonner";
-import type { CartItemWithStickers } from "../types/cart.types";
+import type { CartItemWithSticker } from "@sticker-valley/shared-types";
 
-export const CartItemCard = ({ item }: { item: CartItemWithStickers }) => {
+export const CartItemCard = ({ item }: { item: CartItemWithSticker }) => {
     const { updateCartItem, removeCartItem, isUpdating, isRemoving } = useCart();
+    const sticker = item.sticker!;
 
-    const imageSrc = item.sticker.images && item.sticker.images.length > 0
-        ? item.sticker.images[0]
+    const imageSrc = sticker.images && sticker.images.length > 0
+        ? sticker.images[0]
         : "/placeholder.png";
 
     const handleQuantityChange = (quantity: number) => {
@@ -33,7 +34,7 @@ export const CartItemCard = ({ item }: { item: CartItemWithStickers }) => {
                 <div className="shrink-0">
                     <img
                         src={imageSrc}
-                        alt={item.sticker.name}
+                        alt={sticker.name}
                         className="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-lg bg-muted"
                     />
                 </div>
@@ -41,16 +42,16 @@ export const CartItemCard = ({ item }: { item: CartItemWithStickers }) => {
                     <div className="flex justify-between items-start gap-2">
                         <div>
                             <h3 className="font-semibold text-lg hover:underline decoration-primary/50 cursor-pointer line-clamp-1">
-                                <Link to={`/stickers/${item.sticker.id}`}>
-                                    {item.sticker.name}
+                                <Link to={`/stickers/${sticker.id}`}>
+                                    {sticker.name}
                                 </Link>
                             </h3>
                             <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-                                {item.sticker.description}
+                                {sticker.description}
                             </p>
                         </div>
                         <p className="font-bold text-lg">
-                            ${Number(item.sticker.price).toFixed(2)}
+                            ${Number(sticker.price).toFixed(2)}
                         </p>
                     </div>
 
@@ -74,7 +75,7 @@ export const CartItemCard = ({ item }: { item: CartItemWithStickers }) => {
                                 className="h-8 w-8 rounded-l-none hover:bg-muted/50 disabled:opacity-50"
                                 onClick={() => handleQuantityChange(item.quantity + 1)}
                                 disabled={
-                                    item.quantity >= (item.sticker.stock || 99) ||
+                                    item.quantity >= (sticker.stock || 99) ||
                                     isUpdating
                                 }
                             >

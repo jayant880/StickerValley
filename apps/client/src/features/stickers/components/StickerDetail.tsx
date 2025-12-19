@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 import { useAuth } from "@clerk/clerk-react";
-import { ShoppingCart, Zap, Store, Calendar } from "lucide-react";
+import { ShoppingCart, Zap, Store, Calendar, Check, Trash2 } from "lucide-react";
 import useStickers from "../hooks/useStickers";
 import useCart from "@/features/cart/hooks/useCart";
 import ReviewList from "@/features/review/components/ReviewList";
+import { useMemo } from "react";
 
 const StickerDetail = () => {
     const { id } = useParams<{ id: string }>();
@@ -16,22 +17,43 @@ const StickerDetail = () => {
     const { useStickerQuery } = useStickers();
     const { data: sticker, isLoading, isError, error } = useStickerQuery(id);
     const { isSignedIn } = useAuth();
-    const { addToCart, isAdding } = useCart();
+    const { cart, addToCart, removeCartItem, isAdding, isRemoving } = useCart();
 
-    const handleCart = async () => {
+    const isInCart = useMemo(() => {
+        return cart?.items?.some(item => item.stickerId === sticker?.id) || false;
+    }, [cart, sticker?.id]);
+
+    const handleCartToggle = async () => {
         if (!isSignedIn) {
-            toast.error("Please sign in to add to cart");
+            toast.error("Please sign in to manage your cart");
             return;
         }
         if (!sticker?.id) return;
-        addToCart({ stickerId: sticker.id }, {
-            onSuccess: () => {
-                toast.success("Added to cart");
-            },
-            onError: () => {
-                toast.error("Failed to add to cart");
-            }
-        })
+
+        if (isInCart) {
+            removeCartItem({ stickerId: sticker.id }, {
+                onSuccess: () => {
+                    toast.success("Removed from cart");
+                },
+                onError: () => {
+                    toast.error("Failed to remove from cart");
+                }
+            });
+        } else {
+            addToCart({ stickerId: sticker.id }, {
+                onSuccess: () => {
+                    toast.success("Added to cart", {
+                        action: {
+                            label: "View Cart",
+                            onClick: () => navigate("/cart")
+                        }
+                    });
+                },
+                onError: () => {
+                    toast.error("Failed to add to cart");
+                }
+            });
+        }
     }
 
     const handleBuyNow = async () => {
@@ -40,18 +62,24 @@ const StickerDetail = () => {
             return;
         }
         if (!sticker?.id) return;
+
+        if (isInCart) {
+            navigate('/cart');
+            return;
+        }
+
         addToCart({ stickerId: sticker.id }, {
             onSuccess: () => {
                 toast.success("Added to cart");
-                setTimeout(() => {
-                    navigate('/cart');
-                }, 1000);
+                navigate('/cart');
             },
             onError: () => {
                 toast.error("Failed to buy");
             }
         })
     }
+
+    const isCartLoading = isAdding || isRemoving;
 
     if (isLoading) {
         return (
@@ -103,7 +131,7 @@ const StickerDetail = () => {
                             <Badge variant="secondary" className="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 px-3 py-1">
                                 {sticker.type}
                             </Badge>
-                            {sticker.stock === 0 && (
+                            {sticker.type === 'PHYSICAL' && sticker.stock === 0 && (
                                 <Badge variant="destructive" className="bg-red-50 text-red-600 hover:bg-red-100 border-red-200">
                                     Out of Stock
                                 </Badge>
@@ -150,21 +178,33 @@ const StickerDetail = () => {
                         <div className="flex flex-col sm:flex-row gap-3">
                             <Button
                                 size="lg"
-                                className="flex-1 bg-white text-gray-900 border-2 border-gray-200 hover:border-gray-900 hover:bg-gray-50 transition-colors font-semibold h-14"
-                                onClick={handleCart}
-                                disabled={isAdding || (sticker.type === 'PHYSICAL' && sticker.stock === 0)}
+                                className={`flex-1 transition-all duration-300 font-semibold h-14 group/cart ${isInCart
+                                    ? "bg-green-600 hover:bg-red-500 text-white border-green-600 hover:border-red-500"
+                                    : "bg-white text-gray-900 border-2 border-gray-200 hover:border-gray-900 hover:bg-gray-50"
+                                    }`}
+                                onClick={handleCartToggle}
+                                disabled={isCartLoading || (sticker.type === 'PHYSICAL' && sticker.stock === 0)}
                             >
-                                {isAdding ? <Spinner className="w-5 h-5 mr-2" /> : <ShoppingCart className="w-5 h-5 mr-2" />}
-                                Add to Cart
+                                {isCartLoading ? (
+                                    <Spinner className="w-5 h-5 mr-2" />
+                                ) : isInCart ? (
+                                    <>
+                                        <Check className="w-5 h-5 mr-2 group-hover/cart:hidden" />
+                                        <Trash2 className="w-5 h-5 mr-2 hidden group-hover/cart:block" />
+                                    </>
+                                ) : (
+                                    <ShoppingCart className="w-5 h-5 mr-2" />
+                                )}
+                                {isCartLoading ? "Wait..." : isInCart ? "Added" : "Add to Cart"}
                             </Button>
                             <Button
                                 size="lg"
                                 className="flex-1 bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-200 font-semibold h-14"
                                 onClick={handleBuyNow}
-                                disabled={isAdding || (sticker.type === 'PHYSICAL' && sticker.stock === 0)}
+                                disabled={isCartLoading || (sticker.type === 'PHYSICAL' && sticker.stock === 0)}
                             >
-                                {isAdding ? <Spinner className="w-5 h-5 mr-2" /> : <Zap className="w-5 h-5 mr-2" />}
-                                Buy Now
+                                {isCartLoading ? <Spinner className="w-5 h-5 mr-2" /> : <Zap className="w-5 h-5 mr-2" />}
+                                {isInCart ? "Checkout Now" : "Buy Now"}
                             </Button>
                         </div>
                     </div>

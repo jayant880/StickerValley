@@ -1,6 +1,5 @@
 import { api } from "@/lib/axios";
-import type { Sticker } from "@sticker-valley/shared-types";
-import type { StickerWithShopAndReviews } from "../types/stickers.type";
+import type { Sticker, StickerWithRelations } from "@sticker-valley/shared-types";
 
 
 export const getStickers = async (): Promise<Sticker[]> => {
@@ -26,7 +25,7 @@ export const getFilteredStickers = async (
   return res.data.success ? res.data.data : [];
 };
 
-export const getStickerById = async (id: string): Promise<StickerWithShopAndReviews | null> => {
+export const getStickerById = async (id: string): Promise<StickerWithRelations | null> => {
   const res = await api.get(`/stickers/${id}`);
   return res.data.success ? res.data.data : null;
 };

@@ -7,7 +7,7 @@ import { toast } from "sonner"
 import { Spinner } from "@/components/ui/spinner"
 import { Label } from "@/components/ui/label"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
-import { DollarSign, Package, Image as ImageIcon } from "lucide-react"
+import { DollarSign, Package, Image as ImageIcon, Plus, Trash2 } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
 import { useStickerStore } from "../store/stickersStore"
 import useStickers from "../hooks/useStickers"
@@ -65,6 +65,15 @@ const CreateSticker = () => {
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
+
+        // Filter out empty URLs
+        const filteredImages = images.filter(url => url.trim() !== "");
+        if (filteredImages.length === 0) {
+            toast.error("At least one valid image URL is required");
+            return;
+        }
+
+        setImages(filteredImages);
         createStickerMutation.mutate();
     }
 
@@ -165,22 +174,53 @@ const CreateSticker = () => {
                             </div>
                         )}
 
-                        <div className="space-y-2">
-                            <Label htmlFor="images">Image URL</Label>
-                            <div className="relative">
-                                <ImageIcon className="top-2.5 left-3 absolute w-4 h-4 text-muted-foreground" />
-                                <Input
-                                    id="images"
-                                    type="url"
-                                    placeholder="https://example.com/sticker.png"
-                                    className="pl-9"
-                                    value={images?.[0] || ""}
-                                    onChange={(e) => setImages([e.target.value])}
-                                    required
-                                />
-                            </div>
+                        <div className="space-y-4">
+                            <Label>Images</Label>
+                            {images.map((url, index) => (
+                                <div key={index} className="flex gap-2 relative">
+                                    <div className="relative flex-1">
+                                        <ImageIcon className="top-2.5 left-3 absolute w-4 h-4 text-muted-foreground" />
+                                        <Input
+                                            type="url"
+                                            placeholder="https://example.com/sticker.png"
+                                            className="pl-9"
+                                            value={url}
+                                            onChange={(e) => {
+                                                const newImages = [...images];
+                                                newImages[index] = e.target.value;
+                                                setImages(newImages);
+                                            }}
+                                            required
+                                        />
+                                    </div>
+                                    {images.length > 1 && (
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon"
+                                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                            onClick={() => {
+                                                const newImages = [...images];
+                                                newImages.splice(index, 1);
+                                                setImages(newImages);
+                                            }}
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </Button>
+                                    )}
+                                </div>
+                            ))}
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className="w-full border-dashed"
+                                onClick={() => setImages([...images, ""])}
+                            >
+                                <Plus className="w-4 h-4 mr-2" /> Add Another Image
+                            </Button>
                             <p className="text-muted-foreground text-xs">
-                                Paste a direct link to your sticker image (e.g. from Imgur or Google Drive)
+                                Add direct links to your sticker images. The first image will be used as the main thumbnail.
                             </p>
                         </div>
 

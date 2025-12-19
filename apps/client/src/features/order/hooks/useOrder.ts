@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createOrder, getOrderById, getOrders, payForOrder } from "../api/order.api";
-import type { OrderWithItems } from "../types/order.type";
+import type { OrderWithRelations } from "@sticker-valley/shared-types";
 
 export const useOrderQuery = () => {
     return useQuery({
@@ -12,7 +12,7 @@ export const useOrderQuery = () => {
 }
 
 export const useOrderByIdQuery = (orderId?: string) => {
-    return useQuery<OrderWithItems | null>({
+    return useQuery<OrderWithRelations | null>({
         queryKey: ['order', orderId],
         queryFn: () => {
             if (!orderId) throw new Error("Order ID is required");

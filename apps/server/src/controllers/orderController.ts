@@ -43,9 +43,8 @@ export const orderController = {
             if (cartItems.length === 0) return res.status(404).json({ success: false, error: "Cart is empty" });
             const { totalAmount } = calculateCartTotal({ items: cartItems });
 
-
             const order = await db.transaction(async (tx) => {
-                const [newOrder] = await db.insert(orders).values({ userId, totalAmount: totalAmount.toString(), status: "PENDING" }).returning();
+                const [newOrder] = await tx.insert(orders).values({ userId, totalAmount: totalAmount.toString(), status: "PENDING" }).returning();
                 const newOrderItems = [];
                 for (const item of cartItems) {
                     if (item.sticker.type === "PHYSICAL") {
@@ -59,7 +58,9 @@ export const orderController = {
                         price: item.sticker.price,
                         quantity: item.quantity,
                     });
-                    await tx.update(stickers).set({ stock: item.sticker.stock - item.quantity }).where(eq(stickers.id, item.stickerId));
+                    if (item.sticker.type === "PHYSICAL") {
+                        await tx.update(stickers).set({ stock: item.sticker.stock - item.quantity }).where(eq(stickers.id, item.stickerId));
+                    }
                 }
 
                 await tx.insert(orderItems).values(newOrderItems);
@@ -89,12 +90,13 @@ export const orderController = {
                 return res.status(400).json({ success: false, error: error.message });
             }
             return res.status(500).json({
+                success: false,
                 error: "Internal Server Error",
             });
         }
     },
 
-    payForOrder: async (req: Request, res: Response) => {
+    payForOrder: async (req: Request, res: Response): Promise<Response> => {
         try {
             const { orderId } = req.params;
             const { userId } = getAuth(req);
@@ -115,7 +117,7 @@ export const orderController = {
         }
     },
 
-    getAllOrders: async (req: Request, res: Response) => {
+    getAllOrdersByUserId: async (req: Request, res: Response): Promise<Response> => {
         try {
             const { userId } = getAuth(req);
             if (!userId) return res.status(401).json({ success: false, error: "Unauthorized" });
@@ -135,6 +137,27 @@ export const orderController = {
             });
 
             return res.status(200).json({ success: true, orders: userOrders });
+        } catch (error: any) {
+            console.error(error);
+            return res.status(500).json({
+                success: false,
+                error: "Internal Server Error",
+            });
+        }
+    },
+
+    cancelOrder: async (req: Request, res: Response): Promise<Response> => {
+        try {
+            const { orderId } = req.params;
+            const { userId } = getAuth(req);
+            if (!userId) return res.status(401).json({ success: false, error: "Unauthorized" });
+            if (!orderId) return res.status(400).json({ success: false, error: "Order ID is required" });
+            const order = await db.query.orders.findFirst({ where: eq(orders.id, orderId) });
+            if (!order) return res.status(404).json({ success: false, error: "Order not found" });
+            if (order.userId !== userId) return res.status(403).json({ success: false, error: "Forbidden" });
+            if (order.status !== "PENDING") return res.status(400).json({ success: false, error: "Order is not pending" });
+            await db.update(orders).set({ status: "CANCELLED" }).where(eq(orders.id, orderId));
+            return res.status(200).json({ success: true, message: "Order cancelled successfully" });
         } catch (error: any) {
             console.error(error);
             return res.status(500).json({
