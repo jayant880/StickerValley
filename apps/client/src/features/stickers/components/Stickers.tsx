@@ -28,7 +28,7 @@ const Stickers = () => {
 
 
     return (
-        <div className="container mx-auto px-4 py-8 flex flex-col md:flex-row gap-8 min-h-screen">
+        <div className="container mx-auto px-4 py-8 flex flex-col md:flex-row gap-8 min-h-screen animate-in fade-in slide-in-from-bottom-4 duration-700">
             <StickerFilters
                 q={filters.q}
                 setQ={filterActions.setQ}

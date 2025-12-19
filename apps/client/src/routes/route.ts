@@ -11,6 +11,7 @@ import Cart from "@/features/cart/components/Cart";
 import Shop from "@/features/shop/components/Shop";
 import CreateShop from "@/features/shop/components/CreateShop";
 import UserProfile from "@/features/auth/components/UserProfile";
+import Wishlist from "@/features/wishlist/components/Wishlist";
 
 export const router = createBrowserRouter([
   {
@@ -68,6 +69,10 @@ export const router = createBrowserRouter([
       {
         path: "shop/:shopId/stickers/create",
         Component: CreateSticker
+      },
+      {
+        path: "wishlist",
+        Component: Wishlist
       },
     ],
   },

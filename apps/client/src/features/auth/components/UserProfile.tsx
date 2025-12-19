@@ -71,7 +71,7 @@ const UserProfile = () => {
     };
 
     return (
-        <div className="container mx-auto px-4 py-12 max-w-6xl animate-in fade-in duration-500">
+        <div className="container mx-auto px-4 py-12 max-w-6xl animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Profile Header */}
             <div className="relative overflow-hidden bg-white p-8 rounded-3xl border shadow-sm mb-8 transition-all hover:shadow-md">
                 <div className="absolute top-0 right-0 p-8 opacity-5">

@@ -44,7 +44,7 @@ const Shop = () => {
 
     if (isMyShopView && (!currentUser || currentUser.role !== "VENDOR")) {
         return (
-            <div className="min-h-[60vh] flex flex-col items-center justify-center p-4">
+            <div className="min-h-[60vh] flex flex-col items-center justify-center p-4 ">
                 <Card className="max-w-md w-full text-center p-8 border-dashed border-2">
                     <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-6">
                         <Store className="w-8 h-8 text-primary" />
@@ -82,7 +82,7 @@ const Shop = () => {
     const stickers = shopWithStickers.stickers || [];
 
     return (
-        <div className="min-h-screen bg-background pb-20">
+        <div className="min-h-screen bg-background pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Header Section */}
             <div className="relative bg-muted/30 border-b">
                 <div className="container mx-auto px-4 py-12 md:py-16">

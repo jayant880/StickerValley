@@ -21,6 +21,8 @@ export const shops = pgTable('Shop', {
     name: text('name').notNull(),
     description: text('description'),
     userId: text('userId').unique().notNull().references(() => users.id),
+    createdAt: timestamp('createdAt').defaultNow().notNull(),
+    updatedAt: timestamp('updatedAt').defaultNow().notNull(),
 });
 
 export const stickers = pgTable('Sticker', {
@@ -34,6 +36,7 @@ export const stickers = pgTable('Sticker', {
     shopId: text('shopId').notNull().references(() => shops.id),
     isPublished: boolean('isPublished').default(true).notNull(),
     createdAt: timestamp('createdAt').defaultNow().notNull(),
+    updatedAt: timestamp('updatedAt').defaultNow().notNull(),
 });
 
 export const carts = pgTable('Cart', {
@@ -73,7 +76,21 @@ export const reviews = pgTable('Review', {
     rating: integer('rating').notNull(),
     comment: text('comment'),
     createdAt: timestamp('createdAt').defaultNow().notNull(),
+    updatedAt: timestamp('updatedAt').defaultNow().notNull(),
 });
+
+export const wishlists = pgTable("WishList", {
+    id: text('id').primaryKey().$defaultFn(() => randomUUID()),
+    userId: text('userId').notNull().references(() => users.id),
+})
+
+export const wishlistItems = pgTable("WishlistItem", {
+    id: text("id").primaryKey().$defaultFn(() => randomUUID()),
+    wishlistId: text("wishlistId").notNull().references(() => wishlists.id),
+    stickerId: text("stickerId").notNull().references(() => stickers.id),
+    createdAt: timestamp('createdAt').defaultNow().notNull(),
+    updatedAt: timestamp('updatedAt').defaultNow().notNull(),
+})
 
 export type User = typeof users.$inferSelect;
 export type Shop = typeof shops.$inferSelect;
@@ -83,6 +100,8 @@ export type CartItem = typeof cartItems.$inferSelect;
 export type Order = typeof orders.$inferSelect;
 export type OrderItem = typeof orderItems.$inferSelect;
 export type Review = typeof reviews.$inferSelect;
+export type Wishlist = typeof wishlists.$inferSelect;
+export type WishlistItem = typeof wishlistItems.$inferSelect;
 
 // Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
@@ -96,6 +115,11 @@ export const usersRelations = relations(users, ({ one, many }) => ({
         references: [shops.userId],
     }),
     reviews: many(reviews),
+    wishlist: one(wishlists, {
+        fields: [users.id],
+        references: [wishlists.userId],
+    }),
+    wishlistItems: many(wishlistItems),
 }));
 
 export const shopsRelations = relations(shops, ({ one, many }) => ({
@@ -161,6 +185,25 @@ export const reviewsRelations = relations(reviews, ({ one }) => ({
     }),
     sticker: one(stickers, {
         fields: [reviews.stickerId],
+        references: [stickers.id],
+    }),
+}));
+
+export const wishlistsRelations = relations(wishlists, ({ one, many }) => ({
+    user: one(users, {
+        fields: [wishlists.userId],
+        references: [users.id],
+    }),
+    items: many(wishlistItems),
+}));
+
+export const wishlistItemsRelations = relations(wishlistItems, ({ one }) => ({
+    wishlist: one(wishlists, {
+        fields: [wishlistItems.wishlistId],
+        references: [wishlists.id],
+    }),
+    sticker: one(stickers, {
+        fields: [wishlistItems.stickerId],
         references: [stickers.id],
     }),
 }));

@@ -4,7 +4,7 @@ import { orderController } from "../controllers/orderController";
 const router = express.Router();
 
 router.post("/", orderController.createOrder);
-router.get("/", orderController.getAllOrders);
+router.get("/", orderController.getAllOrdersByUserId);
 router.get("/:orderId", orderController.getOrderById);
 router.put("/:orderId/pay", orderController.payForOrder);
 

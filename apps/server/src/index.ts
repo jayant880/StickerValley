@@ -14,6 +14,7 @@ import invoiceRoutes from "./routes/invoiceRoute";
 import shopRoutes from "./routes/shopRoutes";
 import userRoutes from "./routes/userRoutes";
 import reviewRoutes from "./routes/reviewRoute";
+import wishlistRoutes from "./routes/wishlistRoute";
 
 const PORT = parseInt(process.env.PORT || "5000", 10);
 const app = express();
@@ -62,6 +63,7 @@ app.use("/api/invoice", invoiceRoutes);
 app.use("/api/shop", shopRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/wishlist", wishlistRoutes);
 
 db.execute("SELECT 1")
   .then(() => console.log("Database connection successful"))

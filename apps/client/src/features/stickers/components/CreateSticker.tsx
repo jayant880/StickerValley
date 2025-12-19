@@ -66,7 +66,6 @@ const CreateSticker = () => {
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
 
-        // Filter out empty URLs
         const filteredImages = images.filter(url => url.trim() !== "");
         if (filteredImages.length === 0) {
             toast.error("At least one valid image URL is required");
@@ -87,7 +86,7 @@ const CreateSticker = () => {
     }
 
     return (
-        <div className="py-10 max-w-2xl container">
+        <div className="py-10 max-w-2xl container mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
             <Card>
                 <CardHeader>
                     <CardTitle className="text-2xl">Create New Sticker</CardTitle>

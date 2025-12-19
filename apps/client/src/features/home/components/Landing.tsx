@@ -14,16 +14,16 @@ export function Landing() {
     const featuredStickers = stickers?.slice(0, 4) || [];
 
     return (
-        <div className="space-y-20 pb-20">
+        <div className="space-y-20 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Hero Section */}
             <section className="relative py-24 overflow-hidden rounded-3xl bg-indigo-600 text-white">
-                <div className="absolute top-0 right-0 p-12 opacity-10 rotate-12">
+                <div className="absolute top-0 right-0 p-12 opacity-10 rotate-12 ">
                     <Sparkles className="w-64 h-64" />
                 </div>
 
                 <div className="container mx-auto px-6 relative z-10 text-center space-y-8">
                     <h2 className="text-5xl md:text-7xl font-black tracking-tight leading-tight max-w-4xl mx-auto">
-                        Your Universe, <span className="text-indigo-200">Stuck</span> Everywhere.
+                        Your Universe, <span className="bg-linear-to-br from-white to-indigo-600 text-transparent bg-clip-text">Stuck</span> Everywhere.
                     </h2>
                     <p className="text-xl md:text-2xl text-indigo-100 max-w-2xl mx-auto font-medium">
                         Discover artist-made stickers or start your own shop. The most vibrant creative community on the web.
@@ -35,7 +35,7 @@ export function Landing() {
                             </Button>
                         </Link>
                         <Link to="/stickers">
-                            <Button size="lg" variant="outline" className="border-indigo-400 text-white hover:bg-indigo-500 h-14 px-10 text-lg font-bold rounded-full">
+                            <Button size="lg" variant="default" className="bg-indigo-200 border-indigo-400 text-indigo-600 hover:bg-indigo-50 hover:text-indigo-600 hover:shadow-2xl h-14 px-10 text-lg font-bold rounded-full">
                                 Browse Categories
                             </Button>
                         </Link>

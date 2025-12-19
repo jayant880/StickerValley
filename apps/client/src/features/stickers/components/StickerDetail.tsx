@@ -101,7 +101,7 @@ const StickerDetail = () => {
     }
 
     return (
-        <div className="container mx-auto px-4 py-12 max-w-7xl">
+        <div className="container mx-auto px-4 py-12 max-w-7xl animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
                 <div className="space-y-4">
                     <div className="bg-gray-50 rounded-2xl overflow-hidden border border-gray-100 shadow-xs aspect-square flex items-center justify-center">

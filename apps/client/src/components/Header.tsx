@@ -1,11 +1,13 @@
 import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from '@clerk/clerk-react';
-import { Home, ShoppingBagIcon, User } from 'lucide-react';
+import { Heart, Home, ShoppingBagIcon, User } from 'lucide-react';
 import { Link } from 'react-router';
 import { Button } from './ui/button';
 import { useCartQuery } from '@/features/cart/hooks/useCart';
+import { useWishlistQuery } from '@/features/wishlist/hooks/useWishlist';
 
 export function Header() {
     const { data: cart } = useCartQuery();
+    const { data: wishlist } = useWishlistQuery();
     const { user } = useUser();
     return (
         <header className="flex justify-between items-center mb-8 bg-white p-4 rounded-lg shadow-sm">
@@ -25,6 +27,18 @@ export function Header() {
                         <Link to="/stickers">
                             <Button variant="ghost">
                                 Stickers
+                            </Button>
+                        </Link>
+                    </div>
+                    <div>
+                        <Link to="/wishlist">
+                            <Button variant="ghost" className="relative">
+                                <Heart />
+                                {wishlist && wishlist.length > 0 ? (
+                                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full h-4 w-4 flex items-center justify-center font-bold">
+                                        {wishlist.length}
+                                    </span>
+                                ) : null}
                             </Button>
                         </Link>
                     </div>

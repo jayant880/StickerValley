@@ -3,9 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Spinner } from '@/components/ui/spinner';
 import useCart from '@/features/cart/hooks/useCart';
+import useWishlist from '@/features/wishlist/hooks/useWishlist';
 import { useAuth } from '@clerk/clerk-react';
 import type { Sticker } from '@sticker-valley/shared-types';
-import { ShoppingCart, Zap, Check, Trash2 } from 'lucide-react';
+import { ShoppingCart, Zap, Check, Trash2, Heart } from 'lucide-react';
 import { Link, useNavigate } from 'react-router';
 import { toast } from 'sonner';
 import { useMemo } from 'react';
@@ -14,10 +15,15 @@ const StickerCard = ({ sticker }: { sticker: Partial<Sticker> }) => {
     const { isSignedIn } = useAuth();
     const navigate = useNavigate();
     const { cart, addToCart, removeCartItem, isAdding, isRemoving } = useCart();
+    const { wishlist, addToWishlist, removeFromWishlist } = useWishlist();
 
     const isInCart = useMemo(() => {
         return cart?.items?.some(item => item.stickerId === sticker.id) || false;
     }, [cart, sticker.id]);
+
+    const isInWishlist = useMemo(() => {
+        return wishlist?.some(item => item.id === sticker.id) || false;
+    }, [wishlist, sticker.id]);
 
     const imageSrc = (sticker.images && sticker.images.length > 0)
         ? sticker.images[0]
@@ -56,6 +62,29 @@ const StickerCard = ({ sticker }: { sticker: Partial<Sticker> }) => {
         }
     }
 
+    const handleWishlistToggle = async (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!isSignedIn) {
+            toast.error("Please sign in to manage your wishlist");
+            return;
+        }
+        if (!sticker.id) return;
+
+        if (isInWishlist) {
+            removeFromWishlist.mutate(sticker.id, {
+                onSuccess: () => toast.success("Removed from wishlist"),
+                onError: () => toast.error("Failed to remove from wishlist")
+            });
+        } else {
+            addToWishlist.mutate(sticker.id, {
+                onSuccess: () => toast.success("Added to wishlist"),
+                onError: () => toast.error("Failed to add to wishlist")
+            });
+        }
+    }
+
     const handleBuyNow = async () => {
         if (!isSignedIn) {
             toast.error("Please sign in to buy");
@@ -79,10 +108,20 @@ const StickerCard = ({ sticker }: { sticker: Partial<Sticker> }) => {
         })
     }
 
-    const isLoading = isAdding || isRemoving;
+    const isLoading = isAdding || isRemoving || addToWishlist.isPending || removeFromWishlist.isPending;
 
     return (
-        <Card className='group h-full flex flex-col overflow-hidden border-border/50 bg-card hover:bg-card/80 transition-all duration-300 min-w-64'>
+        <Card className='relative group h-full flex flex-col overflow-hidden border-border/50 bg-card hover:bg-card/80 transition-all duration-300 min-w-64'>
+            <div className="absolute top-2 right-2 z-10">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleWishlistToggle}
+                    className={`rounded-full bg-white/80 backdrop-blur-sm hover:bg-white transition-all duration-300 shadow-sm ${isInWishlist ? 'text-red-500' : 'text-gray-400 hover:text-red-400'}`}
+                >
+                    <Heart className={`w-5 h-5 ${isInWishlist ? 'fill-current' : ''}`} />
+                </Button>
+            </div>
             <CardHeader className='p-0'>
                 <div className='relative w-full pt-[100%] overflow-hidden bg-muted/20'>
                     <img
@@ -91,7 +130,7 @@ const StickerCard = ({ sticker }: { sticker: Partial<Sticker> }) => {
                         className='absolute top-0 left-0 w-full h-full object-contain p-4 transition-transform duration-500 group-hover:scale-110'
                     />
                     {sticker.type === 'PHYSICAL' && sticker.stock === 0 && (
-                        <div className="absolute top-2 right-2">
+                        <div className="absolute top-2 left-2">
                             <Badge variant="destructive" className="shadow-sm">Out of Stock</Badge>
                         </div>
                     )}
@@ -127,7 +166,7 @@ const StickerCard = ({ sticker }: { sticker: Partial<Sticker> }) => {
                     onClick={handleCartToggle}
                     disabled={isLoading || (sticker.type === 'PHYSICAL' && sticker.stock === 0)}
                 >
-                    {isLoading ? (
+                    {isAdding || isRemoving ? (
                         <Spinner className="mr-2 w-4 h-4" />
                     ) : isInCart ? (
                         <>
@@ -137,7 +176,7 @@ const StickerCard = ({ sticker }: { sticker: Partial<Sticker> }) => {
                     ) : (
                         <ShoppingCart className="w-4 h-4 mr-2" />
                     )}
-                    {isLoading ? "Wait..." : isInCart ? "Added" : "Cart"}
+                    {isAdding || isRemoving ? "Wait..." : isInCart ? "Added" : "Cart"}
                 </Button>
                 <Button
                     size="sm"
@@ -146,7 +185,7 @@ const StickerCard = ({ sticker }: { sticker: Partial<Sticker> }) => {
                     disabled={isLoading || (sticker.type === 'PHYSICAL' && sticker.stock === 0)}
                 >
                     <Zap className="w-4 h-4 mr-2" />
-                    {isLoading ? <Spinner className="mr-2 w-4 h-4" /> : isInCart ? "Checkout" : "Buy Now"}
+                    {isAdding || isRemoving ? <Spinner className="mr-2 w-4 h-4" /> : isInCart ? "Checkout" : "Buy Now"}
                 </Button>
             </CardFooter>
         </Card>
