@@ -32,7 +32,7 @@ export const stickerController = {
             limit: limit,
             offset: (page - 1) * limit,
         });
-        return res.json({ success: true, data: result, pagination: { page, limit, hasMore: result.length === limit } });
+        return res.json({ success: true, message: "Stickers fetched successfully", data: result, pagination: { page, limit, hasMore: result.length === limit } });
     }),
 
     addSticker: asyncHandler(async (req: Request, res: Response) => {

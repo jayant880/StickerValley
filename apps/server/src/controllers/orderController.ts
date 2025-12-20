@@ -8,7 +8,7 @@ import { AppError } from "../utils/AppError";
 
 export const orderController = {
     getOrderById: asyncHandler(async (req: Request, res: Response) => {
-        return res.status(200).json({ success: true, message: "Order found successfully", userOrder: req.order });
+        return res.status(200).json({ success: true, message: "Order found successfully", data: req.order });
     }),
     createOrder: asyncHandler(async (req: Request, res: Response) => {
         const { cartId } = req.body;
@@ -51,13 +51,13 @@ export const orderController = {
                 with: { items: { with: { sticker: true } } }
             });
         })
-        return res.status(201).json({ success: true, message: "Order created successfully", order });
+        return res.status(201).json({ success: true, message: "Order created successfully", data: order });
     }),
     payForOrder: asyncHandler(async (req: Request, res: Response): Promise<Response> => {
         const userOrder = req.order;
         if (userOrder.status !== "PENDING") throw new AppError("Order is not pending", 400);
         await db.update(orders).set({ status: "PAID" }).where(eq(orders.id, userOrder.id));
-        return res.status(200).json({ success: true, message: "Order paid successfully" });
+        return res.status(200).json({ success: true, message: "Order paid successfully", data: null });
     }),
     getAllOrdersByUserId: asyncHandler(async (req: Request, res: Response): Promise<Response> => {
         const userId = req.user.id;
@@ -67,7 +67,7 @@ export const orderController = {
             with: { items: { with: { sticker: true } } }
         });
         if (!userOrders) throw new AppError("Orders not found", 404);
-        return res.status(200).json({ success: true, orders: userOrders });
+        return res.status(200).json({ success: true, message: "Orders fetched successfully", data: userOrders });
     }),
     cancelOrder: asyncHandler(async (req: Request, res: Response): Promise<Response> => {
         const userOrder = req.order;
@@ -75,6 +75,6 @@ export const orderController = {
         if (userOrder.status !== "PENDING") throw new AppError("Order is not pending", 400);
 
         await db.update(orders).set({ status: "CANCELLED" }).where(eq(orders.id, userOrder.id));
-        return res.status(200).json({ success: true, message: "Order cancelled successfully" });
+        return res.status(200).json({ success: true, message: "Order cancelled successfully", data: null });
     })
 }

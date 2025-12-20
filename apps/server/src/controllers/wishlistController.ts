@@ -9,8 +9,9 @@ const wishlistController = {
     getWishlist: asyncHandler(async (req: Request, res: Response) => {
         const userWishlist = req.wishlist
         const items = userWishlist.items.map(item => item.sticker);
-        return res.status(200).json({ success: true, message: "Wishlist found successfully", items });
+        return res.status(200).json({ success: true, message: "Wishlist found successfully", data: items });
     }),
+
     addWishlistItem: asyncHandler(async (req: Request, res: Response) => {
         const userWishlist = req.wishlist
         let wishlistId = userWishlist.id;
@@ -24,9 +25,10 @@ const wishlistController = {
         });
         if (existingItem) throw new AppError("Sticker already in wishlist", 400);
 
-        await db.insert(wishlistItems).values({ stickerId: sticker.id, wishlistId });
-        return res.status(200).json({ success: true, message: "Sticker added to wishlist successfully" });
+        const [newItem] = await db.insert(wishlistItems).values({ stickerId: sticker.id, wishlistId }).returning();
+        return res.status(200).json({ success: true, message: "Sticker added to wishlist successfully", data: newItem });
     }),
+
     removeWishlistItem: asyncHandler(async (req: Request, res: Response) => {
         const userWishlist = req.wishlist
         const sticker = req.sticker;
@@ -39,9 +41,8 @@ const wishlistController = {
         });
 
         if (!itemToDelete) throw new AppError("Wishlist item not found", 404);
-
         await db.delete(wishlistItems).where(eq(wishlistItems.id, itemToDelete.id));
-        return res.status(200).json({ success: true, message: "Sticker removed from wishlist successfully" });
+        return res.status(200).json({ success: true, message: "Sticker removed from wishlist successfully", data: null });
     }),
 }
 

@@ -47,7 +47,7 @@ const userController = {
             .where(eq(users.id, user.id))
             .returning();
 
-        return res.status(200).json({ success: true, data: updatedUser[0] });
+        return res.status(200).json({ success: true, message: "User profile updated successfully", data: updatedUser[0] });
     }),
 }
 

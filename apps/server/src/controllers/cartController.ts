@@ -22,7 +22,7 @@ export const cartController = {
     getCart: asyncHandler(async (req: Request, res: Response) => {
         const userCart = req.cart;
         const { totalItems, totalAmount } = calculateCartTotal(userCart);
-        return res.status(200).json({ success: true, data: { ...userCart, totalItems, totalAmount } });
+        return res.status(200).json({ success: true, message: "Cart fetched successfully", data: { ...userCart, totalItems, totalAmount } });
     }),
     addToCart: asyncHandler(async (req: Request, res: Response) => {
         const userCart = req.cart;
@@ -57,12 +57,12 @@ export const cartController = {
         });
 
         const { totalItems, totalAmount } = calculateCartTotal(updatedCart);
-        return res.status(200).json({ success: true, data: { ...updatedCart, totalItems, totalAmount } });
+        return res.status(200).json({ success: true, message: "Item added to cart successfully", data: { ...updatedCart, totalItems, totalAmount } });
     }),
     clearCart: asyncHandler(async (req: Request, res: Response) => {
         const userCart = req.cart;
         await db.delete(cartItems).where(eq(cartItems.cartId, userCart.id));
-        return res.status(200).json({ success: true, message: "Cart cleared successfully" });
+        return res.status(200).json({ success: true, message: "Cart cleared successfully", data: null });
     }),
     updateCartItem: asyncHandler(async (req: Request, res: Response) => {
         const userCart = req.cart;
@@ -92,7 +92,7 @@ export const cartController = {
         });
         if (!updatedCart) throw new AppError("Cart not found", 404);
         const { totalItems, totalAmount } = calculateCartTotal(updatedCart);
-        return res.status(200).json({ success: true, data: { ...updatedCart, totalItems, totalAmount } });
+        return res.status(200).json({ success: true, message: "Cart item updated successfully", data: { ...updatedCart, totalItems, totalAmount } });
     }),
     removeCartItem: asyncHandler(async (req: Request, res: Response) => {
         const userCart = req.cart;
@@ -103,7 +103,7 @@ export const cartController = {
                 eq(cartItems.cartId, userCart.id)
             ));
 
-        return res.status(200).json({ success: true, message: "Item removed from cart" });
+        return res.status(200).json({ success: true, message: "Item removed from cart", data: null });
 
     })
 }   

@@ -7,7 +7,7 @@ import { AppError } from "../utils/AppError";
 
 const shopController = {
     getShop: asyncHandler(async (req: Request, res: Response) => {
-        return res.status(200).json({ success: true, message: "Shop fetched successfully", shop: req.shop });
+        return res.status(200).json({ success: true, message: "Shop fetched successfully", data: req.shop });
     }),
 
     createShop: asyncHandler(async (req: Request, res: Response) => {
@@ -23,11 +23,11 @@ const shopController = {
             return newShop;
         })
 
-        return res.status(201).json({ success: true, message: "Shop created successfully", shop });
+        return res.status(201).json({ success: true, message: "Shop created successfully", data: shop });
     }),
 
     getShopByUserId: asyncHandler(async (req: Request, res: Response) => {
-        return res.status(200).json({ success: true, message: "Shop fetched successfully", shop: req.shop })
+        return res.status(200).json({ success: true, message: "Shop fetched successfully", data: req.shop })
     }),
 
     updateShop: asyncHandler(async (req: Request, res: Response) => {
@@ -35,7 +35,7 @@ const shopController = {
         const { name, description } = req.body;
         const updatedShop = await db.update(shops).set({ name, description }).where(eq(shops.id, shop.id)).returning();
         if (!updatedShop[0]) throw new AppError("Shop Not Found", 404);
-        return res.status(200).json({ success: true, message: "Shop updated successfully", shop: updatedShop[0] });
+        return res.status(200).json({ success: true, message: "Shop updated successfully", data: updatedShop[0] });
     }),
 }
 
