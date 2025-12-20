@@ -15,6 +15,7 @@ import userRoutes from "./routes/userRoutes";
 import reviewRoutes from "./routes/reviewRoute";
 import wishlistRoutes from "./routes/wishlistRoute";
 import { requireUser } from "./middleware/userMiddleware";
+import { globalErrorHandler } from "./middleware/errorMiddleware";
 
 const PORT = parseInt(process.env.PORT || "5000", 10);
 const app = express();
@@ -55,6 +56,8 @@ app.use("/api/shop", shopRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/wishlist", requireUser, wishlistRoutes);
+
+app.use(globalErrorHandler);
 
 db.execute("SELECT 1")
   .then(() => console.log("Database connection successful"))

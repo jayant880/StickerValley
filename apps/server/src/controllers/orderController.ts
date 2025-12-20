@@ -3,140 +3,78 @@ import { db } from "../db";
 import { cartItems as cartItemsTable, carts, orderItems, orders, stickers } from "../db/schema";
 import { eq } from "drizzle-orm";
 import { calculateCartTotal } from "../services/cartService";
+import { asyncHandler } from "../utils/asyncHandler";
+import { AppError } from "../utils/AppError";
 
 export const orderController = {
-    getOrderById: async (req: Request, res: Response) => {
-        try {
-            const userOrder = req.order;
-            return res.status(200).json({ success: true, message: "Order found successfully", userOrder });
-        } catch (error: any) {
-            console.error(error);
-            return res.status(500).json({
-                success: false,
-                error: "Internal Server Error",
-            });
-        }
-    },
-    createOrder: async (req: Request, res: Response) => {
-        try {
-            const { cartId } = req.body;
-            const userId = req.user.id;
+    getOrderById: asyncHandler(async (req: Request, res: Response) => {
+        return res.status(200).json({ success: true, message: "Order found successfully", userOrder: req.order });
+    }),
+    createOrder: asyncHandler(async (req: Request, res: Response) => {
+        const { cartId } = req.body;
+        const userId = req.user.id;
 
-            const cart = await db.query.carts.findFirst({ where: eq(carts.id, cartId) });
-            if (!cart) return res.status(404).json({ success: false, error: "Cart not found" });
+        const cart = await db.query.carts.findFirst({ where: eq(carts.id, cartId) });
+        if (!cart) throw new AppError("Cart not found", 404);
 
-            const cartItems = await db.query.cartItems.findMany({ where: eq(cartItemsTable.cartId, cartId), with: { sticker: true } });
-            if (!cartItems) return res.status(404).json({ success: false, error: "Cart items not found" });
-            if (cartItems.length === 0) return res.status(404).json({ success: false, error: "Cart is empty" });
-            const { totalAmount } = calculateCartTotal({ items: cartItems });
+        const cartItems = await db.query.cartItems.findMany({ where: eq(cartItemsTable.cartId, cartId), with: { sticker: true } });
+        if (!cartItems) throw new AppError("Cart items not found", 404);
+        if (cartItems.length === 0) throw new AppError("Cart is empty", 404);
 
-            const order = await db.transaction(async (tx) => {
-                const [newOrder] = await tx.insert(orders).values({ userId, totalAmount: totalAmount.toString(), status: "PENDING" }).returning();
-                const newOrderItems = [];
-                for (const item of cartItems) {
-                    if (item.sticker.type === "PHYSICAL") {
-                        if (item.quantity > item.sticker.stock) {
-                            throw new Error(`Not enough stock available for ${item.sticker.name}. Only ${item.sticker.stock} left.`);
-                        }
-                    }
-                    newOrderItems.push({
-                        orderId: newOrder.id,
-                        stickerId: item.stickerId,
-                        price: item.sticker.price,
-                        quantity: item.quantity,
-                    });
-                    if (item.sticker.type === "PHYSICAL") {
-                        await tx.update(stickers).set({ stock: item.sticker.stock - item.quantity }).where(eq(stickers.id, item.stickerId));
+        const { totalAmount } = calculateCartTotal({ items: cartItems });
+
+        const order = await db.transaction(async (tx) => {
+            const [newOrder] = await tx.insert(orders).values({ userId, totalAmount: totalAmount.toString(), status: "PENDING" }).returning();
+            const newOrderItems = [];
+            for (const item of cartItems) {
+                if (item.sticker.type === "PHYSICAL") {
+                    if (item.quantity > item.sticker.stock) {
+                        throw new AppError(`Not enough stock available for ${item.sticker.name}. Only ${item.sticker.stock} left.`, 400);
                     }
                 }
-
-                await tx.insert(orderItems).values(newOrderItems);
-                await tx.delete(cartItemsTable).where(eq(cartItemsTable.cartId, cartId));
-
-                return await tx.query.orders.findFirst({
-                    where: eq(orders.id, newOrder.id),
-                    with: {
-                        items: {
-                            with: {
-                                sticker: true
-                            }
-                        }
-                    }
+                newOrderItems.push({
+                    orderId: newOrder.id,
+                    stickerId: item.stickerId,
+                    price: item.sticker.price,
+                    quantity: item.quantity,
                 });
-            })
-
-            return res.status(201).json({
-                success: true,
-                message: "Order created successfully",
-                order,
-            });
-
-        } catch (error: any) {
-            console.error(error);
-            if (error.message.includes("Not enough stock")) {
-                return res.status(400).json({ success: false, error: error.message });
-            }
-            return res.status(500).json({
-                success: false,
-                error: "Internal Server Error",
-            });
-        }
-    },
-
-    payForOrder: async (req: Request, res: Response): Promise<Response> => {
-        try {
-            const userOrder = req.order;
-            if (userOrder.status !== "PENDING") return res.status(400).json({ success: false, error: "Order is not pending" });
-            await db.update(orders).set({ status: "PAID" }).where(eq(orders.id, userOrder.id));
-            return res.status(200).json({ success: true, message: "Order paid successfully" });
-        } catch (error: any) {
-            console.error(error);
-            return res.status(500).json({
-                success: false,
-                error: "Internal Server Error",
-            });
-        }
-    },
-
-    getAllOrdersByUserId: async (req: Request, res: Response): Promise<Response> => {
-        try {
-            const userId = req.user.id;
-
-            const userOrders = await db.query.orders.findMany({
-                where: eq(orders.userId, userId),
-                orderBy: (orders, { desc }) => [desc(orders.createdAt)],
-                with: {
-                    items: {
-                        columns: {
-                            id: true
-                        }
-                    }
+                if (item.sticker.type === "PHYSICAL") {
+                    await tx.update(stickers).set({ stock: item.sticker.stock - item.quantity }).where(eq(stickers.id, item.stickerId));
                 }
-            });
+            }
 
-            return res.status(200).json({ success: true, orders: userOrders });
-        } catch (error: any) {
-            console.error(error);
-            return res.status(500).json({
-                success: false,
-                error: "Internal Server Error",
-            });
-        }
-    },
+            await tx.insert(orderItems).values(newOrderItems);
+            await tx.delete(cartItemsTable).where(eq(cartItemsTable.cartId, cartId));
 
-    cancelOrder: async (req: Request, res: Response): Promise<Response> => {
-        try {
-            const userOrder = req.order;
-            if (!userOrder) return res.status(404).json({ success: false, error: "Order not found" });
-            if (userOrder.status !== "PENDING") return res.status(400).json({ success: false, error: "Order is not pending" });
-            await db.update(orders).set({ status: "CANCELLED" }).where(eq(orders.id, userOrder.id));
-            return res.status(200).json({ success: true, message: "Order cancelled successfully" });
-        } catch (error: any) {
-            console.error(error);
-            return res.status(500).json({
-                success: false,
-                error: "Internal Server Error",
+            return await tx.query.orders.findFirst({
+                where: eq(orders.id, newOrder.id),
+                with: { items: { with: { sticker: true } } }
             });
-        }
-    }
+        })
+        return res.status(201).json({ success: true, message: "Order created successfully", order });
+    }),
+    payForOrder: asyncHandler(async (req: Request, res: Response): Promise<Response> => {
+        const userOrder = req.order;
+        if (userOrder.status !== "PENDING") throw new AppError("Order is not pending", 400);
+        await db.update(orders).set({ status: "PAID" }).where(eq(orders.id, userOrder.id));
+        return res.status(200).json({ success: true, message: "Order paid successfully" });
+    }),
+    getAllOrdersByUserId: asyncHandler(async (req: Request, res: Response): Promise<Response> => {
+        const userId = req.user.id;
+        const userOrders = await db.query.orders.findMany({
+            where: eq(orders.userId, userId),
+            orderBy: (orders, { desc }) => [desc(orders.createdAt)],
+            with: { items: { with: { sticker: true } } }
+        });
+        if (!userOrders) throw new AppError("Orders not found", 404);
+        return res.status(200).json({ success: true, orders: userOrders });
+    }),
+    cancelOrder: asyncHandler(async (req: Request, res: Response): Promise<Response> => {
+        const userOrder = req.order;
+        if (!userOrder) throw new AppError("Order not found", 404);
+        if (userOrder.status !== "PENDING") throw new AppError("Order is not pending", 400);
+
+        await db.update(orders).set({ status: "CANCELLED" }).where(eq(orders.id, userOrder.id));
+        return res.status(200).json({ success: true, message: "Order cancelled successfully" });
+    })
 }
