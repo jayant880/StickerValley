@@ -16,13 +16,15 @@ import useStickers from '../hooks/useStickers';
 import useCart from '@/features/cart/hooks/useCart';
 import ReviewList from '@/features/review/components/ReviewList';
 import { useMemo } from 'react';
+import EditStickerDialog from './EditStickerDialog';
+import DeleteStickerDialog from './DeleteStickerDialog';
 
 const StickerDetail = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const { useStickerQuery } = useStickers();
     const { data: sticker, isLoading, isError, error } = useStickerQuery(id);
-    const { isSignedIn } = useAuth();
+    const { isSignedIn, userId } = useAuth();
     const { cart, addToCart, removeCartItem, isAdding, isRemoving } = useCart();
 
     const isInCart = useMemo(() => {
@@ -150,6 +152,15 @@ const StickerDetail = () => {
                 </div>
 
                 <div className="flex flex-col space-y-8">
+                    {isSignedIn && userId === sticker.shop?.userId && (
+                        <div className="flex flex-wrap gap-3">
+                            <EditStickerDialog sticker={sticker} />
+                            <DeleteStickerDialog
+                                stickerId={sticker.id}
+                                stickerName={sticker.name}
+                            />
+                        </div>
+                    )}
                     <div>
                         <div className="mb-4 flex items-center gap-3">
                             <Badge

@@ -33,3 +33,13 @@ export const createSticker = async (sticker: Partial<Sticker>): Promise<Sticker 
     const res = await api.post('/stickers', sticker);
     return res.data.success ? res.data.data : null;
 };
+
+export const updateSticker = async (sticker: Partial<Sticker>, stickerId: string) => {
+    const res = await api.put(`/stickers/${stickerId}`, sticker);
+    return res.data.success ? res.data.data : null;
+};
+
+export const deleteSticker = async (id: string): Promise<boolean> => {
+    const res = await api.delete(`/stickers/${id}`);
+    return res.data.success;
+};

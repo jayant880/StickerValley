@@ -1,6 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useStickerStore } from '../store/stickersStore';
-import { createSticker, getFilteredStickers, getStickerById } from '../api/sticker.api';
+import {
+    createSticker,
+    getFilteredStickers,
+    getStickerById,
+    updateSticker,
+    deleteSticker,
+} from '../api/sticker.api';
 import useDebounce from './useDebounce';
 
 export const useStickersQuery = () => {
@@ -61,6 +67,37 @@ export const useCreateSticker = () => {
     });
 };
 
+export const useUpdateSticker = (stickerId: string) => {
+    const queryClient = useQueryClient();
+    const { stickerForm } = useStickerStore();
+
+    return useMutation({
+        mutationFn: () => updateSticker(stickerForm, stickerId),
+        onSuccess: (data) => {
+            queryClient.invalidateQueries({ queryKey: ['sticker', stickerId] });
+            queryClient.invalidateQueries({ queryKey: ['stickers'] });
+            if (data?.id) queryClient.setQueryData(['sticker', stickerId], data);
+        },
+        onError: (error: Error) => {
+            console.error('Failed to update Sticker', error);
+        },
+    });
+};
+
+export const useDeleteSticker = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (id: string) => deleteSticker(id),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['stickers'] });
+        },
+        onError: (error: Error) => {
+            console.error('Failed to delete Sticker', error);
+        },
+    });
+};
+
 const useStickers = () => {
     const stickerQuery = useStickersQuery();
 
@@ -71,6 +108,8 @@ const useStickers = () => {
         isError: stickerQuery.isError,
         useStickerQuery,
         useCreateSticker,
+        useUpdateSticker,
+        useDeleteSticker,
     };
 };
 
