@@ -1,9 +1,9 @@
-import useWishlist from "../hooks/useWishlist";
-import StickerGrid from "@/features/stickers/components/StickerGrid";
-import { Heart, Home, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router";
-import { Badge } from "@/components/ui/badge";
+import useWishlist from '../hooks/useWishlist';
+import StickerGrid from '@/features/stickers/components/StickerGrid';
+import { Heart, Home, ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Link } from 'react-router';
+import { Badge } from '@/components/ui/badge';
 
 const Wishlist = () => {
     const { wishlist, isLoading, error } = useWishlist();
@@ -11,10 +11,14 @@ const Wishlist = () => {
     if (error) {
         return (
             <div className="container mx-auto px-4 py-20 text-center">
-                <div className="bg-red-50 text-red-600 p-6 rounded-2xl border border-red-100 max-w-md mx-auto">
-                    <h2 className="text-xl font-bold mb-2">Oops! Something went wrong</h2>
+                <div className="mx-auto max-w-md rounded-2xl border border-red-100 bg-red-50 p-6 text-red-600">
+                    <h2 className="mb-2 text-xl font-bold">Oops! Something went wrong</h2>
                     <p>{error.message}</p>
-                    <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
+                    <Button
+                        variant="outline"
+                        className="mt-4"
+                        onClick={() => window.location.reload()}
+                    >
                         Try Again
                     </Button>
                 </div>
@@ -23,32 +27,39 @@ const Wishlist = () => {
     }
 
     return (
-        <div className="container mx-auto px-4 py-12 max-w-7xl animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="animate-in fade-in slide-in-from-bottom-4 container mx-auto max-w-7xl px-4 py-12 duration-700">
             {/* Header Section */}
-            <div className="relative overflow-hidden bg-white p-8 md:p-12 rounded-3xl border shadow-sm mb-12">
-                <div className="absolute top-0 right-0 p-8 opacity-5 -rotate-12 pointer-events-none">
-                    <Heart className="w-64 h-64 fill-current" />
+            <div className="relative mb-12 overflow-hidden rounded-3xl border bg-white p-8 shadow-sm md:p-12">
+                <div className="pointer-events-none absolute top-0 right-0 -rotate-12 p-8 opacity-5">
+                    <Heart className="h-64 w-64 fill-current" />
                 </div>
 
-                <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
+                <div className="relative z-10 flex flex-col items-center justify-between gap-8 md:flex-row">
                     <div className="space-y-3 text-center md:text-left">
-                        <div className="flex items-center justify-center md:justify-start gap-3 mb-2">
-                            <Badge variant="secondary" className="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border-none px-4 py-1 rounded-full text-xs font-bold tracking-wider uppercase">
+                        <div className="mb-2 flex items-center justify-center gap-3 md:justify-start">
+                            <Badge
+                                variant="secondary"
+                                className="rounded-full border-none bg-indigo-50 px-4 py-1 text-xs font-bold tracking-wider text-indigo-700 uppercase hover:bg-indigo-100"
+                            >
                                 Personal Collection
                             </Badge>
                         </div>
-                        <h1 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">
+                        <h1 className="text-4xl font-black tracking-tight text-gray-900 md:text-5xl">
                             Your <span className="text-indigo-600">Wishlist</span>
                         </h1>
-                        <p className="text-gray-500 font-medium text-lg max-w-lg">
-                            Keep track of all the stickers you love. We'll let you know if any of them go on sale!
+                        <p className="max-w-lg text-lg font-medium text-gray-500">
+                            Keep track of all the stickers you love. We'll let you know if any of
+                            them go on sale!
                         </p>
                     </div>
 
                     <div className="flex gap-4">
                         <Link to="/stickers">
-                            <Button size="lg" className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-full px-8 shadow-lg shadow-indigo-200">
-                                Explore More <ArrowRight className="w-4 h-4 ml-2" />
+                            <Button
+                                size="lg"
+                                className="rounded-full bg-indigo-600 px-8 text-white shadow-lg shadow-indigo-200 hover:bg-indigo-700"
+                            >
+                                Explore More <ArrowRight className="ml-2 h-4 w-4" />
                             </Button>
                         </Link>
                     </div>
@@ -58,28 +69,35 @@ const Wishlist = () => {
             {/* Content Section */}
             <div className="space-y-8">
                 {wishlist && wishlist.length > 0 && (
-                    <div className="flex items-center gap-2 mb-6">
-                        <Heart className="w-5 h-5 text-red-500 fill-red-500" />
-                        <span className="text-sm font-bold text-gray-400 uppercase tracking-widest">
+                    <div className="mb-6 flex items-center gap-2">
+                        <Heart className="h-5 w-5 fill-red-500 text-red-500" />
+                        <span className="text-sm font-bold tracking-widest text-gray-400 uppercase">
                             {wishlist.length} {wishlist.length === 1 ? 'Sticker' : 'Stickers'} Saved
                         </span>
                     </div>
                 )}
 
                 {!isLoading && (!wishlist || wishlist.length === 0) ? (
-                    <div className="bg-gray-50/50 rounded-[3rem] border-2 border-dashed border-gray-200 py-24 text-center space-y-8">
-                        <div className="bg-white w-24 h-24 rounded-3xl flex items-center justify-center mx-auto shadow-xl rotate-3">
-                            <Heart className="w-12 h-12 text-gray-200" />
+                    <div className="space-y-8 rounded-[3rem] border-2 border-dashed border-gray-200 bg-gray-50/50 py-24 text-center">
+                        <div className="mx-auto flex h-24 w-24 rotate-3 items-center justify-center rounded-3xl bg-white shadow-xl">
+                            <Heart className="h-12 w-12 text-gray-200" />
                         </div>
                         <div className="space-y-2">
-                            <h3 className="text-2xl font-bold text-gray-900">Your wishlist is empty</h3>
-                            <p className="text-gray-500 font-medium max-w-xs mx-auto">
-                                Start exploring our collection and tap the heart icon to save stickers you love.
+                            <h3 className="text-2xl font-bold text-gray-900">
+                                Your wishlist is empty
+                            </h3>
+                            <p className="mx-auto max-w-xs font-medium text-gray-500">
+                                Start exploring our collection and tap the heart icon to save
+                                stickers you love.
                             </p>
                         </div>
                         <Link to="/stickers">
-                            <Button variant="outline" size="lg" className="rounded-full px-8 border-2 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 transition-all">
-                                <Home className="w-4 h-4 mr-2" /> Return to Shop
+                            <Button
+                                variant="outline"
+                                size="lg"
+                                className="rounded-full border-2 px-8 transition-all hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-600"
+                            >
+                                <Home className="mr-2 h-4 w-4" /> Return to Shop
                             </Button>
                         </Link>
                     </div>

@@ -1,11 +1,11 @@
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Star } from "lucide-react";
-import type { FormEvent } from "react";
-import { useState } from "react";
-import { toast } from "sonner";
-import { useReviewMutation } from "../hooks/useReview";
-import useReviewStore from "../store/useReviewStore";
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Star } from 'lucide-react';
+import type { FormEvent } from 'react';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { useReviewMutation } from '../hooks/useReview';
+import useReviewStore from '../store/useReviewStore';
 
 const ReviewForm = ({ stickerId }: { stickerId: string }) => {
     const { reviewForm, reviewFormActions, clearReviewForm } = useReviewStore();
@@ -18,24 +18,27 @@ const ReviewForm = ({ stickerId }: { stickerId: string }) => {
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
         if (rating === 0) {
-            toast.error("Please select a rating");
+            toast.error('Please select a rating');
             return;
         }
-        mutate({ stickerId, rating, comment }, {
-            onSuccess: () => {
-                toast.success("Review added successfully");
-                clearReviewForm();
-                setHoverRating(0);
+        mutate(
+            { stickerId, rating, comment },
+            {
+                onSuccess: () => {
+                    toast.success('Review added successfully');
+                    clearReviewForm();
+                    setHoverRating(0);
+                },
+                onError: (error: Error) => {
+                    toast.error('Failed to add review: ' + error.message);
+                },
             },
-            onError: (error: Error) => {
-                toast.error("Failed to add review: " + error.message);
-            }
-        });
-    }
+        );
+    };
 
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Write a Review</h3>
+        <div className="mb-8 rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+            <h3 className="mb-4 text-lg font-semibold text-gray-900">Write a Review</h3>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="flex flex-col gap-2">
                     <label className="text-sm font-medium text-gray-700">Rating</label>
@@ -47,13 +50,14 @@ const ReviewForm = ({ stickerId }: { stickerId: string }) => {
                                 onClick={() => setRating(star)}
                                 onMouseEnter={() => setHoverRating(star)}
                                 onMouseLeave={() => setHoverRating(0)}
-                                className="focus:outline-none transition-transform hover:scale-110"
+                                className="transition-transform hover:scale-110 focus:outline-none"
                             >
                                 <Star
-                                    className={`w-8 h-8 ${star <= (hoverRating || rating)
-                                            ? "fill-yellow-400 text-yellow-400"
-                                            : "text-gray-300"
-                                        }`}
+                                    className={`h-8 w-8 ${
+                                        star <= (hoverRating || rating)
+                                            ? 'fill-yellow-400 text-yellow-400'
+                                            : 'text-gray-300'
+                                    }`}
                                 />
                             </button>
                         ))}
@@ -84,14 +88,14 @@ const ReviewForm = ({ stickerId }: { stickerId: string }) => {
                     <Button
                         type="submit"
                         disabled={isPending}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                        className="bg-indigo-600 text-white hover:bg-indigo-700"
                     >
-                        {isPending ? "Posting..." : "Post Review"}
+                        {isPending ? 'Posting...' : 'Post Review'}
                     </Button>
                 </div>
             </form>
         </div>
-    )
-}
+    );
+};
 
-export default ReviewForm
+export default ReviewForm;

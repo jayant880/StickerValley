@@ -1,17 +1,17 @@
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export const StickerCardSkeleton = () => {
     return (
-        <Card className="h-full flex flex-col overflow-hidden border-border/50 bg-card">
+        <Card className="border-border/50 bg-card flex h-full flex-col overflow-hidden">
             <CardHeader className="p-0">
-                <div className="relative w-full pt-[100%] overflow-hidden bg-muted/20">
-                    <Skeleton className="absolute top-0 left-0 w-full h-full" />
+                <div className="bg-muted/20 relative w-full overflow-hidden pt-[100%]">
+                    <Skeleton className="absolute top-0 left-0 h-full w-full" />
                 </div>
             </CardHeader>
-            <CardContent className="flex-1 p-4 space-y-3">
+            <CardContent className="flex-1 space-y-3 p-4">
                 <div className="space-y-2">
-                    <div className="flex justify-between items-center gap-2">
+                    <div className="flex items-center justify-between gap-2">
                         <Skeleton className="h-5 w-16" />
                         <Skeleton className="h-6 w-12" />
                     </div>
@@ -20,7 +20,7 @@ export const StickerCardSkeleton = () => {
                     <Skeleton className="h-4 w-2/3" />
                 </div>
             </CardContent>
-            <CardFooter className="p-4 pt-0 gap-2 grid grid-cols-2">
+            <CardFooter className="grid grid-cols-2 gap-2 p-4 pt-0">
                 <Skeleton className="h-9 w-full" />
                 <Skeleton className="h-9 w-full" />
             </CardFooter>

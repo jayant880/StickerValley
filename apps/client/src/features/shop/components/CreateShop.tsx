@@ -1,15 +1,15 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Spinner } from "@/components/ui/spinner";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Store, Sparkles } from "lucide-react";
-import { useNavigate } from "react-router";
-import { toast } from "sonner";
-import useShop from "../hooks/useShop";
-import { useShopStore } from "../store/shopStore";
-import { useEffect } from "react";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Spinner } from '@/components/ui/spinner';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Store, Sparkles } from 'lucide-react';
+import { useNavigate } from 'react-router';
+import { toast } from 'sonner';
+import useShop from '../hooks/useShop';
+import { useShopStore } from '../store/shopStore';
+import { useEffect } from 'react';
 
 const CreateShop = () => {
     const navigate = useNavigate();
@@ -21,69 +21,68 @@ const CreateShop = () => {
 
     useEffect(() => {
         return () => {
-            clearShopForm()
-        }
-    }, [clearShopForm])
-
+            clearShopForm();
+        };
+    }, [clearShopForm]);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         if (!shopForm.name.trim() || !shopForm.description.trim()) {
-            toast.error("Please fill in all fields");
+            toast.error('Please fill in all fields');
             return;
         }
 
         createShop(undefined, {
             onSuccess: () => {
-                toast.success("Shop created successfully!");
+                toast.success('Shop created successfully!');
                 clearShopForm();
-                navigate("/shop/me");
+                navigate('/shop/me');
             },
             onError: (error: Error) => {
-                toast.error("Failed to create shop. Please try again.");
+                toast.error('Failed to create shop. Please try again.');
                 console.error(error);
-            }
+            },
         });
-
     };
 
     useEffect(() => {
         if (createShopError) {
-            toast.error("Failed to create shop. Please try again.");
+            toast.error('Failed to create shop. Please try again.');
         }
-    }, [createShopError])
-
+    }, [createShopError]);
 
     return (
-        <div className="min-h-[calc(100vh-4rem)] w-full flex items-center justify-center p-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            <div className="w-full max-w-md animate-in fade-in zoom-in duration-500">
-                <div className="text-center mb-8 space-y-2">
-                    <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                        <Store className="w-6 h-6 text-primary" />
+        <div className="animate-in fade-in slide-in-from-bottom-4 flex min-h-[calc(100vh-4rem)] w-full items-center justify-center p-4 duration-700">
+            <div className="animate-in fade-in zoom-in w-full max-w-md duration-500">
+                <div className="mb-8 space-y-2 text-center">
+                    <div className="bg-primary/10 mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full">
+                        <Store className="text-primary h-6 w-6" />
                     </div>
-                    <h1 className="text-3xl font-bold tracking-tight bg-linear-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                    <h1 className="from-primary to-primary/60 bg-linear-to-r bg-clip-text text-3xl font-bold tracking-tight text-transparent">
                         Sticker Valley
                     </h1>
-                    <p className="text-muted-foreground">
-                        Turn your creativity into a business
-                    </p>
+                    <p className="text-muted-foreground">Turn your creativity into a business</p>
                 </div>
 
-                <Card className="border-border/50 shadow-xl backdrop-blur-sm bg-card/95">
+                <Card className="border-border/50 bg-card/95 shadow-xl backdrop-blur-sm">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-xl">
-                            <Sparkles className="w-5 h-5 text-yellow-500" />
+                            <Sparkles className="h-5 w-5 text-yellow-500" />
                             Create your Shop
                         </CardTitle>
                         <CardDescription>
-                            Give your shop a catchy name and tell the world what makes your stickers special.
+                            Give your shop a catchy name and tell the world what makes your stickers
+                            special.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-6">
-                            <div className="space-y-2 group">
-                                <Label htmlFor="shopName" className="group-focus-within:text-primary transition-colors">
+                            <div className="group space-y-2">
+                                <Label
+                                    htmlFor="shopName"
+                                    className="group-focus-within:text-primary transition-colors"
+                                >
                                     Shop Name
                                 </Label>
                                 <Input
@@ -92,12 +91,15 @@ const CreateShop = () => {
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     placeholder="e.g. Kawaii Stickers Co."
-                                    className="interactive-input transition-all duration-300 focus:ring-2 focus:ring-primary/20"
+                                    className="interactive-input focus:ring-primary/20 transition-all duration-300 focus:ring-2"
                                 />
                             </div>
 
-                            <div className="space-y-2 group">
-                                <Label htmlFor="shopDescription" className="group-focus-within:text-primary transition-colors">
+                            <div className="group space-y-2">
+                                <Label
+                                    htmlFor="shopDescription"
+                                    className="group-focus-within:text-primary transition-colors"
+                                >
                                     Description
                                 </Label>
                                 <Textarea
@@ -106,14 +108,14 @@ const CreateShop = () => {
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
                                     placeholder="Describe your sticker style and what you offer..."
-                                    className="min-h-[120px] resize-none interactive-input transition-all duration-300 focus:ring-2 focus:ring-primary/20"
+                                    className="interactive-input focus:ring-primary/20 min-h-[120px] resize-none transition-all duration-300 focus:ring-2"
                                 />
                             </div>
 
                             <Button
                                 type="submit"
                                 disabled={isCreating}
-                                className="w-full h-11 text-base font-medium transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
+                                className="h-11 w-full text-base font-medium transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]"
                             >
                                 {isCreating ? (
                                     <>
@@ -121,19 +123,19 @@ const CreateShop = () => {
                                         Creating Shop...
                                     </>
                                 ) : (
-                                    "Launch Shop"
+                                    'Launch Shop'
                                 )}
                             </Button>
                         </form>
                     </CardContent>
                 </Card>
 
-                <p className="text-center text-sm text-muted-foreground mt-6">
+                <p className="text-muted-foreground mt-6 text-center text-sm">
                     By creating a shop, you agree to our Terms of Service
                 </p>
             </div>
         </div>
     );
-}
+};
 
 export default CreateShop;

@@ -1,19 +1,19 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { addToCart, clearCart, getCart, removeCartItem, updateCartItem } from "../api/cart.api";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { addToCart, clearCart, getCart, removeCartItem, updateCartItem } from '../api/cart.api';
 
-import { useAuth } from "@clerk/clerk-react";
+import { useAuth } from '@clerk/clerk-react';
 
 export const useCartQuery = () => {
     const { isSignedIn } = useAuth();
 
     return useQuery({
-        queryKey: ["cart"],
+        queryKey: ['cart'],
         queryFn: () => getCart(),
         retry: 2,
         retryDelay: 1000,
         enabled: !!isSignedIn,
-    })
-}
+    });
+};
 
 export const useAddToCartMutation = () => {
     const queryClient = useQueryClient();
@@ -21,13 +21,13 @@ export const useAddToCartMutation = () => {
     return useMutation({
         mutationFn: ({ stickerId }: { stickerId: string }) => addToCart({ stickerId }),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["cart"] });
+            queryClient.invalidateQueries({ queryKey: ['cart'] });
         },
         onError: (error: Error) => {
-            console.error("Failed to add to cart", error);
-        }
-    })
-}
+            console.error('Failed to add to cart', error);
+        },
+    });
+};
 
 export const useClearCartMutation = () => {
     const queryClient = useQueryClient();
@@ -35,27 +35,28 @@ export const useClearCartMutation = () => {
     return useMutation({
         mutationFn: clearCart,
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["cart"] });
+            queryClient.invalidateQueries({ queryKey: ['cart'] });
         },
         onError: (error: Error) => {
-            console.error("Failed to clear cart", error);
-        }
-    })
-}
+            console.error('Failed to clear cart', error);
+        },
+    });
+};
 
 export const useUpdateCartItemMutation = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({ stickerId, quantity }: { stickerId: string, quantity: number }) => updateCartItem({ stickerId, quantity }),
+        mutationFn: ({ stickerId, quantity }: { stickerId: string; quantity: number }) =>
+            updateCartItem({ stickerId, quantity }),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["cart"] });
+            queryClient.invalidateQueries({ queryKey: ['cart'] });
         },
         onError: (error: Error) => {
-            console.error("Failed to update cart item", error);
-        }
-    })
-}
+            console.error('Failed to update cart item', error);
+        },
+    });
+};
 
 export const useRemoveCartItemMutation = () => {
     const queryClient = useQueryClient();
@@ -63,13 +64,13 @@ export const useRemoveCartItemMutation = () => {
     return useMutation({
         mutationFn: ({ stickerId }: { stickerId: string }) => removeCartItem({ stickerId }),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["cart"] });
+            queryClient.invalidateQueries({ queryKey: ['cart'] });
         },
         onError: (error: Error) => {
-            console.error("Failed to remove cart item", error);
-        }
-    })
-}
+            console.error('Failed to remove cart item', error);
+        },
+    });
+};
 
 const useCart = () => {
     const cartQuery = useCartQuery();
@@ -98,7 +99,7 @@ const useCart = () => {
         isClearing: clearCartMutation.isPending,
         isUpdating: updateCartItemMutation.isPending,
         isRemoving: removeCartItemMutation.isPending,
-    }
-}
+    };
+};
 
 export default useCart;

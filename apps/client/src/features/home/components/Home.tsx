@@ -12,7 +12,7 @@ const Home = () => {
                 <Dashboard />
             </SignedIn>
         </>
-    )
-}
+    );
+};
 
-export default Home
+export default Home;

@@ -1,6 +1,6 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createOrder, getOrderById, getOrders, payForOrder } from "../api/order.api";
-import type { OrderWithRelations } from "@sticker-valley/shared-types";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { createOrder, getOrderById, getOrders, payForOrder } from '../api/order.api';
+import type { OrderWithRelations } from '@sticker-valley/shared-types';
 
 export const useOrderQuery = () => {
     return useQuery({
@@ -9,20 +9,20 @@ export const useOrderQuery = () => {
         retry: 2,
         retryDelay: 1000,
     });
-}
+};
 
 export const useOrderByIdQuery = (orderId?: string) => {
     return useQuery<OrderWithRelations | null>({
         queryKey: ['order', orderId],
         queryFn: () => {
-            if (!orderId) throw new Error("Order ID is required");
+            if (!orderId) throw new Error('Order ID is required');
             return getOrderById({ orderId });
         },
         enabled: !!orderId,
         retry: 2,
         retryDelay: 1000,
     });
-}
+};
 
 export const useOrderMutation = () => {
     const queryClient = useQueryClient();
@@ -35,10 +35,10 @@ export const useOrderMutation = () => {
             }
         },
         onError: (error: Error) => {
-            console.error("Failed to create order", error);
-        }
-    })
-}
+            console.error('Failed to create order', error);
+        },
+    });
+};
 
 export const usePayForOrderMutation = () => {
     const queryClient = useQueryClient();
@@ -48,10 +48,10 @@ export const usePayForOrderMutation = () => {
             queryClient.invalidateQueries({ queryKey: ['orders'] });
         },
         onError: (error: Error) => {
-            console.error("Failed to pay for order", error);
-        }
-    })
-}
+            console.error('Failed to pay for order', error);
+        },
+    });
+};
 
 const useOrder = () => {
     const orderQuery = useOrderQuery();
@@ -75,6 +75,6 @@ const useOrder = () => {
         isCreating: orderMutation.isPending,
         isPaying: payForOrderMutation.isPending,
     };
-}
+};
 
 export default useOrder;

@@ -1,15 +1,22 @@
-import { Button } from "@/components/ui/button";
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
-import { ShoppingCart } from "lucide-react";
-import { Link } from "react-router";
+import { Button } from '@/components/ui/button';
+import {
+    Empty,
+    EmptyContent,
+    EmptyDescription,
+    EmptyHeader,
+    EmptyMedia,
+    EmptyTitle,
+} from '@/components/ui/empty';
+import { ShoppingCart } from 'lucide-react';
+import { Link } from 'react-router';
 
 export const CartEmptyState = () => {
     return (
-        <div className="container mx-auto px-4 py-20 max-w-6xl">
+        <div className="container mx-auto max-w-6xl px-4 py-20">
             <Empty>
                 <EmptyHeader>
                     <EmptyMedia variant="icon">
-                        <ShoppingCart className="w-6 h-6" />
+                        <ShoppingCart className="h-6 w-6" />
                     </EmptyMedia>
                     <EmptyTitle>Your cart is empty</EmptyTitle>
                     <EmptyDescription>

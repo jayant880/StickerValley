@@ -1,9 +1,9 @@
-import { api } from "@/lib/axios"
+import { api } from '@/lib/axios';
 
 export const downloadInvoice = async (orderId: string) => {
     try {
-        const res = await api.get("/invoice/" + orderId, {
-            responseType: 'blob'
+        const res = await api.get('/invoice/' + orderId, {
+            responseType: 'blob',
         });
 
         const url = window.URL.createObjectURL(new Blob([res.data]));
@@ -23,4 +23,4 @@ export const downloadInvoice = async (orderId: string) => {
         console.error(error);
         return false;
     }
-}
+};
