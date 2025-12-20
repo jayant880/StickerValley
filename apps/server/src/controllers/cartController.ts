@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { db } from "../db";
 import { eq, and } from "drizzle-orm";
-import { carts, cartItems, stickers } from "../db/schema";
+import { carts, cartItems } from "../db/schema";
 import { calculateCartTotal } from "../services/cartService";
 
 /**

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { db } from "../db";
 import { eq } from "drizzle-orm";
-import { stickers, wishlistItems, wishlists } from "../db/schema";
+import { wishlistItems } from "../db/schema";
 
 const wishlistController = {
     getWishlist: async (req: Request, res: Response) => {

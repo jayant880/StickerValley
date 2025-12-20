@@ -88,12 +88,6 @@ export const stickerController = {
     updateSticker: async (req: Request, res: Response) => {
         try {
             const sticker = req.sticker;
-            const shop = req.shop;
-
-            if (sticker.shopId !== shop.id) {
-                return res.status(403).json({ success: false, error: "Unauthorized: You do not own this sticker" });
-            }
-
             const { name, description, images, price, type, stock } = req.body;
 
             if (!name || !description || !images || !price || !type || stock === undefined) {
@@ -125,12 +119,6 @@ export const stickerController = {
     deleteSticker: async (req: Request, res: Response) => {
         try {
             const sticker = req.sticker;
-            const shop = req.shop;
-
-            if (sticker.shopId !== shop.id) {
-                return res.status(403).json({ success: false, error: "Unauthorized: You do not own this sticker" });
-            }
-
             const result = await db.delete(stickers)
                 .where(eq(stickers.id, sticker.id))
                 .returning();

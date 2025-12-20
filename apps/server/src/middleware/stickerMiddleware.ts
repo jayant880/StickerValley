@@ -23,3 +23,16 @@ export const requireSticker = async (req: Request, res: Response, next: NextFunc
         res.status(500).json({ success: false, error: "Internal server error" });
     }
 }
+
+export const requireStickerOwnership = (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const sticker = req.sticker;
+        const shop = req.shop;
+        if (!sticker || !shop) return res.status(400).json({ success: false, error: "Missing required data for ownership check" });
+        if (sticker.shopId !== shop.id) return res.status(403).json({ success: false, error: "Unauthorized: You do not own this sticker" });
+        next();
+    } catch (error) {
+        console.error("Error while checking sticker ownership", error);
+        res.status(500).json({ success: false, error: "Internal server error" });
+    }
+}
