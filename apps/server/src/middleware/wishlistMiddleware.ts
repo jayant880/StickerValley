@@ -3,11 +3,13 @@ import { getAuth } from "@clerk/express";
 import { db } from "../db";
 import { wishlists, WishlistWithItems } from "../db/schema";
 import { eq } from "drizzle-orm";
+import { asyncHandler } from "../utils/asyncHandler";
+import { AppError } from "../utils/AppError";
 
-export const requireWishlist = async (req: Request, res: Response, next: NextFunction) => {
-    try {
+export const requireWishlist = asyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
         const { userId } = getAuth(req);
-        if (!userId) return res.status(401).json({ success: false, message: "Unauthorized" });
+        if (!userId) throw new AppError("Unauthorized", 401);
         const wishlist = await db.query.wishlists.findFirst({
             where: eq(wishlists.userId, userId),
             with: {
@@ -19,13 +21,9 @@ export const requireWishlist = async (req: Request, res: Response, next: NextFun
             },
         });
 
-        if (!wishlist)
-            return res.status(404).json({ success: false, message: "Wishlist not found" });
+        if (!wishlist) throw new AppError("Wishlist not found", 404);
 
         req.wishlist = wishlist as WishlistWithItems;
         next();
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ success: false, message: "Internal Server Error" });
     }
-};
+);

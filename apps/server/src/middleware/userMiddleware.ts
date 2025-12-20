@@ -1,19 +1,16 @@
 import { getAuth } from "@clerk/express";
 import { NextFunction, Request, Response } from "express";
 import { getOrSyncUser } from "../services/userService";
+import { asyncHandler } from "../utils/asyncHandler";
+import { AppError } from "../utils/AppError";
 
-export const requireUser = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const { userId } = getAuth(req);
-        if (!userId) return res.status(401).json({ success: false, message: "Unauthorized" });
+export const requireUser = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
+    const { userId } = getAuth(req);
+    if (!userId) throw new AppError("Unauthorized", 401);
 
-        const user = await getOrSyncUser(userId);
-        if (!user) return res.status(404).json({ success: false, message: "User not found" });
+    const user = await getOrSyncUser(userId);
+    if (!user) throw new AppError("User not found", 404);
 
-        req.user = user;
-        next();
-    } catch (error) {
-        console.error("Error in userMiddleware:", error);
-        return res.status(500).json({ success: false, message: "Internal server error" });
-    }
-};
+    req.user = user;
+    next();
+});

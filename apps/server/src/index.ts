@@ -66,14 +66,9 @@ db.execute("SELECT 1")
 
 app.use((req, res) => {
     res.status(404).json({
-        error: "Route Not Found",
-    });
-});
-
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-    console.error(err);
-    res.status(500).json({
-        error: "Internal Server Error",
+        success: false,
+        message: "Route Not Found",
+        data: null,
     });
 });
 

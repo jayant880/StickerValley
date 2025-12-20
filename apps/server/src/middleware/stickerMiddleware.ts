@@ -2,11 +2,13 @@ import { NextFunction, Request, Response } from "express";
 import { db } from "../db";
 import { eq } from "drizzle-orm";
 import { stickers, type StickerWithShopAndReviews } from "../db/schema";
+import { asyncHandler } from "../utils/asyncHandler";
+import { AppError } from "../utils/AppError";
 
-export const requireSticker = async (req: Request, res: Response, next: NextFunction) => {
-    try {
+export const requireSticker = asyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
         const id = req.params.id || req.params.stickerId || req.body.stickerId;
-        if (!id) return res.status(400).json({ success: false, error: "Sticker ID is required" });
+        if (!id) throw new AppError("Sticker ID is required", 400);
 
         const sticker = await db.query.stickers.findFirst({
             where: eq(stickers.id, id),
@@ -15,32 +17,17 @@ export const requireSticker = async (req: Request, res: Response, next: NextFunc
                 reviews: true,
             },
         });
-        if (!sticker) return res.status(404).json({ success: false, error: "Sticker not found" });
+        if (!sticker) throw new AppError("Sticker not found", 404);
         req.sticker = sticker as StickerWithShopAndReviews;
         next();
-    } catch (error) {
-        console.error("Error while fetching sticker", error);
-        res.status(500).json({ success: false, error: "Internal server error" });
     }
-};
+);
 
 export const requireStickerOwnership = (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const sticker = req.sticker;
-        const shop = req.shop;
-        if (!sticker || !shop)
-            return res.status(400).json({
-                success: false,
-                error: "Missing required data for ownership check",
-            });
-        if (sticker.shopId !== shop.id)
-            return res.status(403).json({
-                success: false,
-                error: "Unauthorized: You do not own this sticker",
-            });
-        next();
-    } catch (error) {
-        console.error("Error while checking sticker ownership", error);
-        res.status(500).json({ success: false, error: "Internal server error" });
-    }
+    const sticker = req.sticker;
+    const shop = req.shop;
+    if (!sticker || !shop) throw new AppError("Missing required data for ownership check", 400);
+    if (sticker.shopId !== shop.id)
+        throw new AppError("Unauthorized: You do not own this sticker", 403);
+    next();
 };

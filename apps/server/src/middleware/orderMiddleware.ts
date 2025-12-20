@@ -2,14 +2,16 @@ import { Request, Response, NextFunction } from "express";
 import { db } from "../db";
 import { eq } from "drizzle-orm";
 import { orders, OrderWithItems } from "../db/schema";
+import { asyncHandler } from "../utils/asyncHandler";
+import { AppError } from "../utils/AppError";
 
-export const requireOrder = async (req: Request, res: Response, next: NextFunction) => {
-    try {
+export const requireOrder = asyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
         const userId = req.user?.id;
         const { orderId } = req.params;
-        if (!userId) return res.status(401).json({ success: false, error: "Unauthorized" });
-        if (!orderId)
-            return res.status(400).json({ success: false, error: "Order ID is required" });
+        if (!userId) throw new AppError("Unauthorized", 401);
+        if (!orderId) throw new AppError("Order ID is required", 400);
+
         const order = await db.query.orders.findFirst({
             where: eq(orders.id, orderId),
             with: {
@@ -22,13 +24,9 @@ export const requireOrder = async (req: Request, res: Response, next: NextFuncti
             },
         });
 
-        if (!order) return res.status(404).json({ success: false, error: "Order not found" });
-        if (order.userId !== userId)
-            return res.status(403).json({ success: false, error: "Forbidden" });
+        if (!order) throw new AppError("Order not found", 404);
+        if (order.userId !== userId) throw new AppError("Forbidden", 403);
         req.order = order as OrderWithItems;
         next();
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ success: false, error: "Internal Server Error" });
     }
-};
+);
