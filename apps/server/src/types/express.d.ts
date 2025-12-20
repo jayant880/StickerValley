@@ -1,4 +1,4 @@
-import { CartWithItems, OrderWithItems, WishlistWithItems, User } from "../db/schema";
+import { CartWithItems, OrderWithItems, WishlistWithItems, User, ShopWithStickers } from "../db/schema";
 
 declare global {
     namespace Express {
@@ -7,6 +7,7 @@ declare global {
             cart: CartWithItems;
             order: OrderWithItems;
             wishlist: WishlistWithItems;
+            shop: ShopWithStickers;
         }
     }
 }

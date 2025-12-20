@@ -1,4 +1,3 @@
-import { getAuth } from "@clerk/express";
 import { Request, Response } from "express";
 import { db } from "../db";
 import { eq } from "drizzle-orm";
@@ -7,14 +6,7 @@ import { shops, users } from "../db/schema";
 const shopController = {
     getShop: async (req: Request, res: Response) => {
         try {
-            const { shopId } = req.params;
-
-            if (!shopId) return res.status(400).json({ success: false, message: "Shop ID is required" });
-
-            const shop = await db.query.shops.findFirst({ where: eq(shops.id, shopId), with: { stickers: true, user: true } });
-            if (!shop) return res.status(404).json({ success: false, message: "Shop not found" });
-
-            return res.status(200).json({ success: true, message: "Shop fetched successfully", shop });
+            return res.status(200).json({ success: true, message: "Shop fetched successfully", shop: req.shop });
 
         } catch (error) {
             console.error(error);
@@ -24,21 +16,17 @@ const shopController = {
 
     createShop: async (req: Request, res: Response) => {
         try {
-            const { userId } = getAuth(req);
+            const user = req.user;
             const { name, description } = req.body;
 
-            if (!userId) return res.status(401).json({ success: false, message: "Unauthorized" });
             if (!name || !description) return res.status(400).json({ success: false, message: "Name and description are required" });
 
-            const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
-            if (!user) return res.status(404).json({ success: false, message: "User not found" });
-
-            const existingShop = await db.query.shops.findFirst({ where: eq(shops.userId, userId) });
+            const existingShop = await db.query.shops.findFirst({ where: eq(shops.userId, user.id) });
             if (existingShop) return res.status(400).json({ success: false, message: "Shop already exists" });
 
             const shop = await db.transaction(async (tx) => {
-                const [newShop] = await tx.insert(shops).values({ name, description, userId }).returning();
-                await tx.update(users).set({ role: "VENDOR" }).where(eq(users.id, userId));
+                const [newShop] = await tx.insert(shops).values({ name, description, userId: user.id }).returning();
+                await tx.update(users).set({ role: "VENDOR" }).where(eq(users.id, user.id));
                 return newShop;
             })
 
@@ -52,14 +40,7 @@ const shopController = {
 
     getShopByUserId: async (req: Request, res: Response) => {
         try {
-            const { userId } = getAuth(req);
-            if (!userId) return res.status(401).json({ success: false, message: "Unauthorized" });
-
-            const shop = await db.query.shops.findFirst({ where: eq(shops.userId, userId), with: { stickers: true } });
-            if (!shop) return res.status(404).json({ success: false, message: "Shop not found" });
-
-            return res.status(200).json({ success: true, message: "Shop fetched successfully", shop });
-
+            return res.status(200).json({ success: true, message: "Shop fetched successfully", shop: req.shop });
         } catch (error) {
             console.error(error);
             return res.status(500).json({ success: false, message: "Internal server error" });
