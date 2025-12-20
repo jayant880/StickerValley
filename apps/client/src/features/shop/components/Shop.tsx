@@ -7,10 +7,12 @@ import { Plus, Store, Package, Layers, Edit } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
-import useShop from '../hooks/useShop';
+import useShop, { useUpdateShopMutation } from '../hooks/useShop';
 import { useMeQuery } from '@/features/auth/hooks/useUser';
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
+import { useShopStore } from '../store/shopStore';
+import { toast } from 'sonner';
 
 interface ShopWithStickers extends ShopType {
     stickers: Sticker[];
@@ -23,12 +25,40 @@ const Shop = () => {
     const { data: currentUser, isLoading: isUserLoading } = useMeQuery();
     const { myShop: myShopData, myShopLoading, useShopByIdQuery } = useShop();
     const { data: shop, isLoading: shopLoading } = useShopByIdQuery(shopId);
-
+    const { shopForm, shopFormActions, clearShopForm } = useShopStore();
+    const updateShopMutation = useUpdateShopMutation();
     const [isEditing, setIsEditing] = useState(false);
 
     const currentShop = shop || myShopData;
     const isLoading = shopLoading || myShopLoading || isUserLoading;
     const isMyShopView = !shopId;
+
+    const handleStartEditing = () => {
+        if (!currentShop) return;
+        shopFormActions.setName(currentShop.name);
+        shopFormActions.setDescription(currentShop.description || '');
+        setIsEditing(true);
+    };
+
+    const handleUpdate = () => {
+        if (!user || !myShopData?.id) return;
+        updateShopMutation.mutate(undefined, {
+            onSuccess: () => {
+                setIsEditing(false);
+                toast.success('Shop updated successfully');
+                clearShopForm();
+            },
+            onError: (error) => {
+                console.error('Update error:', error);
+                toast.error('Failed to update shop');
+            },
+        });
+    };
+
+    const handleCancel = () => {
+        setIsEditing(false);
+        clearShopForm();
+    };
 
     if (!isLoaded || isLoading) {
         return (
@@ -110,10 +140,35 @@ const Shop = () => {
                                 )}
                             </div>
                             {isEditing ? (
-                                <>
-                                    <Input value={currentShop.name} />
-                                    <Input value={currentShop.description || ''} />
-                                </>
+                                <div className="space-y-3">
+                                    <Input
+                                        value={shopForm.name}
+                                        onChange={(e) => shopFormActions.setName(e.target.value)}
+                                        placeholder="Shop Name"
+                                        className="h-12 text-2xl font-bold"
+                                    />
+                                    <Input
+                                        value={shopForm.description}
+                                        onChange={(e) =>
+                                            shopFormActions.setDescription(e.target.value)
+                                        }
+                                        placeholder="Shop Description"
+                                        className="text-lg"
+                                    />
+                                    <div className="flex gap-2">
+                                        <Button
+                                            onClick={handleUpdate}
+                                            disabled={updateShopMutation.isPending}
+                                        >
+                                            {updateShopMutation.isPending
+                                                ? 'Saving...'
+                                                : 'Save Changes'}
+                                        </Button>
+                                        <Button variant="outline" onClick={handleCancel}>
+                                            Cancel
+                                        </Button>
+                                    </div>
+                                </div>
                             ) : (
                                 <>
                                     <h1 className="from-foreground to-foreground/70 bg-linear-to-r bg-clip-text text-4xl font-extrabold tracking-tight text-transparent md:text-5xl lg:text-6xl">
@@ -126,10 +181,10 @@ const Shop = () => {
                             )}
                         </div>
 
-                        {user?.id === currentShop.userId && (
+                        {user?.id === currentShop.userId && !isEditing && (
                             <div className="flex gap-3">
                                 <Button
-                                    onClick={() => setIsEditing(true)}
+                                    onClick={handleStartEditing}
                                     className="hover:shadow-primary/25 shadow-lg transition-all"
                                 >
                                     <Edit className="mr-2 h-4 w-4" />

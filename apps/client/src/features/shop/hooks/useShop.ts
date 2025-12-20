@@ -1,4 +1,4 @@
-import { createShop, getMyShop, getShopById } from '../api/shop.api';
+import { createShop, getMyShop, getShopById, updateShop } from '../api/shop.api';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useShopStore } from '../store/shopStore';
 
@@ -47,6 +47,24 @@ export const useCreateShopMutation = () => {
     });
 };
 
+export const useUpdateShopMutation = () => {
+    const queryClient = useQueryClient();
+    const { shopForm } = useShopStore();
+
+    return useMutation({
+        mutationFn: () => updateShop({ name: shopForm.name, description: shopForm.description }),
+        onSuccess: (data) => {
+            queryClient.invalidateQueries({ queryKey: ['shop'] });
+            queryClient.invalidateQueries({ queryKey: ['myShop'] });
+            queryClient.invalidateQueries({ queryKey: getMeKey() });
+            if (data?.id) queryClient.setQueryData(['shop', data.id], data);
+        },
+        onError: (error) => {
+            console.error(`Error while updating shop: ${error}`);
+        },
+    });
+};
+
 const useShop = () => {
     const myShopQuery = useMyShopQuery();
     const createShopMutation = useCreateShopMutation();
@@ -58,6 +76,7 @@ const useShop = () => {
 
         useShopByIdQuery,
         useCreateShopMutation,
+        useUpdateShopMutation,
 
         createShop: createShopMutation.mutate,
 
