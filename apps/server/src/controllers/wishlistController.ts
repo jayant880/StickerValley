@@ -18,21 +18,17 @@ const wishlistController = {
         try {
             const userWishlist = req.wishlist
             let wishlistId = userWishlist.id;
+            const sticker = req.sticker;
 
-            const { stickerId } = req.body;
-            if (!stickerId) return res.status(400).json({ success: false, message: "Sticker ID is required" });
-
-            const sticker = await db.query.stickers.findFirst({ where: eq(stickers.id, stickerId) });
-            if (!sticker) return res.status(404).json({ success: false, message: "Sticker not found" });
             const existingItem = await db.query.wishlistItems.findFirst({
                 where: (items, { and }) => and(
                     eq(items.wishlistId, wishlistId),
-                    eq(items.stickerId, stickerId)
+                    eq(items.stickerId, sticker.id)
                 )
             });
             if (existingItem) return res.status(400).json({ success: false, message: "Sticker already in wishlist" });
 
-            await db.insert(wishlistItems).values({ stickerId, wishlistId });
+            await db.insert(wishlistItems).values({ stickerId: sticker.id, wishlistId });
             return res.status(200).json({ success: true, message: "Sticker added to wishlist successfully" });
         } catch (error) {
             console.error(error);
@@ -42,13 +38,12 @@ const wishlistController = {
     removeWishlistItem: async (req: Request, res: Response) => {
         try {
             const userWishlist = req.wishlist
-            const { stickerId } = req.params;
-            if (!stickerId) return res.status(400).json({ success: false, message: "Sticker ID is required" });
+            const sticker = req.sticker;
 
             const itemToDelete = await db.query.wishlistItems.findFirst({
                 where: (items, { and }) => and(
                     eq(items.wishlistId, userWishlist.id),
-                    eq(items.stickerId, stickerId)
+                    eq(items.stickerId, sticker.id)
                 )
             });
 

@@ -1,11 +1,13 @@
 import express from "express";
 import reviewController from "../controllers/reviewController";
+import { requireUser } from "../middleware/userMiddleware";
+import { requireSticker } from "../middleware/stickerMiddleware";
 
 const router = express.Router();
 
-router.post("/", reviewController.addReview);
-router.get("/:stickerId", reviewController.getReviewsByStickerId);
+router.post("/", requireUser, requireSticker, reviewController.addReview);
+router.get("/:stickerId", requireSticker, reviewController.getReviewsByStickerId);
 router.get("/user/:userId", reviewController.getReviewByUserId);
-router.delete("/:reviewId", reviewController.deleteReview);
+router.delete("/:reviewId", requireUser, reviewController.deleteReview);
 
 export default router;

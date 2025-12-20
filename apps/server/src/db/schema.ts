@@ -112,7 +112,9 @@ export type OrderWithItems = Order & { items: OrderItemWithSticker[] };
 export type WishlistWithSticker = WishlistItem & { sticker: Sticker };
 export type WishlistWithItems = Wishlist & { items: WishlistWithSticker[] };
 
-export type ShopWithStickers = Shop & { stickers: Sticker[], user: User }
+export type ShopWithStickers = Shop & { stickers: Sticker[], user: User };
+
+export type StickerWithShopAndReviews = Sticker & { shop: Shop, reviews: Review[] };
 
 // Relations
 export const usersRelations = relations(users, ({ one, many }) => ({

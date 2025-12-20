@@ -30,18 +30,13 @@ export const cartController = {
     addToCart: async (req: Request, res: Response) => {
         try {
             const userCart = req.cart;
-            const { stickerId } = req.body;
+            const sticker = req.sticker;
             const quantity = Math.max(1, Number(req.body.quantity) || 1);
-
-            if (!stickerId) return res.status(400).json({ success: false, error: "Sticker ID is required" });
-
-            const sticker = await db.query.stickers.findFirst({ where: eq(stickers.id, stickerId) });
-            if (!sticker) return res.status(404).json({ success: false, error: "Sticker not found" });
 
             const existingItem = await db.query.cartItems.findFirst({
                 where: and(
                     eq(cartItems.cartId, userCart.id),
-                    eq(cartItems.stickerId, stickerId)
+                    eq(cartItems.stickerId, sticker.id)
                 )
             });
 
@@ -63,7 +58,7 @@ export const cartController = {
             } else {
                 await db.insert(cartItems).values({
                     cartId: userCart.id,
-                    stickerId,
+                    stickerId: sticker.id,
                     quantity
                 });
             }
@@ -99,16 +94,15 @@ export const cartController = {
     updateCartItem: async (req: Request, res: Response) => {
         try {
             const userCart = req.cart;
-            const { stickerId } = req.params;
+            const sticker = req.sticker;
             const quantity = Number(req.body.quantity);
 
-            if (!stickerId) return res.status(400).json({ success: false, error: "Sticker ID is required" });
             if (!quantity || quantity < 1) return res.status(400).json({ success: false, error: "Quantity must be at least 1" });
 
             const existingItem = await db.query.cartItems.findFirst({
                 where: and(
                     eq(cartItems.cartId, userCart.id),
-                    eq(cartItems.stickerId, stickerId)
+                    eq(cartItems.stickerId, sticker.id)
                 ),
                 with: {
                     sticker: true
@@ -117,7 +111,6 @@ export const cartController = {
 
             if (!existingItem) return res.status(404).json({ success: false, error: "Item not found in cart" });
 
-            const sticker = existingItem.sticker;
             if (sticker.type === "PHYSICAL") {
                 if (quantity > sticker.stock) {
                     return res.status(400).json({
@@ -152,13 +145,11 @@ export const cartController = {
     removeCartItem: async (req: Request, res: Response) => {
         try {
             const userCart = req.cart;
-            const { stickerId } = req.params;
-
-            if (!stickerId) return res.status(400).json({ success: false, error: "Sticker ID is required" });
+            const sticker = req.sticker;
 
             await db.delete(cartItems)
                 .where(and(
-                    eq(cartItems.stickerId, stickerId),
+                    eq(cartItems.stickerId, sticker.id),
                     eq(cartItems.cartId, userCart.id)
                 ));
 

@@ -49,10 +49,7 @@ export const stickerController = {
 
     addSticker: async (req: Request, res: Response) => {
         try {
-            const { shop } = req.body;
-            if (!shop) {
-                return res.status(401).json({ success: false, error: "Unauthorized" });
-            }
+            const shop = req.shop;
 
             const { name, description, images, price, type, stock } = req.body;
 
@@ -82,18 +79,7 @@ export const stickerController = {
 
     getStickerById: async (req: Request, res: Response) => {
         try {
-            const id = req.params.id;
-            if (!id) {
-                return res.status(404).json({ success: false, error: "sticker not found" });
-            }
-            const result = await db.query.stickers.findFirst({
-                where: eq(stickers.id, id),
-                with: {
-                    shop: true,
-                    reviews: true,
-                }
-            });
-            return res.json({ success: true, data: result, message: "Sticker fetched successfully" });
+            return res.json({ success: true, data: req.sticker, message: "Sticker fetched successfully" });
         } catch (error) {
             return res.status(500).json({ success: false, error: "Failed to fetch sticker" });
         }
@@ -101,23 +87,10 @@ export const stickerController = {
 
     updateSticker: async (req: Request, res: Response) => {
         try {
-            const id = req.params.id;
-            const { shop } = req.body;
-            if (!id) {
-                return res.status(404).json({ success: false, error: "sticker not found" });
-            }
-            const existingSticker = await db.query.stickers.findFirst({
-                where: eq(stickers.id, id),
-                with: {
-                    shop: true,
-                }
-            });
+            const sticker = req.sticker;
+            const shop = req.shop;
 
-            if (!existingSticker) {
-                return res.status(404).json({ success: false, error: "Sticker not found" });
-            }
-
-            if (existingSticker.shopId !== shop.id) {
+            if (sticker.shopId !== shop.id) {
                 return res.status(403).json({ success: false, error: "Unauthorized: You do not own this sticker" });
             }
 
@@ -138,7 +111,7 @@ export const stickerController = {
 
             const result = await db.update(stickers)
                 .set(updateSticker)
-                .where(eq(stickers.id, id))
+                .where(eq(stickers.id, sticker.id))
                 .returning();
 
             return res.json({ success: true, data: result[0], message: "Sticker updated successfully" });
@@ -151,26 +124,15 @@ export const stickerController = {
 
     deleteSticker: async (req: Request, res: Response) => {
         try {
-            const id = req.params.id;
-            const { shop } = req.body;
+            const sticker = req.sticker;
+            const shop = req.shop;
 
-            if (!id) {
-                return res.status(404).json({ success: false, error: "sticker not found" });
-            }
-            const existingSticker = await db.query.stickers.findFirst({
-                where: eq(stickers.id, id),
-            });
-
-            if (!existingSticker) {
-                return res.status(404).json({ success: false, error: "Sticker not found" });
-            }
-
-            if (existingSticker.shopId !== shop.id) {
+            if (sticker.shopId !== shop.id) {
                 return res.status(403).json({ success: false, error: "Unauthorized: You do not own this sticker" });
             }
 
             const result = await db.delete(stickers)
-                .where(eq(stickers.id, id))
+                .where(eq(stickers.id, sticker.id))
                 .returning();
 
             return res.json({ success: true, data: result[0], message: "Sticker deleted successfully" });
@@ -182,11 +144,10 @@ export const stickerController = {
 
     getStickerReviews: async (req: Request, res: Response) => {
         try {
-            const id = req.params.id;
-            if (!id) return res.status(404).json({ success: false, error: "sticker not found" });
+            const sticker = req.sticker;
 
             const result = await db.query.reviews.findMany({
-                where: eq(reviews.stickerId, id),
+                where: eq(reviews.stickerId, sticker.id),
                 with: {
                     user: true,
                 }
