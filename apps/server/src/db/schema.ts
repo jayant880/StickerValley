@@ -109,6 +109,9 @@ export type CartWithItems = Cart & { items: CartItemWithSticker[] };
 export type OrderItemWithSticker = OrderItem & { sticker: Sticker };
 export type OrderWithItems = Order & { items: OrderItemWithSticker[] };
 
+export type WishlistWithSticker = WishlistItem & { sticker: Sticker };
+export type WishlistWithItems = Wishlist & { items: WishlistWithSticker[] };
+
 // Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
     cart: one(carts, {
