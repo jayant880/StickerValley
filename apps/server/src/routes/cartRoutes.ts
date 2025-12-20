@@ -1,7 +1,10 @@
 import express from "express";
 import { cartController } from "../controllers/cartController";
+import { requireCart } from "../middleware/cartMiddleware";
 
 const router = express.Router();
+
+router.use(requireCart);
 
 router.get("/", cartController.getCart);
 router.post("/", cartController.addToCart);

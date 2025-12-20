@@ -103,6 +103,9 @@ export type Review = typeof reviews.$inferSelect;
 export type Wishlist = typeof wishlists.$inferSelect;
 export type WishlistItem = typeof wishlistItems.$inferSelect;
 
+export type CartItemWithSticker = CartItem & { sticker: Sticker };
+export type CartWithItems = Cart & { items: CartItemWithSticker[] };
+
 // Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
     cart: one(carts, {

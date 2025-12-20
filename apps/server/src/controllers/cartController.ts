@@ -1,6 +1,4 @@
-import { getAuth } from "@clerk/express";
 import { Request, Response } from "express";
-import { getOrSyncUser } from "../services/userService";
 import { db } from "../db";
 import { eq, and } from "drizzle-orm";
 import { carts, cartItems, stickers } from "../db/schema";
@@ -21,35 +19,7 @@ import { calculateCartTotal } from "../services/cartService";
 export const cartController = {
     getCart: async (req: Request, res: Response): Promise<Response> => {
         try {
-            const { userId } = getAuth(req);
-            if (!userId) {
-                return res.status(401).json({ success: false, error: "Unauthorized" });
-            }
-
-            await getOrSyncUser(userId);
-
-            let userCart = await db.query.carts.findFirst({
-                where: eq(carts.userId, userId),
-                with: {
-                    items: {
-                        with: {
-                            sticker: true
-                        }
-                    }
-                }
-            });
-
-            if (!userCart) {
-                const [newCart] = await db.insert(carts).values({
-                    userId,
-                }).returning();
-
-                return res.status(200).json({
-                    success: true,
-                    data: { ...newCart, items: [] }
-                });
-            }
-
+            const userCart = req.cart;
             const { totalItems, totalAmount } = calculateCartTotal(userCart);
             return res.status(200).json({ success: true, data: { ...userCart, totalItems, totalAmount } });
         } catch (error) {
@@ -59,26 +29,14 @@ export const cartController = {
     },
     addToCart: async (req: Request, res: Response) => {
         try {
-            const { userId } = getAuth(req);
+            const userCart = req.cart;
             const { stickerId } = req.body;
             const quantity = Math.max(1, Number(req.body.quantity) || 1);
 
-            if (!userId) return res.status(401).json({ success: false, error: "Unauthorized" });
             if (!stickerId) return res.status(400).json({ success: false, error: "Sticker ID is required" });
 
-            await getOrSyncUser(userId);
-
             const sticker = await db.query.stickers.findFirst({ where: eq(stickers.id, stickerId) });
-
             if (!sticker) return res.status(404).json({ success: false, error: "Sticker not found" });
-
-            let userCart = await db.query.carts.findFirst({
-                where: eq(carts.userId, userId),
-            });
-
-            if (!userCart) {
-                [userCart] = await db.insert(carts).values({ userId }).returning();
-            }
 
             const existingItem = await db.query.cartItems.findFirst({
                 where: and(
@@ -111,7 +69,7 @@ export const cartController = {
             }
 
             const updatedCart = await db.query.carts.findFirst({
-                where: eq(carts.userId, userId),
+                where: eq(carts.id, userCart.id),
                 with: {
                     items: {
                         with: {
@@ -122,55 +80,30 @@ export const cartController = {
             });
 
             const { totalItems, totalAmount } = calculateCartTotal(updatedCart);
-
             return res.status(200).json({ success: true, data: { ...updatedCart, totalItems, totalAmount } });
         } catch (error) {
             console.error("Error adding to cart:", error);
             return res.status(500).json({ success: false, error: "Internal server error" });
         }
     },
-
     clearCart: async (req: Request, res: Response) => {
         try {
-            const { userId } = getAuth(req);
-
-            if (!userId) return res.status(401).json({ success: false, error: "Unauthorized" });
-
-            await getOrSyncUser(userId);
-
-            const userCart = await db.query.carts.findFirst({
-                where: eq(carts.userId, userId),
-            });
-
-            if (!userCart) return res.status(404).json({ success: false, error: "Cart not found" });
-
-            await db.delete(cartItems)
-                .where(eq(cartItems.cartId, userCart.id));
-
+            const userCart = req.cart;
+            await db.delete(cartItems).where(eq(cartItems.cartId, userCart.id));
             return res.status(200).json({ success: true, message: "Cart cleared successfully" });
         } catch (error) {
             console.error("Error clearing cart:", error);
             return res.status(500).json({ success: false, error: "Internal server error" });
         }
     },
-
     updateCartItem: async (req: Request, res: Response) => {
         try {
-            const { userId } = getAuth(req);
+            const userCart = req.cart;
             const { stickerId } = req.params;
             const quantity = Number(req.body.quantity);
 
-            if (!userId) return res.status(401).json({ success: false, error: "Unauthorized" });
             if (!stickerId) return res.status(400).json({ success: false, error: "Sticker ID is required" });
             if (!quantity || quantity < 1) return res.status(400).json({ success: false, error: "Quantity must be at least 1" });
-
-            await getOrSyncUser(userId);
-
-            const userCart = await db.query.carts.findFirst({
-                where: eq(carts.userId, userId),
-            });
-
-            if (!userCart) return res.status(404).json({ success: false, error: "Cart not found" });
 
             const existingItem = await db.query.cartItems.findFirst({
                 where: and(
@@ -185,7 +118,6 @@ export const cartController = {
             if (!existingItem) return res.status(404).json({ success: false, error: "Item not found in cart" });
 
             const sticker = existingItem.sticker;
-
             if (sticker.type === "PHYSICAL") {
                 if (quantity > sticker.stock) {
                     return res.status(400).json({
@@ -200,7 +132,7 @@ export const cartController = {
                 .where(eq(cartItems.id, existingItem.id));
 
             const updatedCart = await db.query.carts.findFirst({
-                where: eq(carts.userId, userId),
+                where: eq(carts.id, userCart.id),
                 with: {
                     items: {
                         with: {
@@ -211,29 +143,18 @@ export const cartController = {
             });
 
             const { totalItems, totalAmount } = calculateCartTotal(updatedCart);
-
             return res.status(200).json({ success: true, data: { ...updatedCart, totalItems, totalAmount } });
         } catch (error) {
             console.error("Error updating cart item:", error);
             return res.status(500).json({ success: false, error: "Internal server error" });
         }
     },
-
     removeCartItem: async (req: Request, res: Response) => {
         try {
-            const { userId } = getAuth(req);
+            const userCart = req.cart;
             const { stickerId } = req.params;
 
-            if (!userId) return res.status(401).json({ success: false, error: "Unauthorized" });
             if (!stickerId) return res.status(400).json({ success: false, error: "Sticker ID is required" });
-
-            await getOrSyncUser(userId);
-
-            const userCart = await db.query.carts.findFirst({
-                where: eq(carts.userId, userId),
-            });
-
-            if (!userCart) return res.status(404).json({ success: false, error: "Cart not found" });
 
             await db.delete(cartItems)
                 .where(and(
