@@ -1,0 +1,572 @@
+openapi: 3.0.0
+info:
+    title: StickerValley API Docs
+    version: 1.0.0
+    description: Full API documentation for the StickerValley backend.
+components:
+    securitySchemes:
+        bearerAuth:
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
+security:
+    - bearerAuth: []
+paths:
+    /api/health:
+        get:
+            tags:
+                - Health
+            summary: Check API health status
+            responses:
+                200:
+                    description: OK
+    /api/stickers:
+        get:
+            tags:
+                - Stickers
+            summary: Get all stickers
+            parameters:
+                - name: page
+                  in: query
+                  schema:
+                      type: integer
+                      default: 1
+                - name: limit
+                  in: query
+                  schema:
+                      type: integer
+                      default: 10
+                - name: minPrice
+                  in: query
+                  schema:
+                      type: number
+                - name: maxPrice
+                  in: query
+                  schema:
+                      type: number
+                - name: q
+                  in: query
+                  description: Search query
+                  schema:
+                      type: string
+                - name: sort
+                  in: query
+                  schema:
+                      type: string
+                      enum: [name_asc, name_desc, price_asc, price_desc, newest, oldest]
+                - name: type
+                  in: query
+                  schema:
+                      type: string
+                      enum: [PHYSICAL, DIGITAL]
+            responses:
+                200:
+                    description: Success
+        post:
+            tags:
+                - Stickers
+            summary: Add a new sticker
+            security:
+                - bearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required:
+                                - name
+                                - price
+                                - type
+                                - stock
+                            properties:
+                                name:
+                                    type: string
+                                description:
+                                    type: string
+                                images:
+                                    type: array
+                                    items:
+                                        type: string
+                                price:
+                                    type: string
+                                type:
+                                    type: string
+                                    enum: [PHYSICAL, DIGITAL]
+                                stock:
+                                    type: integer
+            responses:
+                201:
+                    description: Created
+    /api/stickers/{id}:
+        get:
+            tags:
+                - Stickers
+            summary: Get sticker by ID
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                200:
+                    description: Success
+        put:
+            tags:
+                - Stickers
+            summary: Update a sticker
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                200:
+                    description: Success
+        delete:
+            tags:
+                - Stickers
+            summary: Delete a sticker
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                200:
+                    description: Success
+    /api/stickers/{id}/reviews:
+        get:
+            tags:
+                - Stickers
+            summary: Get sticker reviews
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                200:
+                    description: Success
+    /api/cart:
+        get:
+            tags:
+                - Cart
+            summary: Get current user's cart
+            security:
+                - bearerAuth: []
+            responses:
+                200:
+                    description: Success
+        post:
+            tags:
+                - Cart
+            summary: Add item to cart
+            security:
+                - bearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required:
+                                - stickerId
+                                - quantity
+                            properties:
+                                stickerId:
+                                    type: string
+                                quantity:
+                                    type: integer
+            responses:
+                200:
+                    description: Success
+    /api/cart/clear:
+        delete:
+            tags:
+                - Cart
+            summary: Clear the cart
+            security:
+                - bearerAuth: []
+            responses:
+                200:
+                    description: Success
+    /api/cart/item/{stickerId}:
+        patch:
+            tags:
+                - Cart
+            summary: Update cart item quantity
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: stickerId
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required:
+                                - quantity
+                            properties:
+                                quantity:
+                                    type: integer
+            responses:
+                200:
+                    description: Success
+        delete:
+            tags:
+                - Cart
+            summary: Remove item from cart
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: stickerId
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                200:
+                    description: Success
+    /api/orders:
+        post:
+            tags:
+                - Orders
+            summary: Create a new order from cart
+            security:
+                - bearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required:
+                                - cartId
+                            properties:
+                                cartId:
+                                    type: string
+            responses:
+                201:
+                    description: Created
+        get:
+            tags:
+                - Orders
+            summary: Get all orders for the current user
+            security:
+                - bearerAuth: []
+            responses:
+                200:
+                    description: Success
+    /api/orders/{orderId}:
+        get:
+            tags:
+                - Orders
+            summary: Get order by ID
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: orderId
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                200:
+                    description: Success
+    /api/orders/{orderId}/pay:
+        put:
+            tags:
+                - Orders
+            summary: Pay for an order
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: orderId
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                200:
+                    description: Success
+    /api/orders/{orderId}/cancel:
+        put:
+            tags:
+                - Orders
+            summary: Cancel an order
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: orderId
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                200:
+                    description: Success
+    /api/shop:
+        post:
+            tags:
+                - Shop
+            summary: Create a new shop
+            security:
+                - bearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required:
+                                - name
+                            properties:
+                                name:
+                                    type: string
+                                description:
+                                    type: string
+            responses:
+                201:
+                    description: Created
+        put:
+            tags:
+                - Shop
+            summary: Update current user's shop
+            security:
+                - bearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                name:
+                                    type: string
+                                description:
+                                    type: string
+            responses:
+                200:
+                    description: Success
+    /api/shop/me:
+        get:
+            tags:
+                - Shop
+            summary: Get current user's shop
+            security:
+                - bearerAuth: []
+            responses:
+                200:
+                    description: Success
+    /api/shop/{shopId}:
+        get:
+            tags:
+                - Shop
+            summary: Get shop by ID
+            parameters:
+                - name: shopId
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                200:
+                    description: Success
+    /api/user/me:
+        get:
+            tags:
+                - User
+            summary: Get current user profile
+            security:
+                - bearerAuth: []
+            responses:
+                200:
+                    description: Success
+        put:
+            tags:
+                - User
+            summary: Update current user profile
+            security:
+                - bearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required:
+                                - name
+                            properties:
+                                name:
+                                    type: string
+            responses:
+                200:
+                    description: Success
+    /api/user/{userId}:
+        get:
+            tags:
+                - User
+            summary: Get user profile by ID
+            parameters:
+                - name: userId
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                200:
+                    description: Success
+    /api/reviews:
+        post:
+            tags:
+                - Reviews
+            summary: Add a review for a sticker
+            security:
+                - bearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required:
+                                - stickerId
+                                - rating
+                                - comment
+                            properties:
+                                stickerId:
+                                    type: string
+                                rating:
+                                    type: integer
+                                    minimum: 1
+                                    maximum: 5
+                                comment:
+                                    type: string
+            responses:
+                201:
+                    description: Created
+    /api/reviews/{stickerId}:
+        get:
+            tags:
+                - Reviews
+            summary: Get all reviews for a sticker
+            parameters:
+                - name: stickerId
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                200:
+                    description: Success
+    /api/reviews/user/{userId}:
+        get:
+            tags:
+                - Reviews
+            summary: Get all reviews by a user
+            parameters:
+                - name: userId
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                200:
+                    description: Success
+    /api/reviews/{reviewId}:
+        delete:
+            tags:
+                - Reviews
+            summary: Delete a review
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: reviewId
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                200:
+                    description: Success
+    /api/wishlist:
+        get:
+            tags:
+                - Wishlist
+            summary: Get current user's wishlist
+            security:
+                - bearerAuth: []
+            responses:
+                200:
+                    description: Success
+        post:
+            tags:
+                - Wishlist
+            summary: Add item to wishlist
+            security:
+                - bearerAuth: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required:
+                                - stickerId
+                            properties:
+                                stickerId:
+                                    type: string
+            responses:
+                200:
+                    description: Success
+    /api/wishlist/{stickerId}:
+        delete:
+            tags:
+                - Wishlist
+            summary: Remove item from wishlist
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: stickerId
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                200:
+                    description: Success
+    /api/invoice/{orderId}:
+        get:
+            tags:
+                - Invoice
+            summary: Download invoice for an order
+            security:
+                - bearerAuth: []
+            parameters:
+                - name: orderId
+                  in: path
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                200:
+                    description: PDF file
+                    content:
+                        application/pdf:
+                            schema:
+                                type: string
+                                format: binary

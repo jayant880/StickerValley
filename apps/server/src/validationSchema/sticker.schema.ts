@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-// Base schemas for internal reuse if needed
 const stickerBodySchema = z.object({
     name: z
         .string()

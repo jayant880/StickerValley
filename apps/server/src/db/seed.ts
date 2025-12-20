@@ -1,18 +1,15 @@
 import { db } from "./index";
-import { users, shops, stickers, roleEnum, stickerTypeEnum } from "./schema";
-import { eq } from "drizzle-orm";
+import { users, shops, stickers } from "./schema";
 
 async function seed() {
     console.log("🌱 Seeding database...");
 
     try {
-        // Clear existing data
         console.log("Cleaning up existing data...");
         await db.delete(stickers);
         await db.delete(shops);
         await db.delete(users);
 
-        // Create Users
         console.log("Creating users...");
         const [adminUser] = await db
             .insert(users)
@@ -44,7 +41,6 @@ async function seed() {
             })
             .returning();
 
-        // Create Shop
         console.log("Creating shop...");
         const [shop] = await db
             .insert(shops)
@@ -55,7 +51,6 @@ async function seed() {
             })
             .returning();
 
-        // Create Stickers
         console.log("Creating stickers...");
         await db.insert(stickers).values([
             {
@@ -66,17 +61,17 @@ async function seed() {
                 stock: 100,
                 shopId: shop.id,
                 isPublished: true,
-                images: ["https://placehold.co/400x400/png?text=Retro+Coder"],
+                images: ["https://placehold.co/600x400/png?text=Retro+Coder"],
             },
             {
                 name: "Digital Nomad",
                 description: "For the travelers",
                 price: "2.99",
                 type: "DIGITAL",
-                stock: 0, // Digital items might not need stock, but schema has it.
+                stock: 0,
                 shopId: shop.id,
                 isPublished: true,
-                images: ["https://placehold.co/400x400/png?text=Digital+Nomad"],
+                images: ["https://placehold.co/600x400/png?text=Digital+Nomad"],
             },
             {
                 name: "Coffee & Code",
@@ -86,7 +81,7 @@ async function seed() {
                 stock: 50,
                 shopId: shop.id,
                 isPublished: true,
-                images: ["https://placehold.co/400x400/png?text=Coffee+Code"],
+                images: ["https://placehold.co/600x400/png?text=Coffee+Code"],
             },
         ]);
 

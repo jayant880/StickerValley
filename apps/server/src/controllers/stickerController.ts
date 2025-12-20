@@ -2,17 +2,22 @@ import { Request, Response } from "express";
 import { reviews, stickers } from "../db/schema";
 import { asc, desc, gte, ilike, lte, inArray, and, eq } from "drizzle-orm";
 import { db } from "../db";
-import {
-    createStickerSchema,
-    getStickersSchema,
-    updateStickerSchema,
-} from "../validationSchema/sticker.schema";
 import { asyncHandler } from "../utils/asyncHandler";
 
 export const stickerController = {
     getStickers: asyncHandler(async (req: Request, res: Response) => {
-        const { page, limit, minPrice, maxPrice, q: search, sort, type } = req.query as any;
+        const {
+            page = 1,
+            limit = 10,
+            minPrice = 0,
+            maxPrice = 1000,
+            q: search,
+            sort,
+            type,
+        } = req.query as any;
+
         const typeFilter = (type ? [type] : ["DIGITAL", "PHYSICAL"]) as ("DIGITAL" | "PHYSICAL")[];
+
         const sortMap = {
             name_asc: asc(stickers.name),
             name_desc: desc(stickers.name),
@@ -21,6 +26,7 @@ export const stickerController = {
             newest: desc(stickers.createdAt),
             oldest: asc(stickers.createdAt),
         };
+
         const orderBy = sortMap[sort as keyof typeof sortMap] || desc(stickers.createdAt);
 
         const filter = [
@@ -36,6 +42,7 @@ export const stickerController = {
             limit: limit,
             offset: (page - 1) * limit,
         });
+
         return res.json({
             success: true,
             message: "Stickers fetched successfully",
@@ -123,6 +130,7 @@ export const stickerController = {
                 user: true,
             },
         });
+
         return res.json({
             success: true,
             data: result,

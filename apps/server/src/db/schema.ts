@@ -168,7 +168,6 @@ export type ShopWithStickers = Shop & { stickers: Sticker[]; user: User };
 
 export type StickerWithShopAndReviews = Sticker & { shop: Shop; reviews: Review[] };
 
-// Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
     cart: one(carts, {
         fields: [users.id],

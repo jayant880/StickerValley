@@ -16,6 +16,7 @@ import reviewRoutes from "./routes/reviewRoute";
 import wishlistRoutes from "./routes/wishlistRoute";
 import { requireUser } from "./middleware/userMiddleware";
 import { globalErrorHandler } from "./middleware/errorMiddleware";
+import swaggerDocs from "./utils/swagger";
 
 const PORT = parseInt(process.env.PORT || "5000", 10);
 const app = express();
@@ -45,7 +46,6 @@ app.use("/api/webhooks", webhookRoutes);
 app.use(clerkMiddleware());
 app.use(express.json());
 
-// API Routes
 app.use("/api/stickers", stickerRoutes);
 app.use("/api/cart", requireUser, cartRoutes);
 app.use("/api/orders", requireUser, orderRoutes);
@@ -63,6 +63,8 @@ db.execute("SELECT 1")
         console.error("Database connection failed", err);
         process.exit(1);
     });
+
+swaggerDocs(app, PORT);
 
 app.use((req, res) => {
     res.status(404).json({

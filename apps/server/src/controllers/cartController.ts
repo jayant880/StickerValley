@@ -6,18 +6,6 @@ import { calculateCartTotal } from "../services/cartService";
 import { asyncHandler } from "../utils/asyncHandler";
 import { AppError } from "../utils/AppError";
 
-/**
- * Cart controller - Handles shopping cart operations for users
- *
- * @namespace cartController
- * @description Provides methods for managing user's shopping cart
- *
- * @method getCart - Get user's cart
- * @method addToCart - Add a sticker to the cart
- * @method clearCart - Clear the user's cart
- * @method updateCartItem - Update the quantity of a cart item
- * @method removeCartItem - Remove a cart item
- */
 export const cartController = {
     getCart: asyncHandler(async (req: Request, res: Response) => {
         const userCart = req.cart;

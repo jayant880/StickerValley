@@ -1,51 +1,84 @@
-# StickerValley Server
+# 🚀 StickerValley Server
 
-The backend API for StickerValley, built with Express and Node.js. It handles business logic, database interactions, and secure authentication flows.
+The backend API for StickerValley, built with **Express** and **TypeScript**. This server handles all business logic, database management via Drizzle ORM, and secure authentication through Clerk.
 
 ## 🛠️ Tech Stack
 
 - **Runtime**: [Node.js](https://nodejs.org/)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
 - **Framework**: [Express](https://expressjs.com/)
 - **Database ORM**: [Drizzle ORM](https://orm.drizzle.team/)
 - **Database**: PostgreSQL (via [NeonDB](https://neon.tech/))
 - **Authentication**: [Clerk](https://clerk.com/)
-- **Security**: [Helmet](https://helmetjs.github.io/)
-- **Logging**: [Morgan](https://www.npmjs.com/package/morgan)
+- **Validation**: [Zod](https://zod.dev/)
+- **Formatting**: [Prettier](https://prettier.io/)
+- **Security**: [Helmet](https://helmetjs.github.io/) & [CORS](https://www.npmjs.com/package/cors)
+
+## 🏗️ Architecture & Features
+
+### 1. Global Error Handling
+
+We use a centralized error handling system to eliminate boilerplate and ensure consistent error responses.
+
+- **`AppError`**: Custom error class for operational errors.
+- **`asyncHandler`**: A wrapper to catch errors in async routes and pass them to the global handler.
+- **Middleware**: A global error middleware located in `src/middleware/errorMiddleware.ts`.
+
+### 2. Standardized Response Format
+
+Every API response follows a consistent structure, making it easy for the frontend to consume:
+
+**Success Response:**
+
+```json
+{
+    "success": true,
+    "message": "Human readable message",
+    "data": { ... } | [ ... ] | null,
+    "pagination": { "page": 1, "limit": 10, "hasMore": true } // Optional
+}
+```
+
+**Error Response:**
+
+```json
+{
+    "success": false,
+    "status": "fail" | "error",
+    "message": "Detailed error message"
+}
+```
+
+### 3. Automatic Code Formatting
+
+We use **Prettier** to maintain a consistent code style across the project. It is configured to run automatically on save if your editor is set up correctly.
 
 ## 🚀 Scripts
 
-Run these commands from the root of the monorepo or inside `apps/server`:
-
-- `npm run dev`: Start the server in watch mode
+- `npm run dev`: Start the server in development mode (tsx watch)
 - `npm run build`: Compile TypeScript to JavaScript
 - `npm run start`: Run the compiled production server
-- `npm run db:push`: Push schema changes to the database
-- `npm run db:generate`: Generate migration files
-- `npm run db:studio`: Open Drizzle Studio to manage the database UI
-- `npm run db:seed`: Seed the database with initial data
+- `npm run format`: Standardize code formatting using Prettier
+- `npm run db:push`: Sync schema directly to the database
+- `npm run db:generate`: Generate database migrations
+- `npm run db:studio`: Open Drizzle Studio UI
+- `npm run db:seed`: Seed the database with sample data
 
-## 📂 Key Directories
+## 📂 Project Structure
 
-- `src/controllers`: Request handlers for API endpoints
-- `src/router`: API route definitions
-- `src/db`: Database configuration, schema definitions, and seed scripts
-- `src/middleware`: Custom Express middleware (auth, error handling, etc.)
-- `src/service`: Business logic layer
-- `src/types`: TypeScript type definitions
+- `src/controllers`: Standardized request handlers.
+- `src/routes`: API route definitions.
+- `src/db`: Database config, schemas, and seeding.
+- `src/middleware`: Custom middleware (auth, validation, error handling).
+- `src/services`: Business logic and external service integrations.
+- `src/utils`: Reusable utility functions (`AppError`, `asyncHandler`).
+- `src/validationSchema`: Zod schemas for request validation.
 
-## 🔐 Environment Variables
+## 🔐 Configuration
 
-Copy `.env.example` to `.env` and update the values:
+Copy `.env.example` to `.env` and configure the following variables:
 
-```bash
-cp .env.example .env
-```
-
-Ensure your `.env` file contains the following:
-
-```env
-DATABASE_URL=your_database_url
-CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
-CLERK_SECRET_KEY=your_clerk_secret_key
-# Add other necessary variables
-```
+- `DATABASE_URL`: Your PostgreSQL connection string.
+- `CLERK_PUBLISHABLE_KEY` & `CLERK_SECRET_KEY`: From your Clerk Dashboard.
+- `ALLOWED_ORIGINS`: Comma-separated list of allowed CORS origins.
+- `PORT`: Server port (defaults to 5000).
