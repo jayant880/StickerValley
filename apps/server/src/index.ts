@@ -25,21 +25,19 @@ app.set("trust proxy", 1);
 app.use(helmet());
 
 app.use(
-  cors({
-    origin: process.env.ALLOWED_ORIGINS
-      ? process.env.ALLOWED_ORIGINS.split(",")
-      : "*",
-    credentials: true,
-  })
+    cors({
+        origin: process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(",") : "*",
+        credentials: true,
+    })
 );
 app.use(morgan("combined"));
 
 app.get("/api/health", (req, res) => {
-  res.status(200).json({
-    status: "OK",
-    timestamp: new Date().toISOString(),
-    service: "StickerValley API",
-  });
+    res.status(200).json({
+        status: "OK",
+        timestamp: new Date().toISOString(),
+        service: "StickerValley API",
+    });
 });
 
 app.use("/api/webhooks", webhookRoutes);
@@ -60,32 +58,25 @@ app.use("/api/wishlist", requireUser, wishlistRoutes);
 app.use(globalErrorHandler);
 
 db.execute("SELECT 1")
-  .then(() => console.log("Database connection successful"))
-  .catch((err) => {
-    console.error("Database connection failed", err);
-    process.exit(1);
-  });
+    .then(() => console.log("Database connection successful"))
+    .catch((err) => {
+        console.error("Database connection failed", err);
+        process.exit(1);
+    });
 
 app.use((req, res) => {
-  res.status(404).json({
-    error: "Route Not Found",
-  });
+    res.status(404).json({
+        error: "Route Not Found",
+    });
 });
 
-app.use(
-  (
-    err: any,
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
     console.error(err);
     res.status(500).json({
-      error: "Internal Server Error",
+        error: "Internal Server Error",
     });
-  }
-);
+});
 
 app.listen(PORT, () => {
-  console.log("Server running on port " + PORT);
+    console.log("Server running on port " + PORT);
 });

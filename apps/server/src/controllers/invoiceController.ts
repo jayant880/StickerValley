@@ -6,16 +6,19 @@ const invoiceController = {
         try {
             const order = req.order;
 
-            res.setHeader('Content-Type', 'application/pdf');
-            res.setHeader('Content-Disposition', `attachment; filename=invoice-${order.id}.pdf`);
+            res.setHeader("Content-Type", "application/pdf");
+            res.setHeader("Content-Disposition", `attachment; filename=invoice-${order.id}.pdf`);
 
             invoiceService.generateInvoice(order, res);
-
         } catch (error) {
             console.error(error);
-            if (!res.headersSent) res.status(500).json({ success: false, error: "Failed to download invoice" });
+            if (!res.headersSent)
+                res.status(500).json({
+                    success: false,
+                    error: "Failed to download invoice",
+                });
         }
-    }
-}
+    },
+};
 
 export default invoiceController;

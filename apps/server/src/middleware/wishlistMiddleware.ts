@@ -13,13 +13,14 @@ export const requireWishlist = async (req: Request, res: Response, next: NextFun
             with: {
                 items: {
                     with: {
-                        sticker: true
-                    }
-                }
-            }
+                        sticker: true,
+                    },
+                },
+            },
         });
 
-        if (!wishlist) return res.status(404).json({ success: false, message: "Wishlist not found" });
+        if (!wishlist)
+            return res.status(404).json({ success: false, message: "Wishlist not found" });
 
         req.wishlist = wishlist as WishlistWithItems;
         next();
@@ -27,5 +28,4 @@ export const requireWishlist = async (req: Request, res: Response, next: NextFun
         console.error(error);
         return res.status(500).json({ success: false, message: "Internal Server Error" });
     }
-
-}
+};

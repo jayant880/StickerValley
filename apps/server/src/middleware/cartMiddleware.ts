@@ -1,8 +1,8 @@
-import { getAuth } from '@clerk/express';
-import { Request, Response, NextFunction } from 'express';
-import { db } from '../db';
-import { carts, CartWithItems } from '../db/schema';
-import { eq } from 'drizzle-orm';
+import { getAuth } from "@clerk/express";
+import { Request, Response, NextFunction } from "express";
+import { db } from "../db";
+import { carts, CartWithItems } from "../db/schema";
+import { eq } from "drizzle-orm";
 
 export const requireCart = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -13,10 +13,10 @@ export const requireCart = async (req: Request, res: Response, next: NextFunctio
             with: {
                 items: {
                     with: {
-                        sticker: true
-                    }
-                }
-            }
+                        sticker: true,
+                    },
+                },
+            },
         });
 
         if (!cart) return res.status(404).json({ success: false, message: "Cart not found" });
@@ -27,4 +27,4 @@ export const requireCart = async (req: Request, res: Response, next: NextFunctio
         console.error("Error fetching cart:", error);
         return res.status(500).json({ success: false, message: "Internal server error", error });
     }
-}
+};

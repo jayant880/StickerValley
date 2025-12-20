@@ -14,13 +14,16 @@ const userController = {
                 shop: { with: { stickers: true } },
                 orders: { with: { items: { with: { sticker: true } } } },
                 cart: true,
-                reviews: true
-            }
+                reviews: true,
+            },
         });
 
         if (!fullUser) throw new AppError("User Not Found", 404);
-        return res.status(200).json({ success: true, message: "User fetched successfully", data: fullUser });
-
+        return res.status(200).json({
+            success: true,
+            message: "User fetched successfully",
+            data: fullUser,
+        });
     }),
 
     getUserById: asyncHandler(async (req: Request, res: Response) => {
@@ -30,25 +33,32 @@ const userController = {
             with: {
                 shop: { with: { stickers: true } },
                 orders: { with: { items: { with: { sticker: true } } } },
-                reviews: { with: { sticker: true } }
-            }
+                reviews: { with: { sticker: true } },
+            },
         });
 
         if (!user) throw new AppError("User Not Found", 404);
-        return res.status(200).json({ success: true, message: "User fetched successfully", data: user });
+        return res
+            .status(200)
+            .json({ success: true, message: "User fetched successfully", data: user });
     }),
 
     updateMe: asyncHandler(async (req: Request, res: Response) => {
         const user = req.user;
         const { name } = req.body;
 
-        const updatedUser = await db.update(users)
+        const updatedUser = await db
+            .update(users)
             .set({ name: name.trim() })
             .where(eq(users.id, user.id))
             .returning();
 
-        return res.status(200).json({ success: true, message: "User profile updated successfully", data: updatedUser[0] });
+        return res.status(200).json({
+            success: true,
+            message: "User profile updated successfully",
+            data: updatedUser[0],
+        });
     }),
-}
+};
 
-export default userController
+export default userController;

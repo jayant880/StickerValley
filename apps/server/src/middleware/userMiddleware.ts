@@ -16,4 +16,4 @@ export const requireUser = async (req: Request, res: Response, next: NextFunctio
         console.error("Error in userMiddleware:", error);
         return res.status(500).json({ success: false, message: "Internal server error" });
     }
-}
+};

@@ -6,7 +6,7 @@ import { handleUserToDatabase } from "../webhooks/clerk";
 
 export async function getOrSyncUser(userId: string) {
     let user = await db.query.users.findFirst({
-        where: eq(users.id, userId)
+        where: eq(users.id, userId),
     });
 
     if (!user) {
@@ -14,7 +14,7 @@ export async function getOrSyncUser(userId: string) {
             const clerkUser = await clerkClient.users.getUser(userId);
             await handleUserToDatabase(clerkUser);
             user = await db.query.users.findFirst({
-                where: eq(users.id, userId)
+                where: eq(users.id, userId),
             });
         } catch (error) {
             console.error("Error syncing user:", error);

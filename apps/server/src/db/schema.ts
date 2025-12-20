@@ -1,96 +1,148 @@
-import { pgTable, text, integer, decimal, boolean, timestamp, pgEnum } from 'drizzle-orm/pg-core';
-import { relations } from 'drizzle-orm';
-import { randomUUID } from 'crypto';
+import { pgTable, text, integer, decimal, boolean, timestamp, pgEnum } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
+import { randomUUID } from "crypto";
 
-export const roleEnum = pgEnum('Role', ['CUSTOMER', 'VENDOR', 'ADMIN']);
-export const orderStatusEnum = pgEnum('OrderStatus', ['PENDING', 'PAID', 'SHIPPED', 'DELIVERED', 'CANCELLED']);
-export const stickerTypeEnum = pgEnum('StickerType', ['PHYSICAL', 'DIGITAL']);
+export const roleEnum = pgEnum("Role", ["CUSTOMER", "VENDOR", "ADMIN"]);
+export const orderStatusEnum = pgEnum("OrderStatus", [
+    "PENDING",
+    "PAID",
+    "SHIPPED",
+    "DELIVERED",
+    "CANCELLED",
+]);
+export const stickerTypeEnum = pgEnum("StickerType", ["PHYSICAL", "DIGITAL"]);
 
-export const users = pgTable('User', {
-    id: text('id').primaryKey(),
-    email: text('email').unique().notNull(),
-    name: text('name'),
-    avatarUrl: text('avatarUrl'),
-    role: roleEnum('role').default('CUSTOMER').notNull(),
-    createdAt: timestamp('createdAt').defaultNow().notNull(),
-    updatedAt: timestamp('updatedAt').defaultNow().notNull(),
+export const users = pgTable("User", {
+    id: text("id").primaryKey(),
+    email: text("email").unique().notNull(),
+    name: text("name"),
+    avatarUrl: text("avatarUrl"),
+    role: roleEnum("role").default("CUSTOMER").notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 
-export const shops = pgTable('Shop', {
-    id: text('id').primaryKey().$defaultFn(() => randomUUID()),
-    name: text('name').notNull(),
-    description: text('description'),
-    userId: text('userId').unique().notNull().references(() => users.id, { onDelete: 'cascade' }),
-    createdAt: timestamp('createdAt').defaultNow().notNull(),
-    updatedAt: timestamp('updatedAt').defaultNow().notNull(),
+export const shops = pgTable("Shop", {
+    id: text("id")
+        .primaryKey()
+        .$defaultFn(() => randomUUID()),
+    name: text("name").notNull(),
+    description: text("description"),
+    userId: text("userId")
+        .unique()
+        .notNull()
+        .references(() => users.id, { onDelete: "cascade" }),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 
-export const stickers = pgTable('Sticker', {
-    id: text('id').$defaultFn(() => randomUUID()).primaryKey(),
-    name: text('name').notNull(),
-    description: text('description').notNull(),
-    images: text('images').array(),
-    price: decimal('price').notNull(),
-    type: stickerTypeEnum('type').notNull(),
-    stock: integer('stock').default(0).notNull(),
-    shopId: text('shopId').notNull().references(() => shops.id, { onDelete: 'cascade' }),
-    isPublished: boolean('isPublished').default(true).notNull(),
-    createdAt: timestamp('createdAt').defaultNow().notNull(),
-    updatedAt: timestamp('updatedAt').defaultNow().notNull(),
+export const stickers = pgTable("Sticker", {
+    id: text("id")
+        .$defaultFn(() => randomUUID())
+        .primaryKey(),
+    name: text("name").notNull(),
+    description: text("description").notNull(),
+    images: text("images").array(),
+    price: decimal("price").notNull(),
+    type: stickerTypeEnum("type").notNull(),
+    stock: integer("stock").default(0).notNull(),
+    shopId: text("shopId")
+        .notNull()
+        .references(() => shops.id, { onDelete: "cascade" }),
+    isPublished: boolean("isPublished").default(true).notNull(),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 
-export const carts = pgTable('Cart', {
-    id: text('id').primaryKey().$defaultFn(() => randomUUID()),
-    userId: text('userId').unique().notNull().references(() => users.id, { onDelete: 'cascade' }),
-    updatedAt: timestamp('updatedAt').defaultNow().notNull(),
+export const carts = pgTable("Cart", {
+    id: text("id")
+        .primaryKey()
+        .$defaultFn(() => randomUUID()),
+    userId: text("userId")
+        .unique()
+        .notNull()
+        .references(() => users.id, { onDelete: "cascade" }),
+    updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 
-export const cartItems = pgTable('CartItem', {
-    id: text('id').primaryKey().$defaultFn(() => randomUUID()),
-    cartId: text('cartId').notNull().references(() => carts.id, { onDelete: 'cascade' }),
-    stickerId: text('stickerId').notNull().references(() => stickers.id, { onDelete: 'cascade' }),
-    quantity: integer('quantity').notNull(),
+export const cartItems = pgTable("CartItem", {
+    id: text("id")
+        .primaryKey()
+        .$defaultFn(() => randomUUID()),
+    cartId: text("cartId")
+        .notNull()
+        .references(() => carts.id, { onDelete: "cascade" }),
+    stickerId: text("stickerId")
+        .notNull()
+        .references(() => stickers.id, { onDelete: "cascade" }),
+    quantity: integer("quantity").notNull(),
 });
 
-export const orders = pgTable('Order', {
-    id: text('id').primaryKey().$defaultFn(() => randomUUID()),
-    userId: text('userId').notNull().references(() => users.id, { onDelete: 'cascade' }),
-    totalAmount: decimal('totalAmount').notNull(),
-    status: orderStatusEnum('status').default('PENDING').notNull(),
-    paymentIntent: text('paymentIntent'),
-    createdAt: timestamp('createdAt').defaultNow().notNull(),
+export const orders = pgTable("Order", {
+    id: text("id")
+        .primaryKey()
+        .$defaultFn(() => randomUUID()),
+    userId: text("userId")
+        .notNull()
+        .references(() => users.id, { onDelete: "cascade" }),
+    totalAmount: decimal("totalAmount").notNull(),
+    status: orderStatusEnum("status").default("PENDING").notNull(),
+    paymentIntent: text("paymentIntent"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 
-export const orderItems = pgTable('OrderItem', {
-    id: text('id').primaryKey().$defaultFn(() => randomUUID()),
-    orderId: text('orderId').notNull().references(() => orders.id, { onDelete: 'cascade' }),
-    stickerId: text('stickerId').notNull().references(() => stickers.id, { onDelete: 'cascade' }),
-    quantity: integer('quantity').notNull(),
-    price: decimal('price').notNull(),
+export const orderItems = pgTable("OrderItem", {
+    id: text("id")
+        .primaryKey()
+        .$defaultFn(() => randomUUID()),
+    orderId: text("orderId")
+        .notNull()
+        .references(() => orders.id, { onDelete: "cascade" }),
+    stickerId: text("stickerId")
+        .notNull()
+        .references(() => stickers.id, { onDelete: "cascade" }),
+    quantity: integer("quantity").notNull(),
+    price: decimal("price").notNull(),
 });
 
-export const reviews = pgTable('Review', {
-    id: text('id').primaryKey().$defaultFn(() => randomUUID()),
-    userId: text('userId').notNull().references(() => users.id, { onDelete: 'cascade' }),
-    stickerId: text('stickerId').notNull().references(() => stickers.id, { onDelete: 'cascade' }),
-    rating: integer('rating').notNull(),
-    comment: text('comment'),
-    createdAt: timestamp('createdAt').defaultNow().notNull(),
-    updatedAt: timestamp('updatedAt').defaultNow().notNull(),
+export const reviews = pgTable("Review", {
+    id: text("id")
+        .primaryKey()
+        .$defaultFn(() => randomUUID()),
+    userId: text("userId")
+        .notNull()
+        .references(() => users.id, { onDelete: "cascade" }),
+    stickerId: text("stickerId")
+        .notNull()
+        .references(() => stickers.id, { onDelete: "cascade" }),
+    rating: integer("rating").notNull(),
+    comment: text("comment"),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 
 export const wishlists = pgTable("WishList", {
-    id: text('id').primaryKey().$defaultFn(() => randomUUID()),
-    userId: text('userId').notNull().references(() => users.id, { onDelete: 'cascade' }),
-})
+    id: text("id")
+        .primaryKey()
+        .$defaultFn(() => randomUUID()),
+    userId: text("userId")
+        .notNull()
+        .references(() => users.id, { onDelete: "cascade" }),
+});
 
 export const wishlistItems = pgTable("WishlistItem", {
-    id: text("id").primaryKey().$defaultFn(() => randomUUID()),
-    wishlistId: text("wishlistId").notNull().references(() => wishlists.id, { onDelete: 'cascade' }),
-    stickerId: text("stickerId").notNull().references(() => stickers.id, { onDelete: 'cascade' }),
-    createdAt: timestamp('createdAt').defaultNow().notNull(),
-    updatedAt: timestamp('updatedAt').defaultNow().notNull(),
-})
+    id: text("id")
+        .primaryKey()
+        .$defaultFn(() => randomUUID()),
+    wishlistId: text("wishlistId")
+        .notNull()
+        .references(() => wishlists.id, { onDelete: "cascade" }),
+    stickerId: text("stickerId")
+        .notNull()
+        .references(() => stickers.id, { onDelete: "cascade" }),
+    createdAt: timestamp("createdAt").defaultNow().notNull(),
+    updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+});
 
 export type User = typeof users.$inferSelect;
 export type Shop = typeof shops.$inferSelect;
@@ -107,14 +159,14 @@ export type CartItemWithSticker = CartItem & { sticker: Sticker };
 export type CartWithItems = Cart & { items: CartItemWithSticker[] };
 
 export type OrderItemWithSticker = OrderItem & { sticker: Sticker };
-export type OrderWithItems = Order & { items: OrderItemWithSticker[], user: User };
+export type OrderWithItems = Order & { items: OrderItemWithSticker[]; user: User };
 
 export type WishlistWithSticker = WishlistItem & { sticker: Sticker };
 export type WishlistWithItems = Wishlist & { items: WishlistWithSticker[] };
 
-export type ShopWithStickers = Shop & { stickers: Sticker[], user: User };
+export type ShopWithStickers = Shop & { stickers: Sticker[]; user: User };
 
-export type StickerWithShopAndReviews = Sticker & { shop: Shop, reviews: Review[] };
+export type StickerWithShopAndReviews = Sticker & { shop: Shop; reviews: Review[] };
 
 // Relations
 export const usersRelations = relations(users, ({ one, many }) => ({

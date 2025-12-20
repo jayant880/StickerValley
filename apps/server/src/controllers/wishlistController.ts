@@ -7,43 +7,54 @@ import { asyncHandler } from "../utils/asyncHandler";
 
 const wishlistController = {
     getWishlist: asyncHandler(async (req: Request, res: Response) => {
-        const userWishlist = req.wishlist
-        const items = userWishlist.items.map(item => item.sticker);
-        return res.status(200).json({ success: true, message: "Wishlist found successfully", data: items });
+        const userWishlist = req.wishlist;
+        const items = userWishlist.items.map((item) => item.sticker);
+        return res.status(200).json({
+            success: true,
+            message: "Wishlist found successfully",
+            data: items,
+        });
     }),
 
     addWishlistItem: asyncHandler(async (req: Request, res: Response) => {
-        const userWishlist = req.wishlist
+        const userWishlist = req.wishlist;
         let wishlistId = userWishlist.id;
         const sticker = req.sticker;
 
         const existingItem = await db.query.wishlistItems.findFirst({
-            where: (items, { and }) => and(
-                eq(items.wishlistId, wishlistId),
-                eq(items.stickerId, sticker.id)
-            )
+            where: (items, { and }) =>
+                and(eq(items.wishlistId, wishlistId), eq(items.stickerId, sticker.id)),
         });
         if (existingItem) throw new AppError("Sticker already in wishlist", 400);
 
-        const [newItem] = await db.insert(wishlistItems).values({ stickerId: sticker.id, wishlistId }).returning();
-        return res.status(200).json({ success: true, message: "Sticker added to wishlist successfully", data: newItem });
+        const [newItem] = await db
+            .insert(wishlistItems)
+            .values({ stickerId: sticker.id, wishlistId })
+            .returning();
+        return res.status(200).json({
+            success: true,
+            message: "Sticker added to wishlist successfully",
+            data: newItem,
+        });
     }),
 
     removeWishlistItem: asyncHandler(async (req: Request, res: Response) => {
-        const userWishlist = req.wishlist
+        const userWishlist = req.wishlist;
         const sticker = req.sticker;
 
         const itemToDelete = await db.query.wishlistItems.findFirst({
-            where: (items, { and }) => and(
-                eq(items.wishlistId, userWishlist.id),
-                eq(items.stickerId, sticker.id)
-            )
+            where: (items, { and }) =>
+                and(eq(items.wishlistId, userWishlist.id), eq(items.stickerId, sticker.id)),
         });
 
         if (!itemToDelete) throw new AppError("Wishlist item not found", 404);
         await db.delete(wishlistItems).where(eq(wishlistItems.id, itemToDelete.id));
-        return res.status(200).json({ success: true, message: "Sticker removed from wishlist successfully", data: null });
+        return res.status(200).json({
+            success: true,
+            message: "Sticker removed from wishlist successfully",
+            data: null,
+        });
     }),
-}
+};
 
 export default wishlistController;

@@ -8,7 +8,13 @@ import { createShopSchema, updateShopSchema } from "../validationSchema/shop.sch
 const router = express.Router();
 
 router.post("/", requireUser, validate(createShopSchema), shopController.createShop);
-router.put("/", requireUser, requireShopByUserId, validate(updateShopSchema), shopController.updateShop);
+router.put(
+    "/",
+    requireUser,
+    requireShopByUserId,
+    validate(updateShopSchema),
+    shopController.updateShop
+);
 router.get("/me", requireUser, requireShopByUserId, shopController.getShopByUserId);
 router.get("/:shopId", requireShopByShopId, shopController.getShop);
 
