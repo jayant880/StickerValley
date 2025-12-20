@@ -1,4 +1,3 @@
-import { getAuth } from "@clerk/express";
 import { Request, Response, NextFunction } from "express"
 import { db } from "../db";
 import { eq } from "drizzle-orm";
@@ -6,7 +5,7 @@ import { orders, OrderWithItems } from "../db/schema";
 
 export const requireOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { userId } = getAuth(req);
+        const userId = req.user?.id;
         const { orderId } = req.params;
         if (!userId) return res.status(401).json({ success: false, error: "Unauthorized" });
         if (!orderId) return res.status(400).json({ success: false, error: "Order ID is required" });
@@ -17,7 +16,8 @@ export const requireOrder = async (req: Request, res: Response, next: NextFuncti
                     with: {
                         sticker: true
                     }
-                }
+                },
+                user: true
             }
         });
 

@@ -1,16 +1,9 @@
 import PDFDocument from "pdfkit";
-import { Order, OrderItem, Sticker, User } from "../db/schema";
+import { OrderWithItems } from "../db/schema";
 import { Response } from "express";
 
-type OrderWithDetails = Order & {
-    items: (OrderItem & {
-        sticker: Sticker;
-    })[];
-    user: User;
-};
-
 export const invoiceService = {
-    generateInvoice: (order: OrderWithDetails, res: Response) => {
+    generateInvoice: (order: OrderWithItems, res: Response) => {
         const doc = new PDFDocument({ margin: 50 });
 
         doc.on('data', (chunk) => res.write(chunk));
@@ -37,7 +30,7 @@ function generateHeader(doc: PDFKit.PDFDocument) {
         .moveDown();
 }
 
-function generateCustomerInformation(doc: PDFKit.PDFDocument, order: OrderWithDetails) {
+function generateCustomerInformation(doc: PDFKit.PDFDocument, order: OrderWithItems) {
     doc
         .fillColor("#444444")
         .fontSize(20)
@@ -73,7 +66,7 @@ function generateCustomerInformation(doc: PDFKit.PDFDocument, order: OrderWithDe
     generateHr(doc, 252);
 }
 
-function generateInvoiceTable(doc: PDFKit.PDFDocument, order: OrderWithDetails) {
+function generateInvoiceTable(doc: PDFKit.PDFDocument, order: OrderWithItems) {
     let i = 0;
     const invoiceTableTop = 330;
 

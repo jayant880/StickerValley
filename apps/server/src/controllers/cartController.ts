@@ -31,7 +31,7 @@ export const cartController = {
         try {
             const userCart = req.cart;
             const sticker = req.sticker;
-            const quantity = Math.max(1, Number(req.body.quantity) || 1);
+            const { quantity } = req.body;
 
             const existingItem = await db.query.cartItems.findFirst({
                 where: and(
@@ -95,9 +95,7 @@ export const cartController = {
         try {
             const userCart = req.cart;
             const sticker = req.sticker;
-            const quantity = Number(req.body.quantity);
-
-            if (!quantity || quantity < 1) return res.status(400).json({ success: false, error: "Quantity must be at least 1" });
+            const { quantity } = req.body;
 
             const existingItem = await db.query.cartItems.findFirst({
                 where: and(

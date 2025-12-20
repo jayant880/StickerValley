@@ -57,9 +57,6 @@ const userController = {
         try {
             const user = req.user;
             const { name } = req.body;
-            if (!name || !name.trim() || name.length < 3) {
-                return res.status(400).json({ success: false, error: "Name must be at least 3 characters" });
-            }
 
             const updatedUser = await db.update(users)
                 .set({ name: name.trim() })

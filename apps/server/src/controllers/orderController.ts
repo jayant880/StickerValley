@@ -21,7 +21,6 @@ export const orderController = {
         try {
             const { cartId } = req.body;
             const userId = req.user.id;
-            if (!cartId) return res.status(400).json({ success: false, error: "Cart ID is required" });
 
             const cart = await db.query.carts.findFirst({ where: eq(carts.id, cartId) });
             if (!cart) return res.status(404).json({ success: false, error: "Cart not found" });

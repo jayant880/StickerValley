@@ -107,7 +107,7 @@ export type CartItemWithSticker = CartItem & { sticker: Sticker };
 export type CartWithItems = Cart & { items: CartItemWithSticker[] };
 
 export type OrderItemWithSticker = OrderItem & { sticker: Sticker };
-export type OrderWithItems = Order & { items: OrderItemWithSticker[] };
+export type OrderWithItems = Order & { items: OrderItemWithSticker[], user: User };
 
 export type WishlistWithSticker = WishlistItem & { sticker: Sticker };
 export type WishlistWithItems = Wishlist & { items: WishlistWithSticker[] };

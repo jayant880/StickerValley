@@ -10,8 +10,6 @@ const reviewController = {
             const sticker = req.sticker;
             const { rating, comment } = req.body;
 
-            if (!rating || !comment) return res.status(400).json({ success: false, message: "Rating and comment are required" });
-
             const result = await db.insert(reviews).values({ userId: user.id, stickerId: sticker.id, rating, comment }).returning();
             return res.status(201).json({ success: true, message: "Review added successfully", review: result[0] });
         } catch (error) {
