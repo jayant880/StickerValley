@@ -1,11 +1,12 @@
 import express from "express";
 import { orderController } from "../controllers/orderController";
-
+import { requireOrder } from "../middleware/orderMiddleware";
 const router = express.Router();
 
 router.post("/", orderController.createOrder);
 router.get("/", orderController.getAllOrdersByUserId);
-router.get("/:orderId", orderController.getOrderById);
-router.put("/:orderId/pay", orderController.payForOrder);
+router.get("/:orderId", requireOrder, orderController.getOrderById);
+router.put("/:orderId/pay", requireOrder, orderController.payForOrder);
+router.put("/:orderId/cancel", requireOrder, orderController.cancelOrder);
 
 export default router;

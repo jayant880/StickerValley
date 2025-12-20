@@ -17,7 +17,7 @@ import { calculateCartTotal } from "../services/cartService";
  * @method removeCartItem - Remove a cart item
  */
 export const cartController = {
-    getCart: async (req: Request, res: Response): Promise<Response> => {
+    getCart: async (req: Request, res: Response) => {
         try {
             const userCart = req.cart;
             const { totalItems, totalAmount } = calculateCartTotal(userCart);

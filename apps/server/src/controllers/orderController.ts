@@ -9,14 +9,8 @@ import { getOrSyncUser } from "../services/userService";
 export const orderController = {
     getOrderById: async (req: Request, res: Response) => {
         try {
-            const { userId } = getAuth(req);
-            const { orderId } = req.params;
-            if (!userId) return res.status(401).json({ success: false, error: "Unauthorized" });
-            if (!orderId) return res.status(400).json({ success: false, error: "Order ID is required" });
-            const order = await db.query.orders.findFirst({ where: eq(orders.id, orderId), with: { items: { with: { sticker: true } } } });
-            if (!order) return res.status(404).json({ success: false, error: "Order not found" });
-            if (order.userId !== userId) return res.status(403).json({ success: false, error: "Forbidden" });
-            return res.status(200).json({ success: true, message: "Order found successfully", order });
+            const userOrder = req.order;
+            return res.status(200).json({ success: true, message: "Order found successfully", userOrder });
         } catch (error: any) {
             console.error(error);
             return res.status(500).json({
@@ -98,15 +92,9 @@ export const orderController = {
 
     payForOrder: async (req: Request, res: Response): Promise<Response> => {
         try {
-            const { orderId } = req.params;
-            const { userId } = getAuth(req);
-            if (!userId) return res.status(401).json({ success: false, error: "Unauthorized" });
-            if (!orderId) return res.status(400).json({ success: false, error: "Order ID is required" });
-            const order = await db.query.orders.findFirst({ where: eq(orders.id, orderId) });
-            if (!order) return res.status(404).json({ success: false, error: "Order not found" });
-            if (order.userId !== userId) return res.status(403).json({ success: false, error: "Forbidden" });
-            if (order.status !== "PENDING") return res.status(400).json({ success: false, error: "Order is not pending" });
-            await db.update(orders).set({ status: "PAID" }).where(eq(orders.id, orderId));
+            const userOrder = req.order;
+            if (userOrder.status !== "PENDING") return res.status(400).json({ success: false, error: "Order is not pending" });
+            await db.update(orders).set({ status: "PAID" }).where(eq(orders.id, userOrder.id));
             return res.status(200).json({ success: true, message: "Order paid successfully" });
         } catch (error: any) {
             console.error(error);
@@ -148,15 +136,10 @@ export const orderController = {
 
     cancelOrder: async (req: Request, res: Response): Promise<Response> => {
         try {
-            const { orderId } = req.params;
-            const { userId } = getAuth(req);
-            if (!userId) return res.status(401).json({ success: false, error: "Unauthorized" });
-            if (!orderId) return res.status(400).json({ success: false, error: "Order ID is required" });
-            const order = await db.query.orders.findFirst({ where: eq(orders.id, orderId) });
-            if (!order) return res.status(404).json({ success: false, error: "Order not found" });
-            if (order.userId !== userId) return res.status(403).json({ success: false, error: "Forbidden" });
-            if (order.status !== "PENDING") return res.status(400).json({ success: false, error: "Order is not pending" });
-            await db.update(orders).set({ status: "CANCELLED" }).where(eq(orders.id, orderId));
+            const userOrder = req.order;
+            if (!userOrder) return res.status(404).json({ success: false, error: "Order not found" });
+            if (userOrder.status !== "PENDING") return res.status(400).json({ success: false, error: "Order is not pending" });
+            await db.update(orders).set({ status: "CANCELLED" }).where(eq(orders.id, userOrder.id));
             return res.status(200).json({ success: true, message: "Order cancelled successfully" });
         } catch (error: any) {
             console.error(error);

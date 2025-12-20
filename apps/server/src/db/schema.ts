@@ -106,6 +106,9 @@ export type WishlistItem = typeof wishlistItems.$inferSelect;
 export type CartItemWithSticker = CartItem & { sticker: Sticker };
 export type CartWithItems = Cart & { items: CartItemWithSticker[] };
 
+export type OrderItemWithSticker = OrderItem & { sticker: Sticker };
+export type OrderWithItems = Order & { items: OrderItemWithSticker[] };
+
 // Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
     cart: one(carts, {
