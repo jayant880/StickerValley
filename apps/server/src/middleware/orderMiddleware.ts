@@ -2,7 +2,7 @@ import { getAuth } from "@clerk/express";
 import { Request, Response, NextFunction } from "express"
 import { db } from "../db";
 import { eq } from "drizzle-orm";
-import { orders } from "../db/schema";
+import { orders, OrderWithItems } from "../db/schema";
 
 export const requireOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -23,7 +23,7 @@ export const requireOrder = async (req: Request, res: Response, next: NextFuncti
 
         if (!order) return res.status(404).json({ success: false, error: "Order not found" });
         if (order.userId !== userId) return res.status(403).json({ success: false, error: "Forbidden" });
-        req.order = order;
+        req.order = order as OrderWithItems;
         next();
     } catch (error) {
         console.error(error);

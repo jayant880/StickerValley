@@ -20,7 +20,7 @@ export const shops = pgTable('Shop', {
     id: text('id').primaryKey().$defaultFn(() => randomUUID()),
     name: text('name').notNull(),
     description: text('description'),
-    userId: text('userId').unique().notNull().references(() => users.id),
+    userId: text('userId').unique().notNull().references(() => users.id, { onDelete: 'cascade' }),
     createdAt: timestamp('createdAt').defaultNow().notNull(),
     updatedAt: timestamp('updatedAt').defaultNow().notNull(),
 });
@@ -33,7 +33,7 @@ export const stickers = pgTable('Sticker', {
     price: decimal('price').notNull(),
     type: stickerTypeEnum('type').notNull(),
     stock: integer('stock').default(0).notNull(),
-    shopId: text('shopId').notNull().references(() => shops.id),
+    shopId: text('shopId').notNull().references(() => shops.id, { onDelete: 'cascade' }),
     isPublished: boolean('isPublished').default(true).notNull(),
     createdAt: timestamp('createdAt').defaultNow().notNull(),
     updatedAt: timestamp('updatedAt').defaultNow().notNull(),
@@ -41,20 +41,20 @@ export const stickers = pgTable('Sticker', {
 
 export const carts = pgTable('Cart', {
     id: text('id').primaryKey().$defaultFn(() => randomUUID()),
-    userId: text('userId').unique().notNull().references(() => users.id),
+    userId: text('userId').unique().notNull().references(() => users.id, { onDelete: 'cascade' }),
     updatedAt: timestamp('updatedAt').defaultNow().notNull(),
 });
 
 export const cartItems = pgTable('CartItem', {
     id: text('id').primaryKey().$defaultFn(() => randomUUID()),
-    cartId: text('cartId').notNull().references(() => carts.id),
-    stickerId: text('stickerId').notNull().references(() => stickers.id),
+    cartId: text('cartId').notNull().references(() => carts.id, { onDelete: 'cascade' }),
+    stickerId: text('stickerId').notNull().references(() => stickers.id, { onDelete: 'cascade' }),
     quantity: integer('quantity').notNull(),
 });
 
 export const orders = pgTable('Order', {
     id: text('id').primaryKey().$defaultFn(() => randomUUID()),
-    userId: text('userId').notNull().references(() => users.id),
+    userId: text('userId').notNull().references(() => users.id, { onDelete: 'cascade' }),
     totalAmount: decimal('totalAmount').notNull(),
     status: orderStatusEnum('status').default('PENDING').notNull(),
     paymentIntent: text('paymentIntent'),
@@ -63,16 +63,16 @@ export const orders = pgTable('Order', {
 
 export const orderItems = pgTable('OrderItem', {
     id: text('id').primaryKey().$defaultFn(() => randomUUID()),
-    orderId: text('orderId').notNull().references(() => orders.id),
-    stickerId: text('stickerId').notNull().references(() => stickers.id),
+    orderId: text('orderId').notNull().references(() => orders.id, { onDelete: 'cascade' }),
+    stickerId: text('stickerId').notNull().references(() => stickers.id, { onDelete: 'cascade' }),
     quantity: integer('quantity').notNull(),
     price: decimal('price').notNull(),
 });
 
 export const reviews = pgTable('Review', {
     id: text('id').primaryKey().$defaultFn(() => randomUUID()),
-    userId: text('userId').notNull().references(() => users.id),
-    stickerId: text('stickerId').notNull().references(() => stickers.id),
+    userId: text('userId').notNull().references(() => users.id, { onDelete: 'cascade' }),
+    stickerId: text('stickerId').notNull().references(() => stickers.id, { onDelete: 'cascade' }),
     rating: integer('rating').notNull(),
     comment: text('comment'),
     createdAt: timestamp('createdAt').defaultNow().notNull(),
@@ -81,13 +81,13 @@ export const reviews = pgTable('Review', {
 
 export const wishlists = pgTable("WishList", {
     id: text('id').primaryKey().$defaultFn(() => randomUUID()),
-    userId: text('userId').notNull().references(() => users.id),
+    userId: text('userId').notNull().references(() => users.id, { onDelete: 'cascade' }),
 })
 
 export const wishlistItems = pgTable("WishlistItem", {
     id: text("id").primaryKey().$defaultFn(() => randomUUID()),
-    wishlistId: text("wishlistId").notNull().references(() => wishlists.id),
-    stickerId: text("stickerId").notNull().references(() => stickers.id),
+    wishlistId: text("wishlistId").notNull().references(() => wishlists.id, { onDelete: 'cascade' }),
+    stickerId: text("stickerId").notNull().references(() => stickers.id, { onDelete: 'cascade' }),
     createdAt: timestamp('createdAt').defaultNow().notNull(),
     updatedAt: timestamp('updatedAt').defaultNow().notNull(),
 })

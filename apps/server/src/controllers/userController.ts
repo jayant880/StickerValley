@@ -7,11 +7,9 @@ import { users } from "../db/schema";
 const userController = {
     me: async (req: Request, res: Response) => {
         try {
-            const { userId } = getAuth(req);
-            if (!userId) return res.status(401).json({ success: false, error: "Unauthorized" });
-
-            const user = await db.query.users.findFirst({
-                where: eq(users.id, userId),
+            const user = req.user;
+            const fullUser = await db.query.users.findFirst({
+                where: eq(users.id, user.id),
                 with: {
                     shop:
                     {
@@ -26,9 +24,9 @@ const userController = {
                 }
             });
 
-            if (!user) return res.status(404).json({ success: false, error: "User not found" });
+            if (!fullUser) return res.status(404).json({ success: false, error: "User not found" });
 
-            return res.status(200).json({ success: true, data: user });
+            return res.status(200).json({ success: true, data: fullUser });
         } catch (error) {
             console.error(error);
             return res.status(500).json({ success: false, error: "Internal Server Error" });
@@ -58,12 +56,7 @@ const userController = {
 
     updateMe: async (req: Request, res: Response) => {
         try {
-            const { userId: clerkUserId } = getAuth(req);
-            if (!clerkUserId) return res.status(401).json({ success: false, error: "Unauthorized" });
-
-            const existingUser = await db.query.users.findFirst({ where: eq(users.id, clerkUserId) });
-            if (!existingUser) return res.status(404).json({ success: false, error: "User not found" });
-
+            const user = req.user;
             const { name } = req.body;
             if (!name || !name.trim() || name.length < 3) {
                 return res.status(400).json({ success: false, error: "Name must be at least 3 characters" });
@@ -71,7 +64,7 @@ const userController = {
 
             const updatedUser = await db.update(users)
                 .set({ name: name.trim() })
-                .where(eq(users.id, clerkUserId))
+                .where(eq(users.id, user.id))
                 .returning();
 
             return res.status(200).json({ success: true, data: updatedUser[0] });

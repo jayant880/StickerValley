@@ -1,5 +1,5 @@
 import { db } from '../db';
-import { users } from '../db/schema';
+import { carts, users, wishlists } from '../db/schema';
 import { eq } from 'drizzle-orm';
 
 
@@ -8,6 +8,7 @@ export async function handleUserToDatabase(clerkUser: any) {
 
     const firstName = clerkUser.first_name || clerkUser.firstName || "";
     const lastName = clerkUser.last_name || clerkUser.lastName || "";
+    const fullName = `${firstName} ${lastName}`.trim();
     const imageUrl = clerkUser.image_url || clerkUser.imageUrl || "";
 
     if (!email) {
@@ -18,24 +19,32 @@ export async function handleUserToDatabase(clerkUser: any) {
     const userData = {
         id: clerkUser.id,
         email: email,
-        name: `${firstName} ${lastName}`.trim(),
+        name: fullName,
         avatarUrl: imageUrl,
         role: 'CUSTOMER' as const,
 
     }
-    await db
-        .insert(users)
-        .values(userData)
-        .onConflictDoUpdate({
-            target: users.id,
-            set: {
-                email: userData.email,
-                name: userData.name,
-                avatarUrl: userData.avatarUrl,
-                role: userData.role,
-            }
-        });
-    console.log(`Synced user ${userData.id} to database`);
+    await db.transaction(async (tx) => {
+        await tx
+            .insert(users)
+            .values(userData)
+            .onConflictDoUpdate({
+                target: users.id,
+                set: {
+                    email: userData.email,
+                    name: userData.name,
+                    avatarUrl: userData.avatarUrl,
+                    role: userData.role,
+                }
+            });
+
+        const existingCart = await tx.query.carts.findFirst({ where: eq(carts.userId, userData.id) });
+        if (!existingCart) await tx.insert(carts).values({ userId: userData.id });
+
+        const existingWishlist = await tx.query.wishlists.findFirst({ where: eq(wishlists.userId, userData.id) });
+        if (!existingWishlist) await tx.insert(wishlists).values({ userId: userData.id });
+    });
+    console.log(`Synced user ${userData.id} and ensured cart/wishlist in database`);
 }
 
 async function deleteUserFromDatabase(userId: string) {

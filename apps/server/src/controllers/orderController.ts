@@ -3,8 +3,6 @@ import { db } from "../db";
 import { cartItems as cartItemsTable, carts, orderItems, orders, stickers } from "../db/schema";
 import { eq } from "drizzle-orm";
 import { calculateCartTotal } from "../services/cartService";
-import { getAuth } from "@clerk/express";
-import { getOrSyncUser } from "../services/userService";
 
 export const orderController = {
     getOrderById: async (req: Request, res: Response) => {
@@ -22,12 +20,8 @@ export const orderController = {
     createOrder: async (req: Request, res: Response) => {
         try {
             const { cartId } = req.body;
-            const { userId } = getAuth(req);
-
-            if (!userId) return res.status(401).json({ success: false, error: "Unauthorized" });
+            const userId = req.user.id;
             if (!cartId) return res.status(400).json({ success: false, error: "Cart ID is required" });
-
-            await getOrSyncUser(userId);
 
             const cart = await db.query.carts.findFirst({ where: eq(carts.id, cartId) });
             if (!cart) return res.status(404).json({ success: false, error: "Cart not found" });
@@ -107,10 +101,7 @@ export const orderController = {
 
     getAllOrdersByUserId: async (req: Request, res: Response): Promise<Response> => {
         try {
-            const { userId } = getAuth(req);
-            if (!userId) return res.status(401).json({ success: false, error: "Unauthorized" });
-
-            await getOrSyncUser(userId);
+            const userId = req.user.id;
 
             const userOrders = await db.query.orders.findMany({
                 where: eq(orders.userId, userId),
