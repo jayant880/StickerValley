@@ -2,7 +2,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { addWishListItem, getWishlist, removeWishListItem } from '../api/wishlist.api';
 import type { Sticker } from '@sticker-valley/shared-types';
 
+import { useAuth } from '@clerk/clerk-react';
+
 export const useWishlistQuery = () => {
+    const { isSignedIn } = useAuth();
     return useQuery<Sticker[]>({
         queryKey: ['wishlist'],
         queryFn: getWishlist,
@@ -10,6 +13,7 @@ export const useWishlistQuery = () => {
         retry: 2,
         retryDelay: 1000,
         staleTime: 5 * 60 * 1000,
+        enabled: !!isSignedIn,
     });
 };
 

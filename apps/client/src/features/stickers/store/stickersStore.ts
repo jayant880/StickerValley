@@ -6,6 +6,8 @@ interface FilterState {
     maxPrice: number;
     selectedType: 'ALL' | 'DIGITAL' | 'PHYSICAL';
     sort: 'price_asc' | 'price_desc' | 'newest' | 'oldest';
+    page: number;
+    limit: number;
 }
 
 interface StickerFormState {
@@ -26,6 +28,8 @@ interface StickerStore {
         setMaxPrice: (maxPrice: number) => void;
         setSelectedType: (selectedType: 'ALL' | 'DIGITAL' | 'PHYSICAL') => void;
         setSort: (sort: 'price_asc' | 'price_desc' | 'newest' | 'oldest') => void;
+        setPage: (page: number) => void;
+        setLimit: (limit: number) => void;
         resetFilters: () => void;
     };
     stickerFormActions: {
@@ -42,9 +46,11 @@ interface StickerStore {
 const DEFAULT_FILTERS: FilterState = {
     q: '',
     minPrice: 0,
-    maxPrice: 50,
+    maxPrice: 100,
     selectedType: 'ALL',
     sort: 'newest',
+    page: 1,
+    limit: 8,
 };
 
 const DEFAULT_STICKER_FORM: StickerFormState = {
@@ -60,18 +66,23 @@ export const useStickerStore = create<StickerStore>((set) => ({
     filters: DEFAULT_FILTERS,
     stickerForm: DEFAULT_STICKER_FORM,
     filterActions: {
-        setQ: (q: string) => set((state) => ({ ...state, filters: { ...state.filters, q } })),
+        setQ: (q: string) =>
+            set((state) => ({ ...state, filters: { ...state.filters, q, page: 1 } })),
         setMinPrice: (minPrice: number) =>
-            set((state) => ({ ...state, filters: { ...state.filters, minPrice } })),
+            set((state) => ({ ...state, filters: { ...state.filters, minPrice, page: 1 } })),
         setMaxPrice: (maxPrice: number) =>
-            set((state) => ({ ...state, filters: { ...state.filters, maxPrice } })),
+            set((state) => ({ ...state, filters: { ...state.filters, maxPrice, page: 1 } })),
         setSelectedType: (selectedType: 'ALL' | 'DIGITAL' | 'PHYSICAL') =>
             set((state) => ({
                 ...state,
-                filters: { ...state.filters, selectedType },
+                filters: { ...state.filters, selectedType, page: 1 },
             })),
         setSort: (sort: 'price_asc' | 'price_desc' | 'newest' | 'oldest') =>
-            set((state) => ({ ...state, filters: { ...state.filters, sort } })),
+            set((state) => ({ ...state, filters: { ...state.filters, sort, page: 1 } })),
+        setPage: (page: number) =>
+            set((state) => ({ ...state, filters: { ...state.filters, page } })),
+        setLimit: (limit: number) =>
+            set((state) => ({ ...state, filters: { ...state.filters, limit, page: 1 } })),
         resetFilters: () => set((state) => ({ ...state, filters: DEFAULT_FILTERS })),
     },
     stickerFormActions: {

@@ -6,15 +6,9 @@ import { asyncHandler } from "../utils/asyncHandler";
 
 export const stickerController = {
     getStickers: asyncHandler(async (req: Request, res: Response) => {
-        const {
-            page = 1,
-            limit = 10,
-            minPrice = 0,
-            maxPrice = 1000,
-            q: search,
-            sort,
-            type,
-        } = req.query as any;
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+        const { minPrice = 0, maxPrice = 1000, q: search, sort, type } = req.query as any;
 
         const typeFilter = (type ? [type] : ["DIGITAL", "PHYSICAL"]) as ("DIGITAL" | "PHYSICAL")[];
 
@@ -36,8 +30,17 @@ export const stickerController = {
             inArray(stickers.type, typeFilter),
         ];
 
+        const whereCondition = and(...filter.filter((f) => f !== undefined));
+
+        const totalCountResult = await db.query.stickers.findMany({
+            where: whereCondition,
+            columns: { id: true },
+        });
+        const totalCount = totalCountResult.length;
+        const totalPages = Math.ceil(totalCount / limit);
+
         const result = await db.query.stickers.findMany({
-            where: and(...filter.filter((f) => f !== undefined)),
+            where: whereCondition,
             orderBy: orderBy,
             limit: limit,
             offset: (page - 1) * limit,
@@ -47,7 +50,13 @@ export const stickerController = {
             success: true,
             message: "Stickers fetched successfully",
             data: result,
-            pagination: { page, limit, hasMore: result.length === limit },
+            pagination: {
+                page,
+                limit,
+                totalCount,
+                totalPages,
+                hasMore: page < totalPages,
+            },
         });
     }),
 

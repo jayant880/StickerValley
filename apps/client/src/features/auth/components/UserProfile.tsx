@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { User, Package, Star, Calendar, Mail, ShieldCheck, Edit3, Save, X } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router';
 import type { UserReview } from '@sticker-valley/shared-types';
 
@@ -22,13 +22,12 @@ const UserProfile = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [name, setName] = useState('');
 
-    useEffect(() => {
-        if (userData?.name) {
-            setName(userData.name);
-        }
-    }, [userData]);
-
     const isOwnProfile = clerkLoaded && clerkUser?.id === userId;
+
+    const handleStartEditing = () => {
+        if (userData?.name) setName(userData.name);
+        setIsEditing(true);
+    };
 
     if (isLoading) {
         return (
@@ -131,7 +130,7 @@ const UserProfile = () => {
                                     <Button
                                         variant="ghost"
                                         size="sm"
-                                        onClick={() => setIsEditing(true)}
+                                        onClick={handleStartEditing}
                                         className="text-muted-foreground hover:text-primary h-8 px-2 transition-colors"
                                     >
                                         <Edit3 className="mr-1 h-4 w-4" /> Edit

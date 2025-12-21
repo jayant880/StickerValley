@@ -2,7 +2,7 @@ import { api } from '@/lib/axios';
 
 export const getWishlist = async () => {
     const res = await api.get('/wishlist');
-    return res.data.success ? res.data.items : [];
+    return res.data.success ? res.data.data : [];
 };
 
 export const addWishListItem = async (stickerId: string) => {

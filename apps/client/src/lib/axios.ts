@@ -2,7 +2,7 @@ import axios from 'axios';
 
 declare global {
     interface Window {
-        Clerk: any;
+        Clerk: unknown;
     }
 }
 
@@ -16,7 +16,7 @@ export const api = axios.create({
 api.interceptors.request.use(
     async (config) => {
         try {
-            const token = await window.Clerk?.session?.getToken();
+            const token = await (window.Clerk as any)?.session?.getToken();
             if (token) {
                 config.headers.Authorization = `Bearer ${token}`;
             }

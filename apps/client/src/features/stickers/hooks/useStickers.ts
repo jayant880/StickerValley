@@ -11,7 +11,7 @@ import useDebounce from './useDebounce';
 
 export const useStickersQuery = () => {
     const { filters } = useStickerStore();
-    const { q, minPrice, maxPrice, selectedType, sort } = filters;
+    const { q, minPrice, maxPrice, selectedType, sort, page, limit } = filters;
 
     const debouncedQ = useDebounce(q, 500);
     const debouncedMinPrice = useDebounce(minPrice, 500);
@@ -25,6 +25,8 @@ export const useStickersQuery = () => {
             debouncedMaxPrice,
             selectedType,
             sort,
+            page,
+            limit,
         ],
         queryFn: () =>
             getFilteredStickers(
@@ -33,6 +35,8 @@ export const useStickersQuery = () => {
                 debouncedMaxPrice,
                 selectedType,
                 sort,
+                page,
+                limit,
             ),
         retry: 2,
         retryDelay: 1000,
@@ -102,7 +106,8 @@ const useStickers = () => {
     const stickerQuery = useStickersQuery();
 
     return {
-        stickers: stickerQuery.data || [],
+        stickers: stickerQuery.data?.data || [],
+        pagination: stickerQuery.data?.pagination,
         isLoading: stickerQuery.isLoading,
         error: stickerQuery.error,
         isError: stickerQuery.isError,
