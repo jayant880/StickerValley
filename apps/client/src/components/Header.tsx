@@ -28,31 +28,31 @@ export function Header() {
                             <Button variant="ghost">Stickers</Button>
                         </Link>
                     </div>
-                    <div>
-                        <Link to="/wishlist">
-                            <Button variant="ghost" className="relative">
-                                <Heart />
-                                {wishlist && wishlist.length > 0 ? (
-                                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
-                                        {wishlist.length}
-                                    </span>
-                                ) : null}
-                            </Button>
-                        </Link>
-                    </div>
-                    <div>
-                        <Link to="/cart">
-                            <Button variant="ghost" className="relative">
-                                <ShoppingBagIcon />
-                                {cart?.totalItems ? (
-                                    <span className="bg-primary text-primary-foreground absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full text-xs">
-                                        {cart.totalItems}
-                                    </span>
-                                ) : null}
-                            </Button>
-                        </Link>
-                    </div>
                     <SignedIn>
+                        <div>
+                            <Link to="/wishlist">
+                                <Button variant="ghost" className="relative">
+                                    <Heart />
+                                    {wishlist && wishlist.length > 0 ? (
+                                        <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+                                            {wishlist.length}
+                                        </span>
+                                    ) : null}
+                                </Button>
+                            </Link>
+                        </div>
+                        <div>
+                            <Link to="/cart">
+                                <Button variant="ghost" className="relative">
+                                    <ShoppingBagIcon />
+                                    {cart?.totalItems ? (
+                                        <span className="bg-primary text-primary-foreground absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full text-xs">
+                                            {cart.totalItems}
+                                        </span>
+                                    ) : null}
+                                </Button>
+                            </Link>
+                        </div>
                         <Link to={`/profile/${user?.id}`}>
                             <Button variant="ghost">
                                 <User />
