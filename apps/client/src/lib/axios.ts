@@ -16,6 +16,7 @@ export const api = axios.create({
 api.interceptors.request.use(
     async (config) => {
         try {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const token = await (window.Clerk as any)?.session?.getToken();
             if (token) {
                 config.headers.Authorization = `Bearer ${token}`;

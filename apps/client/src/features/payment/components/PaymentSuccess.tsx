@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { useParams, Link } from 'react-router';
 import { useUser } from '@clerk/clerk-react';
 import { Button } from '@/components/ui/button';
@@ -15,7 +15,7 @@ const PaymentSuccess = () => {
     const { data: order, isLoading, isError } = useOrderByIdQuery(orderId);
     const downloadedRef = useRef(false);
 
-    const handleDownloadDigitalItems = () => {
+    const handleDownloadDigitalItems = useCallback(() => {
         if (!order) return;
         const digitalItems = order.items?.filter((item) => item.sticker?.type === 'DIGITAL') || [];
 
@@ -35,7 +35,7 @@ const PaymentSuccess = () => {
                 duration: 5000,
             });
         }
-    };
+    }, [order]);
 
     useEffect(() => {
         if (order && order.status === 'PAID' && !downloadedRef.current) {
@@ -44,7 +44,7 @@ const PaymentSuccess = () => {
                 downloadedRef.current = true;
             }
         }
-    }, [order]);
+    }, [order, handleDownloadDigitalItems]);
 
     if (isLoading) {
         return (

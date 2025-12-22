@@ -48,7 +48,7 @@ export const SimulatedTracking = ({ createdAt, orderId }: SimulatedTrackingProps
         }, 10000);
 
         return () => clearInterval(interval);
-    }, [orderDate, orderId, step]);
+    }, [orderDate, orderId, step, updateStatus]);
 
     const steps = [
         {
