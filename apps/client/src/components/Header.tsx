@@ -11,8 +11,18 @@ export function Header() {
     const { user } = useUser();
     return (
         <header className="mb-8 flex items-center justify-between rounded-lg bg-white p-4 shadow-sm">
-            <Link to="/">
-                <h1 className="cursor-pointer text-3xl font-bold text-gray-900">StickerValley</h1>
+            <Link
+                to="/"
+                className="flex items-center gap-2 transition-transform hover:scale-105 active:scale-95"
+            >
+                <img
+                    src="/favicon.ico"
+                    alt="Sticker Valley Logo"
+                    className="h-10 w-10 object-contain"
+                />
+                <h1 className="text-3xl font-black tracking-tighter text-gray-900">
+                    Sticker <span className="text-indigo-600">Valley</span>
+                </h1>
             </Link>
             <div className="flex gap-4">
                 <div className="flex items-center gap-2">

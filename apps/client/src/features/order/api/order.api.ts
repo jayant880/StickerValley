@@ -7,7 +7,7 @@ export const createOrder = async ({
     cartId: string;
 }): Promise<OrderWithRelations | null> => {
     const res = await api.post('/orders', { cartId });
-    return res.data.success ? res.data.order : null;
+    return res.data.success ? res.data.data : null;
 };
 
 export const getOrderById = async ({
@@ -16,15 +16,15 @@ export const getOrderById = async ({
     orderId: string;
 }): Promise<OrderWithRelations | null> => {
     const res = await api.get(`/orders/${orderId}`);
-    return res.data.success ? res.data.order : null;
+    return res.data.success ? res.data.data : null;
 };
 
 export const payForOrder = async ({ orderId }: { orderId: string }): Promise<string | null> => {
     const res = await api.put(`/orders/${orderId}/pay`);
-    return res.data.success ? res.data.message : null;
+    return res.data.success ? res.data.data : null;
 };
 
 export const getOrders = async (): Promise<Order[]> => {
     const res = await api.get('/orders');
-    return res.data.success ? res.data.orders : [];
+    return res.data.success ? res.data.data : [];
 };

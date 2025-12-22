@@ -100,166 +100,173 @@ const CreateSticker = () => {
     }
 
     return (
-        <div className="animate-in fade-in slide-in-from-bottom-4 container mx-auto max-w-2xl py-10 duration-700">
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-2xl">Create New Sticker</CardTitle>
-                    <CardDescription>
-                        Fill in the details to add a new sticker to your shop.
-                    </CardDescription>
-                </CardHeader>
-                <form onSubmit={handleSubmit}>
-                    <CardContent className="space-y-6">
-                        <div className="space-y-2">
-                            <Label htmlFor="name">Sticker Name</Label>
-                            <Input
-                                id="name"
-                                name="name"
-                                placeholder="e.g. Grumpy Cat"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                required
-                            />
-                        </div>
-
-                        <div className="space-y-2">
-                            <Label htmlFor="description">Description</Label>
-                            <Textarea
-                                id="description"
-                                name="description"
-                                placeholder="Describe your sticker..."
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                required
-                                rows={4}
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
+        <>
+            <title>Sticker Valley | Create Sticker</title>
+            <div className="animate-in fade-in slide-in-from-bottom-4 container mx-auto max-w-2xl py-10 duration-700">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-2xl">Create New Sticker</CardTitle>
+                        <CardDescription>
+                            Fill in the details to add a new sticker to your shop.
+                        </CardDescription>
+                    </CardHeader>
+                    <form onSubmit={handleSubmit}>
+                        <CardContent className="space-y-6">
                             <div className="space-y-2">
-                                <Label htmlFor="price">Price ($)</Label>
-                                <div className="relative">
-                                    <DollarSign className="text-muted-foreground absolute top-2.5 left-3 h-4 w-4" />
-                                    <Input
-                                        id="price"
-                                        type="number"
-                                        name="price"
-                                        min="0"
-                                        step="0.01"
-                                        className="pl-9"
-                                        value={price}
-                                        onChange={(e) => setPrice(e.target.value)}
-                                        required
-                                    />
-                                </div>
+                                <Label htmlFor="name">Sticker Name</Label>
+                                <Input
+                                    id="name"
+                                    name="name"
+                                    placeholder="e.g. Grumpy Cat"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    required
+                                />
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="type">Type</Label>
-                                <Select onValueChange={setType} defaultValue={type}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select type" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="DIGITAL">Digital Download</SelectItem>
-                                        <SelectItem value="PHYSICAL">Physical Product</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                <Label htmlFor="description">Description</Label>
+                                <Textarea
+                                    id="description"
+                                    name="description"
+                                    placeholder="Describe your sticker..."
+                                    value={description}
+                                    onChange={(e) => setDescription(e.target.value)}
+                                    required
+                                    rows={4}
+                                />
                             </div>
-                        </div>
 
-                        {stickerForm.type === 'PHYSICAL' && (
-                            <div className="space-y-2">
-                                <Label htmlFor="stock">Stock Quantity</Label>
-                                <div className="relative">
-                                    <Package className="text-muted-foreground absolute top-2.5 left-3 h-4 w-4" />
-                                    <Input
-                                        id="stock"
-                                        type="number"
-                                        name="stock"
-                                        min="0"
-                                        className="pl-9"
-                                        value={stock}
-                                        onChange={(e) => setStock(Number(e.target.value))}
-                                        required
-                                    />
-                                </div>
-                            </div>
-                        )}
-
-                        <div className="space-y-4">
-                            <Label>Images</Label>
-                            {images.map((url, index) => (
-                                <div key={index} className="relative flex gap-2">
-                                    <div className="relative flex-1">
-                                        <ImageIcon className="text-muted-foreground absolute top-2.5 left-3 h-4 w-4" />
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="price">Price ($)</Label>
+                                    <div className="relative">
+                                        <DollarSign className="text-muted-foreground absolute top-2.5 left-3 h-4 w-4" />
                                         <Input
-                                            type="url"
-                                            placeholder="https://example.com/sticker.png"
+                                            id="price"
+                                            type="number"
+                                            name="price"
+                                            min="0"
+                                            step="0.01"
                                             className="pl-9"
-                                            value={url}
-                                            onChange={(e) => {
-                                                const newImages = [...images];
-                                                newImages[index] = e.target.value;
-                                                setImages(newImages);
-                                            }}
+                                            value={price}
+                                            onChange={(e) => setPrice(e.target.value)}
                                             required
                                         />
                                     </div>
-                                    {images.length > 1 && (
-                                        <Button
-                                            type="button"
-                                            variant="ghost"
-                                            size="icon"
-                                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                                            onClick={() => {
-                                                const newImages = [...images];
-                                                newImages.splice(index, 1);
-                                                setImages(newImages);
-                                            }}
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    )}
                                 </div>
-                            ))}
-                            <Button
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                className="w-full border-dashed"
-                                onClick={() => setImages([...images, ''])}
-                            >
-                                <Plus className="mr-2 h-4 w-4" /> Add Another Image
-                            </Button>
-                            <p className="text-muted-foreground text-xs">
-                                Add direct links to your sticker images. The first image will be
-                                used as the main thumbnail.
-                            </p>
-                        </div>
 
-                        {isError && (
-                            <div className="rounded-md border border-red-200 bg-red-50 p-3">
-                                <p className="text-sm text-red-600">
-                                    Error: {error?.message || 'Failed to create sticker'}
+                                <div className="space-y-2">
+                                    <Label htmlFor="type">Type</Label>
+                                    <Select onValueChange={setType} defaultValue={type}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select type" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="DIGITAL">
+                                                Digital Download
+                                            </SelectItem>
+                                            <SelectItem value="PHYSICAL">
+                                                Physical Product
+                                            </SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+
+                            {stickerForm.type === 'PHYSICAL' && (
+                                <div className="space-y-2">
+                                    <Label htmlFor="stock">Stock Quantity</Label>
+                                    <div className="relative">
+                                        <Package className="text-muted-foreground absolute top-2.5 left-3 h-4 w-4" />
+                                        <Input
+                                            id="stock"
+                                            type="number"
+                                            name="stock"
+                                            min="0"
+                                            className="pl-9"
+                                            value={stock}
+                                            onChange={(e) => setStock(Number(e.target.value))}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="space-y-4">
+                                <Label>Images</Label>
+                                {images.map((url, index) => (
+                                    <div key={index} className="relative flex gap-2">
+                                        <div className="relative flex-1">
+                                            <ImageIcon className="text-muted-foreground absolute top-2.5 left-3 h-4 w-4" />
+                                            <Input
+                                                type="url"
+                                                placeholder="https://example.com/sticker.png"
+                                                className="pl-9"
+                                                value={url}
+                                                onChange={(e) => {
+                                                    const newImages = [...images];
+                                                    newImages[index] = e.target.value;
+                                                    setImages(newImages);
+                                                }}
+                                                required
+                                            />
+                                        </div>
+                                        {images.length > 1 && (
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon"
+                                                className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                                onClick={() => {
+                                                    const newImages = [...images];
+                                                    newImages.splice(index, 1);
+                                                    setImages(newImages);
+                                                }}
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        )}
+                                    </div>
+                                ))}
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    className="w-full border-dashed"
+                                    onClick={() => setImages([...images, ''])}
+                                >
+                                    <Plus className="mr-2 h-4 w-4" /> Add Another Image
+                                </Button>
+                                <p className="text-muted-foreground text-xs">
+                                    Add direct links to your sticker images. The first image will be
+                                    used as the main thumbnail.
                                 </p>
                             </div>
-                        )}
-                    </CardContent>
-                    <CardFooter>
-                        <Button type="submit" className="w-full" disabled={isPending}>
-                            {isPending ? (
-                                <>
-                                    <Spinner className="mr-2 h-4 w-4" /> Creating...
-                                </>
-                            ) : (
-                                'Create Sticker'
+
+                            {isError && (
+                                <div className="rounded-md border border-red-200 bg-red-50 p-3">
+                                    <p className="text-sm text-red-600">
+                                        Error: {error?.message || 'Failed to create sticker'}
+                                    </p>
+                                </div>
                             )}
-                        </Button>
-                    </CardFooter>
-                </form>
-            </Card>
-        </div>
+                        </CardContent>
+                        <CardFooter>
+                            <Button type="submit" className="w-full" disabled={isPending}>
+                                {isPending ? (
+                                    <>
+                                        <Spinner className="mr-2 h-4 w-4" /> Creating...
+                                    </>
+                                ) : (
+                                    'Create Sticker'
+                                )}
+                            </Button>
+                        </CardFooter>
+                    </form>
+                </Card>
+            </div>
+        </>
     );
 };
 

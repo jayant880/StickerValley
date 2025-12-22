@@ -105,141 +105,146 @@ const Checkout = () => {
     const isPaid = orderById!.status === 'PAID';
 
     return (
-        <div className="animate-in fade-in slide-in-from-bottom-4 container mx-auto max-w-6xl px-4 py-8 duration-700">
-            <div className="mb-8 flex flex-col gap-2">
-                <div className="flex items-center gap-3">
-                    <h1 className="text-3xl font-bold tracking-tight">Checkout</h1>
-                    <Badge
-                        variant={isPending ? 'secondary' : isPaid ? 'default' : 'destructive'}
-                        className="text-sm"
-                    >
-                        {orderById.status}
-                    </Badge>
+        <>
+            <title>Sticker Valley | Checkout</title>
+            <div className="animate-in fade-in slide-in-from-bottom-4 container mx-auto max-w-6xl px-4 py-8 duration-700">
+                <div className="mb-8 flex flex-col gap-2">
+                    <div className="flex items-center gap-3">
+                        <h1 className="text-3xl font-bold tracking-tight">Checkout</h1>
+                        <Badge
+                            variant={isPending ? 'secondary' : isPaid ? 'default' : 'destructive'}
+                            className="text-sm"
+                        >
+                            {orderById.status}
+                        </Badge>
+                    </div>
+                    <p className="text-muted-foreground flex items-center gap-2">
+                        <Calendar className="h-4 w-4" />
+                        Ordered on {formatDate(orderById.createdAt)}
+                    </p>
+                    <p className="text-muted-foreground text-sm">Order ID: {orderById.id}</p>
                 </div>
-                <p className="text-muted-foreground flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
-                    Ordered on {formatDate(orderById.createdAt)}
-                </p>
-                <p className="text-muted-foreground text-sm">Order ID: {orderById.id}</p>
-            </div>
 
-            <div className="grid gap-8 lg:grid-cols-3">
-                <div className="space-y-6 lg:col-span-2">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Order Items</CardTitle>
-                            <CardDescription>Review your items before payment</CardDescription>
-                        </CardHeader>
-                        <CardContent className="grid gap-6">
-                            {(orderById.items || []).map((item) => {
-                                const sticker = item.sticker!;
-                                return (
-                                    <div key={item.id} className="flex items-start gap-4">
-                                        <div className="bg-muted relative aspect-square h-24 w-24 min-w-24 overflow-hidden rounded-lg border">
-                                            {sticker.images?.[0] ? (
-                                                <img
-                                                    src={sticker.images[0]}
-                                                    alt={sticker.name}
-                                                    className="h-full w-full object-cover"
-                                                />
-                                            ) : (
-                                                <div className="flex h-full w-full items-center justify-center bg-gray-100 text-gray-400">
-                                                    <Package className="h-8 w-8" />
+                <div className="grid gap-8 lg:grid-cols-3">
+                    <div className="space-y-6 lg:col-span-2">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Order Items</CardTitle>
+                                <CardDescription>Review your items before payment</CardDescription>
+                            </CardHeader>
+                            <CardContent className="grid gap-6">
+                                {(orderById.items || []).map((item) => {
+                                    const sticker = item.sticker!;
+                                    return (
+                                        <div key={item.id} className="flex items-start gap-4">
+                                            <div className="bg-muted relative aspect-square h-24 w-24 min-w-24 overflow-hidden rounded-lg border">
+                                                {sticker.images?.[0] ? (
+                                                    <img
+                                                        src={sticker.images[0]}
+                                                        alt={sticker.name}
+                                                        className="h-full w-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <div className="flex h-full w-full items-center justify-center bg-gray-100 text-gray-400">
+                                                        <Package className="h-8 w-8" />
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="flex flex-1 flex-col gap-1">
+                                                <div className="flex justify-between gap-2">
+                                                    <h3 className="font-semibold">
+                                                        {sticker.name}
+                                                    </h3>
+                                                    <p className="font-medium">
+                                                        {formatCurrency(
+                                                            Number(item.price) * item.quantity,
+                                                        )}
+                                                    </p>
                                                 </div>
-                                            )}
-                                        </div>
-                                        <div className="flex flex-1 flex-col gap-1">
-                                            <div className="flex justify-between gap-2">
-                                                <h3 className="font-semibold">{sticker.name}</h3>
-                                                <p className="font-medium">
-                                                    {formatCurrency(
-                                                        Number(item.price) * item.quantity,
-                                                    )}
+                                                <p className="text-muted-foreground line-clamp-2 text-sm">
+                                                    {sticker.description}
                                                 </p>
-                                            </div>
-                                            <p className="text-muted-foreground line-clamp-2 text-sm">
-                                                {sticker.description}
-                                            </p>
-                                            <div className="text-muted-foreground mt-auto flex items-center gap-4 text-sm">
-                                                <span>Qty: {item.quantity}</span>
-                                                <span>×</span>
-                                                <span>{formatCurrency(item.price)} each</span>
+                                                <div className="text-muted-foreground mt-auto flex items-center gap-4 text-sm">
+                                                    <span>Qty: {item.quantity}</span>
+                                                    <span>×</span>
+                                                    <span>{formatCurrency(item.price)} each</span>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                );
-                            })}
-                        </CardContent>
-                    </Card>
-                </div>
+                                    );
+                                })}
+                            </CardContent>
+                        </Card>
+                    </div>
 
-                <div className="space-y-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Order Summary</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="flex justify-between text-sm">
-                                <span className="text-muted-foreground">Subtotal</span>
-                                <span>{formatCurrency(orderById.totalAmount)}</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                                <span className="text-muted-foreground">Shipping</span>
-                                <span className="text-green-600">Free</span>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                                <span className="text-muted-foreground">Tax</span>
-                                <span>$0.00</span>
-                            </div>
-                            <div className="bg-border my-4 h-px" />
-                            <div className="flex justify-between text-lg font-bold">
-                                <span>Total</span>
-                                <span>{formatCurrency(orderById.totalAmount)}</span>
-                            </div>
-                        </CardContent>
-                        <CardFooter className="flex flex-col gap-2">
-                            {isPending ? (
-                                <Button
-                                    className="w-full"
-                                    size="lg"
-                                    onClick={handlePay}
-                                    disabled={isPaying}
-                                >
-                                    <CreditCard className="mr-2 h-4 w-4" />
-                                    {isPaying ? 'Processing...' : 'Proceed to Payment'}
-                                </Button>
-                            ) : (
-                                <>
+                    <div className="space-y-6">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Order Summary</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-muted-foreground">Subtotal</span>
+                                    <span>{formatCurrency(orderById.totalAmount)}</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-muted-foreground">Shipping</span>
+                                    <span className="text-green-600">Free</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-muted-foreground">Tax</span>
+                                    <span>$0.00</span>
+                                </div>
+                                <div className="bg-border my-4 h-px" />
+                                <div className="flex justify-between text-lg font-bold">
+                                    <span>Total</span>
+                                    <span>{formatCurrency(orderById.totalAmount)}</span>
+                                </div>
+                            </CardContent>
+                            <CardFooter className="flex flex-col gap-2">
+                                {isPending ? (
                                     <Button
                                         className="w-full"
                                         size="lg"
-                                        onClick={handleDownloadInvoice}
-                                        variant="outline"
+                                        onClick={handlePay}
+                                        disabled={isPaying}
                                     >
-                                        <Download className="mr-2 h-4 w-4" />
-                                        Download Invoice
+                                        <CreditCard className="mr-2 h-4 w-4" />
+                                        {isPaying ? 'Processing...' : 'Proceed to Payment'}
                                     </Button>
-                                    <p className="text-muted-foreground mt-2 text-center text-sm">
-                                        Order status:{' '}
-                                        <span className="font-medium">{orderById.status}</span>
-                                    </p>
-                                </>
-                            )}
-                        </CardFooter>
-                    </Card>
+                                ) : (
+                                    <>
+                                        <Button
+                                            className="w-full"
+                                            size="lg"
+                                            onClick={handleDownloadInvoice}
+                                            variant="outline"
+                                        >
+                                            <Download className="mr-2 h-4 w-4" />
+                                            Download Invoice
+                                        </Button>
+                                        <p className="text-muted-foreground mt-2 text-center text-sm">
+                                            Order status:{' '}
+                                            <span className="font-medium">{orderById.status}</span>
+                                        </p>
+                                    </>
+                                )}
+                            </CardFooter>
+                        </Card>
 
-                    <Card className="bg-muted/50">
-                        <CardContent className="p-6">
-                            <h3 className="mb-2 font-semibold">Payment Information</h3>
-                            <p className="text-muted-foreground text-sm">
-                                Payments are processed securely via Stripe. Your payment information
-                                is encrypted and never stored on our servers.
-                            </p>
-                        </CardContent>
-                    </Card>
+                        <Card className="bg-muted/50">
+                            <CardContent className="p-6">
+                                <h3 className="mb-2 font-semibold">Payment Information</h3>
+                                <p className="text-muted-foreground text-sm">
+                                    Payments are processed securely via Stripe. Your payment
+                                    information is encrypted and never stored on our servers.
+                                </p>
+                            </CardContent>
+                        </Card>
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 

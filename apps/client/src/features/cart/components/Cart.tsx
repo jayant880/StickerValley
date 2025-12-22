@@ -84,34 +84,46 @@ const Cart = () => {
     }
 
     if (!cart?.items || cart.items.length === 0) {
-        return <CartEmptyState />;
+        return (
+            <>
+                <title>Sticker Valley | Cart</title>
+                <CartEmptyState />
+            </>
+        );
     }
 
     return (
-        <div className="animate-in fade-in slide-in-from-bottom-4 container mx-auto max-w-6xl px-4 py-8 duration-700">
-            <div className="mb-8 flex items-center justify-between">
-                <h1 className="text-3xl font-bold">Shopping Cart ({cart.totalItems || 0})</h1>
-                <Button variant="destructive" onClick={handleClearCart} disabled={isClearing}>
-                    {isClearing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Clear Cart'}
-                </Button>
-            </div>
-
-            <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-                <div className="col-span-1 space-y-4 lg:col-span-2">
-                    {cart.items.map((item) => (
-                        <CartItemCard key={item.id} item={item} />
-                    ))}
+        <>
+            <title>Sticker Valley | Cart</title>
+            <div className="animate-in fade-in slide-in-from-bottom-4 container mx-auto max-w-6xl px-4 py-8 duration-700">
+                <div className="mb-8 flex items-center justify-between">
+                    <h1 className="text-3xl font-bold">Shopping Cart ({cart.totalItems || 0})</h1>
+                    <Button variant="destructive" onClick={handleClearCart} disabled={isClearing}>
+                        {isClearing ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                            'Clear Cart'
+                        )}
+                    </Button>
                 </div>
 
-                <div className="col-span-1">
-                    <OrderSummary totalAmount={cart.totalAmount || 0} cartId={cart.id} />
+                <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+                    <div className="col-span-1 space-y-4 lg:col-span-2">
+                        {cart.items.map((item) => (
+                            <CartItemCard key={item.id} item={item} />
+                        ))}
+                    </div>
 
-                    <div className="bg-muted/50 text-muted-foreground mt-6 rounded-lg p-4 text-center text-sm">
-                        <p>Secure Checkout powered by Trisp(mock)</p>
+                    <div className="col-span-1">
+                        <OrderSummary totalAmount={cart.totalAmount || 0} cartId={cart.id} />
+
+                        <div className="bg-muted/50 text-muted-foreground mt-6 rounded-lg p-4 text-center text-sm">
+                            <p>Secure Checkout powered by Trisp(mock)</p>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 
