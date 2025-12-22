@@ -20,7 +20,7 @@ const NotFound = () => {
 
                 <div className="max-w-md space-y-4">
                     <h1 className="text-4xl font-black tracking-tight text-gray-900 md:text-5xl">
-                        Wait, you're <span className="text-indigo-600">lost!</span>
+                        Wait, youre <span className="text-indigo-600">lost!</span>
                     </h1>
                     <p className="text-muted-foreground text-lg leading-relaxed font-medium">
                         It looks like the sticker you're looking for was either peeled off or never
