@@ -32,7 +32,7 @@
     "format:check": "concurrently \"npm run format:check:client\" \"npm run format:check:server\"",
     "format:check:client": "cd apps/client && npm run format:check",
     "format:check:server": "cd apps/server && npm run format:check",
-    "prepare": "husky"
+    "prepare": "husky || true"
   },
   "devDependencies": {
     "concurrently": "^9.2.1",
