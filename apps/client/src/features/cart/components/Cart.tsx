@@ -117,8 +117,8 @@ const Cart = () => {
                     <div className="col-span-1">
                         <OrderSummary totalAmount={cart.totalAmount || 0} cartId={cart.id} />
 
-                        <div className="bg-muted/50 text-muted-foreground mt-6 rounded-lg p-4 text-center text-sm">
-                            <p>Secure Checkout powered by Trisp(mock)</p>
+                        <div className="bg-muted/50 text-muted-foreground mt-6 rounded-lg p-4 text-center text-sm italic">
+                            <p>Demo Store: No real payments processed</p>
                         </div>
                     </div>
                 </div>

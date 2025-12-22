@@ -10,9 +10,11 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Loader2, Package, Calendar, CreditCard, Download } from 'lucide-react';
+import { Loader2, Package, Calendar, CreditCard, Download, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { downloadInvoice } from '@/features/dashboard/api/invoice.api';
+import { downloadFile } from '@/lib/utils';
+import { SimulatedTracking } from './SimulatedTracking';
 import useOrder from '../hooks/useOrder';
 import { useEffect } from 'react';
 
@@ -60,6 +62,22 @@ const Checkout = () => {
             console.error('Failed to download invoice', error);
             toast.error('Failed to download invoice');
         }
+    };
+
+    const handleDownloadDigitalItems = () => {
+        if (!orderById) return;
+        const digitalItems =
+            orderById.items?.filter((item) => item.sticker?.type === 'DIGITAL') || [];
+        if (digitalItems.length === 0) return;
+
+        toast.info(`Downloading ${digitalItems.length} digital items...`);
+        digitalItems.forEach((item) => {
+            item.sticker?.images?.forEach((image, index) => {
+                const fileName = `${item.sticker!.name.replace(/\s+/g, '_')}_${index + 1}.png`;
+                downloadFile(image, fileName);
+            });
+        });
+        toast.success('Downloads started!');
     };
 
     if (!isLoaded || isLoadingOrderById) {
@@ -214,6 +232,19 @@ const Checkout = () => {
                                     </Button>
                                 ) : (
                                     <>
+                                        {isPaid &&
+                                            orderById.items?.some(
+                                                (item) => item.sticker?.type === 'DIGITAL',
+                                            ) && (
+                                                <Button
+                                                    className="w-full bg-indigo-600 hover:bg-indigo-700"
+                                                    size="lg"
+                                                    onClick={handleDownloadDigitalItems}
+                                                >
+                                                    <Download className="mr-2 h-4 w-4" />
+                                                    Download Stickers
+                                                </Button>
+                                            )}
                                         <Button
                                             className="w-full"
                                             size="lg"
@@ -232,12 +263,24 @@ const Checkout = () => {
                             </CardFooter>
                         </Card>
 
+                        {isPaid &&
+                            orderById.items?.some((item) => item.sticker?.type === 'PHYSICAL') && (
+                                <SimulatedTracking
+                                    createdAt={orderById.createdAt}
+                                    orderId={orderById.id}
+                                />
+                            )}
+
                         <Card className="bg-muted/50">
                             <CardContent className="p-6">
-                                <h3 className="mb-2 font-semibold">Payment Information</h3>
+                                <h3 className="mb-2 flex items-center gap-2 font-semibold text-amber-600">
+                                    <Sparkles className="h-4 w-4" />
+                                    Demo Environment
+                                </h3>
                                 <p className="text-muted-foreground text-sm">
-                                    Payments are processed securely via Stripe. Your payment
-                                    information is encrypted and never stored on our servers.
+                                    This is a mock payment flow for demonstration purposes. No real
+                                    credit card information is required, and no actual transactions
+                                    will be processed.
                                 </p>
                             </CardContent>
                         </Card>

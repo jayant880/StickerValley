@@ -11,5 +11,6 @@ router.get("/", orderController.getAllOrdersByUserId);
 router.get("/:orderId", requireOrder, orderController.getOrderById);
 router.put("/:orderId/pay", requireOrder, orderController.payForOrder);
 router.put("/:orderId/cancel", requireOrder, orderController.cancelOrder);
+router.patch("/:orderId/status", requireOrder, orderController.updateOrderStatus);
 
 export default router;

@@ -111,4 +111,18 @@ export const orderController = {
             data: null,
         });
     }),
+    updateOrderStatus: asyncHandler(async (req: Request, res: Response): Promise<Response> => {
+        const { status } = req.body;
+        const userOrder = req.order;
+
+        if (!status) throw new AppError("Status is required", 400);
+
+        await db.update(orders).set({ status }).where(eq(orders.id, userOrder.id));
+
+        return res.status(200).json({
+            success: true,
+            message: `Order status updated to ${status}`,
+            data: null,
+        });
+    }),
 };

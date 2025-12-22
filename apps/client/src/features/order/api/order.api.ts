@@ -28,3 +28,14 @@ export const getOrders = async (): Promise<Order[]> => {
     const res = await api.get('/orders');
     return res.data.success ? res.data.data : [];
 };
+
+export const updateOrderStatus = async ({
+    orderId,
+    status,
+}: {
+    orderId: string;
+    status: string;
+}): Promise<boolean> => {
+    const res = await api.patch(`/orders/${orderId}/status`, { status });
+    return res.data.success;
+};

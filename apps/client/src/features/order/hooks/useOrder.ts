@@ -1,5 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createOrder, getOrderById, getOrders, payForOrder } from '../api/order.api';
+import {
+    createOrder,
+    getOrderById,
+    getOrders,
+    payForOrder,
+    updateOrderStatus,
+} from '../api/order.api';
 import type { OrderWithRelations } from '@sticker-valley/shared-types';
 
 export const useOrderQuery = () => {
@@ -53,6 +59,21 @@ export const usePayForOrderMutation = () => {
     });
 };
 
+export const useUpdateOrderStatusMutation = () => {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ orderId, status }: { orderId: string; status: string }) =>
+            updateOrderStatus({ orderId, status }),
+        onSuccess: (_, variables) => {
+            queryClient.invalidateQueries({ queryKey: ['orders'] });
+            queryClient.invalidateQueries({ queryKey: ['order', variables.orderId] });
+        },
+        onError: (error: Error) => {
+            console.error('Failed to update order status', error);
+        },
+    });
+};
+
 const useOrder = () => {
     const orderQuery = useOrderQuery();
     const orderMutation = useOrderMutation();
@@ -68,6 +89,8 @@ const useOrder = () => {
         useOrderByIdQuery,
         useOrderMutation,
         usePayForOrderMutation,
+
+        useUpdateOrderStatusMutation,
 
         createOrder: orderMutation.mutate,
         payForOrder: payForOrderMutation.mutate,
