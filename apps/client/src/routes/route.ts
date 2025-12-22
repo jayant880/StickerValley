@@ -12,6 +12,7 @@ import Shop from '@/features/shop/components/Shop';
 import CreateShop from '@/features/shop/components/CreateShop';
 import UserProfile from '@/features/auth/components/UserProfile';
 import Wishlist from '@/features/wishlist/components/Wishlist';
+import NotFound from '@/components/NotFound';
 
 export const router = createBrowserRouter([
     {
@@ -73,6 +74,10 @@ export const router = createBrowserRouter([
             {
                 path: 'wishlist',
                 Component: Wishlist,
+            },
+            {
+                path: '*',
+                Component: NotFound,
             },
         ],
     },
