@@ -27,10 +27,20 @@
     "build:server": "cd apps/server && npm run build",
     "db:push": "cd apps/server && npx drizzle-kit push",
     "db:generate": "cd apps/server && npx drizzle-kit generate",
-    "db:studio": "cd apps/server && npx drizzle-kit studio"
+    "db:studio": "cd apps/server && npx drizzle-kit studio",
+    "format:check": "concurrently \"npm run format:check:client\" \"npm run format:check:server\"",
+    "format:check:client": "cd apps/client && npm run format:check",
+    "format:check:server": "cd apps/server && npm run format:check",
+    "prepare": "husky"
   },
   "devDependencies": {
     "concurrently": "^9.2.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
     "typescript": "^5.9.3"
+  },
+  "lint-staged": {
+    "apps/client/**/*.{ts,tsx,js,json}": "prettier --write --config apps/client/.prettierrc",
+    "apps/server/**/*.ts": "prettier --write --config apps/server/.prettierrc"
   }
 }
