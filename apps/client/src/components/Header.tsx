@@ -1,5 +1,5 @@
 import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from '@clerk/clerk-react';
-import { Heart, Home, ShoppingBagIcon, User } from 'lucide-react';
+import { Heart, ShoppingBagIcon, User } from 'lucide-react';
 import { Link } from 'react-router';
 import { Button } from './ui/button';
 import { useCartQuery } from '@/features/cart/hooks/useCart';
@@ -16,13 +16,6 @@ export function Header() {
             </Link>
             <div className="flex gap-4">
                 <div className="flex items-center gap-2">
-                    <div>
-                        <Link to="/">
-                            <Button variant="ghost">
-                                <Home />
-                            </Button>
-                        </Link>
-                    </div>
                     <div>
                         <Link to="/stickers">
                             <Button variant="ghost">Stickers</Button>

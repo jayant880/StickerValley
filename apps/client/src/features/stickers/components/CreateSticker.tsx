@@ -90,7 +90,7 @@ const CreateSticker = () => {
         createStickerMutation.mutate();
     };
 
-    if (isPending && !isPending) {
+    if (isUserLoading) {
         return (
             <div className="flex h-[80vh] items-center justify-center">
                 <Spinner className="h-8 w-8" />

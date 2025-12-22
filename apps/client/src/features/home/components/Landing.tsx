@@ -42,15 +42,6 @@ export function Landing() {
                                 Explore Collection
                             </Button>
                         </Link>
-                        <Link to="/stickers">
-                            <Button
-                                size="lg"
-                                variant="default"
-                                className="h-14 rounded-full border-indigo-400 bg-indigo-200 px-10 text-lg font-bold text-indigo-600 hover:bg-indigo-50 hover:text-indigo-600 hover:shadow-2xl"
-                            >
-                                Browse Categories
-                            </Button>
-                        </Link>
                     </div>
                 </div>
             </section>

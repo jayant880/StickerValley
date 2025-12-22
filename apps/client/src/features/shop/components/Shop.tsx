@@ -190,15 +190,17 @@ const Shop = () => {
                                     <Edit className="mr-2 h-4 w-4" />
                                     Edit Shop
                                 </Button>
-                                <Button
-                                    onClick={() =>
-                                        navigate(`/shop/${currentShop.id}/stickers/create`)
-                                    }
-                                    className="hover:shadow-primary/25 shadow-lg transition-all"
-                                >
-                                    <Plus className="mr-2 h-4 w-4" />
-                                    Create New Sticker
-                                </Button>
+                                {stickers.length > 0 && (
+                                    <Button
+                                        onClick={() =>
+                                            navigate(`/shop/${currentShop.id}/stickers/create`)
+                                        }
+                                        className="hover:shadow-primary/25 shadow-lg transition-all"
+                                    >
+                                        <Plus className="mr-2 h-4 w-4" />
+                                        Create New Sticker
+                                    </Button>
+                                )}
                             </div>
                         )}
                     </div>
