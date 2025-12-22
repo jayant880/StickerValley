@@ -25,6 +25,7 @@
     "dev:server": "cd apps/server && npm run dev",
     "build:client": "cd apps/client && npm run build",
     "build:server": "cd apps/server && npm run build",
+    "build:shared": "cd packages/shared-types && npm run build",
     "db:push": "cd apps/server && npx drizzle-kit push",
     "db:generate": "cd apps/server && npx drizzle-kit generate",
     "db:studio": "cd apps/server && npx drizzle-kit studio",
