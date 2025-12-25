@@ -1,9 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardFooter } from '@/components/ui/card';
-import { ArrowRight, Loader2 } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
 import useOrder from '../hooks/useOrder';
+import { Spinner } from '@/components/ui/spinner';
 
 interface OrderSummaryProps {
     totalAmount: number;
@@ -67,7 +68,7 @@ export const OrderSummary = ({ totalAmount, cartId }: OrderSummaryProps) => {
                         disabled={isCreating}
                     >
                         {isCreating ? (
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            <Spinner className="mr-2 h-4 w-4" />
                         ) : (
                             <ArrowRight className="mr-2 h-4 w-4" />
                         )}

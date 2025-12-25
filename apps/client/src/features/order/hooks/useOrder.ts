@@ -7,13 +7,17 @@ import {
     updateOrderStatus,
 } from '../api/order.api';
 import type { OrderWithRelations } from '@sticker-valley/shared-types';
+import { useAuth } from '@clerk/clerk-react';
 
 export const useOrderQuery = () => {
+    const { isSignedIn } = useAuth();
+
     return useQuery({
         queryKey: ['orders'],
         queryFn: getOrders,
         retry: 2,
         retryDelay: 1000,
+        enabled: !!isSignedIn,
     });
 };
 
@@ -32,6 +36,7 @@ export const useOrderByIdQuery = (orderId?: string) => {
 
 export const useOrderMutation = () => {
     const queryClient = useQueryClient();
+
     return useMutation({
         mutationFn: ({ cartId }: { cartId: string }) => createOrder({ cartId }),
         onSuccess: (data) => {
@@ -48,6 +53,7 @@ export const useOrderMutation = () => {
 
 export const usePayForOrderMutation = () => {
     const queryClient = useQueryClient();
+
     return useMutation({
         mutationFn: ({ orderId }: { orderId: string }) => payForOrder({ orderId }),
         onSuccess: () => {
@@ -61,6 +67,7 @@ export const usePayForOrderMutation = () => {
 
 export const useUpdateOrderStatusMutation = () => {
     const queryClient = useQueryClient();
+
     return useMutation({
         mutationFn: ({ orderId, status }: { orderId: string; status: string }) =>
             updateOrderStatus({ orderId, status }),

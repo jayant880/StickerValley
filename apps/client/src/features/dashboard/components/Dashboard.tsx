@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Package, Sparkles, ShoppingBag, PlusCircle, ArrowRight } from 'lucide-react';
+import { Spinner } from '@/components/ui/spinner';
+import { Package, Sparkles, ShoppingBag, PlusCircle, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router';
 import { useUser } from '@clerk/clerk-react';
 import useOrder from '@/features/order/hooks/useOrder';
@@ -21,7 +22,7 @@ export function Dashboard() {
         return (
             <div className="flex h-[60vh] w-full items-center justify-center">
                 <div className="flex flex-col items-center gap-4">
-                    <Loader2 className="h-10 w-10 animate-spin text-indigo-600" />
+                    <Spinner className="h-10 w-10 text-indigo-600" />
                     <p className="text-muted-foreground animate-pulse font-medium">
                         Personalizing your experience...
                     </p>
@@ -78,7 +79,7 @@ export function Dashboard() {
                             </Link>
                         </div>
 
-                        <StickerGrid stickers={recentStickers} loading={false} />
+                        <StickerGrid stickers={recentStickers} loading={isLoadingStickers} />
                     </div>
 
                     {/* Sidebar: Activity & Actions */}

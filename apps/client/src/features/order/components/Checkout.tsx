@@ -10,13 +10,14 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Loader2, Package, Calendar, CreditCard, Download, Sparkles } from 'lucide-react';
+import { Package, Calendar, CreditCard, Download, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { downloadInvoice } from '@/features/dashboard/api/invoice.api';
 import { downloadFile } from '@/lib/utils';
 import { SimulatedTracking } from './SimulatedTracking';
 import useOrder from '../hooks/useOrder';
 import { useEffect } from 'react';
+import { Spinner } from '@/components/ui/spinner';
 
 const Checkout = () => {
     const { orderId } = useParams();
@@ -83,7 +84,7 @@ const Checkout = () => {
     if (!isLoaded || isLoadingOrderById) {
         return (
             <div className="flex h-[50vh] w-full items-center justify-center">
-                <Loader2 className="text-primary h-8 w-8 animate-spin" />
+                <Spinner className="h-8 w-8" />
             </div>
         );
     }

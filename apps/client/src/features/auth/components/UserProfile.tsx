@@ -211,24 +211,19 @@ const UserProfile = () => {
                 {/* Main Tabs Container */}
                 <Tabs defaultValue="overview" className="space-y-6">
                     <TabsList className="bg-muted/50 mx-auto grid h-auto max-w-md grid-cols-3 rounded-2xl p-1 md:mx-0">
-                        <TabsTrigger
-                            value="overview"
-                            className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white data-[state=active]:shadow-sm"
-                        >
-                            Overview
-                        </TabsTrigger>
-                        <TabsTrigger
-                            value="orders"
-                            className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white data-[state=active]:shadow-sm"
-                        >
-                            Orders
-                        </TabsTrigger>
-                        <TabsTrigger
-                            value="reviews"
-                            className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white data-[state=active]:shadow-sm"
-                        >
-                            Reviews
-                        </TabsTrigger>
+                        {[
+                            { value: 'overview', label: 'Overview' },
+                            { value: 'orders', label: 'Orders' },
+                            { value: 'reviews', label: 'Reviews' },
+                        ].map((tab, i) => (
+                            <TabsTrigger
+                                key={i}
+                                value={tab.value}
+                                className="rounded-xl px-6 py-2.5 data-[state=active]:bg-white data-[state=active]:shadow-sm"
+                            >
+                                {tab.label}
+                            </TabsTrigger>
+                        ))}
                     </TabsList>
 
                     <TabsContent value="overview" className="space-y-6">

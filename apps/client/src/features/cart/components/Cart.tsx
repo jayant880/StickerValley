@@ -8,17 +8,17 @@ import {
     EmptyTitle,
 } from '@/components/ui/empty';
 import { useUser } from '@clerk/clerk-react';
-import { Loader2, ShoppingCart } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 import { toast } from 'sonner';
 import useCart from '../hooks/useCart';
 import { CartSkeleton } from './CartSkeleton';
 import { CartEmptyState } from './CartEmptyState';
 import { CartItemCard } from './CartItemCard';
 import { OrderSummary } from '@/features/order/components/OrderSummary';
+import { Spinner } from '@/components/ui/spinner';
 
 const Cart = () => {
     const { cart, isLoading, isError, error, clearCart, isClearing } = useCart();
-
     const { user, isLoaded: isUserLoaded } = useUser();
 
     const handleClearCart = async () => {
@@ -31,7 +31,7 @@ const Cart = () => {
     if (!isUserLoaded) {
         return (
             <div className="flex min-h-[50vh] items-center justify-center">
-                <Loader2 className="text-primary h-8 w-8 animate-spin" />
+                <Spinner className="h-8 w-8" />
             </div>
         );
     }
@@ -99,11 +99,7 @@ const Cart = () => {
                 <div className="mb-8 flex items-center justify-between">
                     <h1 className="text-3xl font-bold">Shopping Cart ({cart.totalItems || 0})</h1>
                     <Button variant="destructive" onClick={handleClearCart} disabled={isClearing}>
-                        {isClearing ? (
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        ) : (
-                            'Clear Cart'
-                        )}
+                        {isClearing ? <Spinner className="mr-2 h-4 w-4" /> : 'Clear Cart'}
                     </Button>
                 </div>
 

@@ -2,11 +2,12 @@ import { useEffect, useRef, useCallback } from 'react';
 import { useParams, Link } from 'react-router';
 import { useUser } from '@clerk/clerk-react';
 import { Button } from '@/components/ui/button';
-import { Package, Download, Loader2, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Package, Download, CheckCircle2, ArrowRight } from 'lucide-react';
 import useOrder from '@/features/order/hooks/useOrder';
 import { downloadFile } from '@/lib/utils';
 import { toast } from 'sonner';
 import { SimulatedTracking } from '@/features/order/components/SimulatedTracking';
+import { Spinner } from '@/components/ui/spinner';
 
 const PaymentSuccess = () => {
     const { orderId } = useParams();
@@ -49,7 +50,7 @@ const PaymentSuccess = () => {
     if (isLoading) {
         return (
             <div className="flex h-[70vh] w-full flex-col items-center justify-center gap-4">
-                <Loader2 className="text-primary h-10 w-10 animate-spin" />
+                <Spinner className="h-10 w-10" />
                 <p className="text-muted-foreground animate-pulse font-medium">
                     Verifying your payment...
                 </p>
