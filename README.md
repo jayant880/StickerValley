@@ -4,10 +4,10 @@ StickerValley is a modern e-commerce platform for purchasing unique stickers. It
 
 **[Live Demo](https://sticker-valley-client.vercel.app/)**
 
-
 ## 🚀 Tech Stack
 
 ### Frontend (`apps/client`)
+
 - **Framework**: [React 19](https://react.dev/) with [Vite](https://vitejs.dev/)
 - **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
 - **UI Components**: Built with [shadcn/ui](https://ui.shadcn.com/) and [Lucide React](https://lucide.dev/) icons
@@ -15,6 +15,7 @@ StickerValley is a modern e-commerce platform for purchasing unique stickers. It
 - **Authentication**: [Clerk](https://clerk.com/)
 
 ### Backend (`apps/server`)
+
 - **Runtime**: Node.js
 - **Framework**: [Express](https://expressjs.com/)
 - **Database ORM**: [Drizzle ORM](https://orm.drizzle.team/)
@@ -23,12 +24,14 @@ StickerValley is a modern e-commerce platform for purchasing unique stickers. It
 - **Security**: [Helmet](https://helmetjs.github.io/)
 
 ### Monorepo
-- Managed via **npm workspaces**
-- Shared types in `packages/shared-types`
+
+- Managed via [npm workspaces](https://docs.npmjs.com/cli/v7/using-npm/workspaces)
+- Shared types in [`packages/shared-types`](./packages/shared-types)
 
 ## 🛠️ Getting Started
 
 ### Prerequisites
+
 - Node.js (Latest LTS recommended)
 - npm
 - NeonDB (PostgreSQL)
@@ -36,49 +39,52 @@ StickerValley is a modern e-commerce platform for purchasing unique stickers. It
 ### Installation
 
 1.  Clone the repository:
+
     ```bash
     git clone https://github.com/jayant880/StickerValley.git
     cd StickerValley
     ```
 
 2.  Install dependencies:
+
     ```bash
     npm install
     ```
 
 3.  Environment Setup:
-    - In `apps/server`, copy `.env.example` to `.env.local` and fill in your secrets.
-    - In `apps/client`, copy `.env.example` to `.env.local` and fill in your secrets.
+    - In [`apps/server`](./apps/server), copy `.env.example` to `.env` and fill in your secrets.
+    - In [`apps/client`](./apps/client), copy `.env.example` to `.env` and fill in your secrets.
 
 ### Running the Application
 
-To run both the client and server concurrently in development mode:
+To run both the client and server concurrently in development mode (recommended):
 
 ```bash
 npm run dev
 ```
 
 This will start:
-- Client at `http://localhost:5173` (default Vite port)
-- Server at `http://localhost:5000` (or your configured port)
+
+- **Client**: `http://localhost:5173` (default Vite port)
+- **Server**: `http://localhost:5000` (or your configured port)
 
 ### Database Management
 
-The project uses Drizzle ORM for database management. You can run these commands from the root or inside `apps/server`:
+The project uses Drizzle ORM. You can run these commands from the root:
 
-*   **Push schema changes**: `npm run db:push`
-*   **Generate migrations**: `npm run db:generate`
-*   **Open Drizzle Studio**: `npm run db:studio`
+- **Push schema changes**: `npm run db:push`
+- **Generate migrations**: `npm run db:generate`
+- **Open Drizzle Studio**: `npm run db:studio`
 
 ## 📦 Project Structure
 
-```
+```text
 StickerValley/
 ├── apps/
-│   ├── client/       # React frontend application
-│   └── server/       # Express backend application
+│   ├── [client]       # React frontend application
+│   └── [server]       # Express backend application
 ├── packages/
-│   └── shared-types/ # Shared TypeScript definitions
+│   └── [shared-types] # Shared TypeScript definitions
 └── ...
 ```
 

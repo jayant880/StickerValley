@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router';
 import type { Shop as ShopType, Sticker } from '@sticker-valley/shared-types';
 import StickerCard from '@/features/stickers/components/StickerCard';
 import { Button } from '@/components/ui/button';
-import { Plus, Store, Package, Layers, Edit } from 'lucide-react';
+import { Plus, Store, Package, Layers, Edit, AlertCircle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
@@ -28,6 +28,7 @@ const Shop = () => {
     const { shopForm, shopFormActions, clearShopForm } = useShopStore();
     const updateShopMutation = useUpdateShopMutation();
     const [isEditing, setIsEditing] = useState(false);
+    const [errors, setErrors] = useState<{ name?: string; description?: string }>({});
 
     const currentShop = shop || myShopData;
     const isLoading = shopLoading || myShopLoading || isUserLoading;
@@ -37,11 +38,37 @@ const Shop = () => {
         if (!currentShop) return;
         shopFormActions.setName(currentShop.name);
         shopFormActions.setDescription(currentShop.description || '');
+        setErrors({});
         setIsEditing(true);
+    };
+
+    const validate = () => {
+        const newErrors: { name?: string; description?: string } = {};
+
+        if (!shopForm.name.trim()) {
+            newErrors.name = 'Shop name is required';
+        } else if (shopForm.name.trim().length < 3) {
+            newErrors.name = 'Shop name must be at least 3 characters long';
+        }
+
+        if (!shopForm.description.trim()) {
+            newErrors.description = 'Description is required';
+        } else if (shopForm.description.trim().length < 10) {
+            newErrors.description = 'Description must be at least 10 characters long';
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
     };
 
     const handleUpdate = () => {
         if (!user || !myShopData?.id) return;
+
+        if (!validate()) {
+            toast.error('Please fix the errors in the form');
+            return;
+        }
+
         updateShopMutation.mutate(undefined, {
             onSuccess: () => {
                 setIsEditing(false);
@@ -57,6 +84,7 @@ const Shop = () => {
 
     const handleCancel = () => {
         setIsEditing(false);
+        setErrors({});
         clearShopForm();
     };
 
@@ -143,22 +171,48 @@ const Shop = () => {
                                 </div>
                                 {isEditing ? (
                                     <div className="space-y-3">
-                                        <Input
-                                            value={shopForm.name}
-                                            onChange={(e) =>
-                                                shopFormActions.setName(e.target.value)
-                                            }
-                                            placeholder="Shop Name"
-                                            className="h-12 text-2xl font-bold"
-                                        />
-                                        <Input
-                                            value={shopForm.description}
-                                            onChange={(e) =>
-                                                shopFormActions.setDescription(e.target.value)
-                                            }
-                                            placeholder="Shop Description"
-                                            className="text-lg"
-                                        />
+                                        <div className="space-y-1">
+                                            <Input
+                                                value={shopForm.name}
+                                                onChange={(e) => {
+                                                    shopFormActions.setName(e.target.value);
+                                                    if (errors.name)
+                                                        setErrors((prev) => ({
+                                                            ...prev,
+                                                            name: undefined,
+                                                        }));
+                                                }}
+                                                placeholder="Shop Name"
+                                                className={`h-12 text-2xl font-bold ${errors.name ? 'border-destructive focus-visible:ring-destructive' : ''}`}
+                                            />
+                                            {errors.name && (
+                                                <div className="text-destructive flex items-center gap-1 text-xs">
+                                                    <AlertCircle className="h-3 w-3" />
+                                                    {errors.name}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Input
+                                                value={shopForm.description}
+                                                onChange={(e) => {
+                                                    shopFormActions.setDescription(e.target.value);
+                                                    if (errors.description)
+                                                        setErrors((prev) => ({
+                                                            ...prev,
+                                                            description: undefined,
+                                                        }));
+                                                }}
+                                                placeholder="Shop Description"
+                                                className={`text-lg ${errors.description ? 'border-destructive focus-visible:ring-destructive' : ''}`}
+                                            />
+                                            {errors.description && (
+                                                <div className="text-destructive flex items-center gap-1 text-xs">
+                                                    <AlertCircle className="h-3 w-3" />
+                                                    {errors.description}
+                                                </div>
+                                            )}
+                                        </div>
                                         <div className="flex gap-2">
                                             <Button
                                                 onClick={handleUpdate}

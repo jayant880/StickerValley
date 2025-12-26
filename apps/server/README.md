@@ -35,7 +35,6 @@ Every API response follows a consistent structure, making it easy for the fronte
     "success": true,
     "message": "Human readable message",
     "data": { ... } | [ ... ] | null,
-    "pagination": { "page": 1, "limit": 10, "hasMore": true } // Optional
 }
 ```
 
@@ -53,12 +52,15 @@ Every API response follows a consistent structure, making it easy for the fronte
 
 We use **Prettier** to maintain a consistent code style across the project. It is configured to run automatically on save if your editor is set up correctly.
 
+[← Back to Root](../../README.md)
+
 ## 🚀 Scripts
 
 - `npm run dev`: Start the server in development mode (tsx watch)
 - `npm run build`: Compile TypeScript to JavaScript
 - `npm run start`: Run the compiled production server
 - `npm run format`: Standardize code formatting using Prettier
+- `npm run format:check`: Check code formatting
 - `npm run db:push`: Sync schema directly to the database
 - `npm run db:generate`: Generate database migrations
 - `npm run db:studio`: Open Drizzle Studio UI

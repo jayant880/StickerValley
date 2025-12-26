@@ -4,17 +4,18 @@ import { Spinner } from '@/components/ui/spinner';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Store, Sparkles } from 'lucide-react';
+import { Store, Sparkles, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
 import useShop from '../hooks/useShop';
 import { useShopStore } from '../store/shopStore';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const CreateShop = () => {
     const navigate = useNavigate();
     const { createShop, isCreating, createShopError } = useShop();
     const { shopFormActions, shopForm, clearShopForm } = useShopStore();
+    const [errors, setErrors] = useState<{ name?: string; description?: string }>({});
 
     const { name, description } = shopForm;
     const { setName, setDescription } = shopFormActions;
@@ -25,11 +26,30 @@ const CreateShop = () => {
         };
     }, [clearShopForm]);
 
+    const validate = () => {
+        const newErrors: { name?: string; description?: string } = {};
+
+        if (!name.trim()) {
+            newErrors.name = 'Shop name is required';
+        } else if (name.trim().length < 3) {
+            newErrors.name = 'Shop name must be at least 3 characters long';
+        }
+
+        if (!description.trim()) {
+            newErrors.description = 'Description is required';
+        } else if (description.trim().length < 10) {
+            newErrors.description = 'Description must be at least 10 characters long';
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
-        if (!shopForm.name.trim() || !shopForm.description.trim()) {
-            toast.error('Please fill in all fields');
+        if (!validate()) {
+            toast.error('Please fix the errors in the form');
             return;
         }
 
@@ -85,7 +105,7 @@ const CreateShop = () => {
                                 <div className="group space-y-2">
                                     <Label
                                         htmlFor="shopName"
-                                        className="group-focus-within:text-primary transition-colors"
+                                        className={`transition-colors ${errors.name ? 'text-destructive' : 'group-focus-within:text-primary'}`}
                                     >
                                         Shop Name
                                     </Label>
@@ -93,16 +113,26 @@ const CreateShop = () => {
                                         id="shopName"
                                         name="name"
                                         value={name}
-                                        onChange={(e) => setName(e.target.value)}
+                                        onChange={(e) => {
+                                            setName(e.target.value);
+                                            if (errors.name)
+                                                setErrors((prev) => ({ ...prev, name: undefined }));
+                                        }}
                                         placeholder="e.g. Kawaii Stickers Co."
-                                        className="interactive-input focus:ring-primary/20 transition-all duration-300 focus:ring-2"
+                                        className={`interactive-input transition-all duration-300 focus:ring-2 ${errors.name ? 'border-destructive focus:ring-destructive/20' : 'focus:ring-primary/20'}`}
                                     />
+                                    {errors.name && (
+                                        <div className="text-destructive animate-in fade-in slide-in-from-top-1 flex items-center gap-1 text-xs">
+                                            <AlertCircle className="h-3 w-3" />
+                                            {errors.name}
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="group space-y-2">
                                     <Label
                                         htmlFor="shopDescription"
-                                        className="group-focus-within:text-primary transition-colors"
+                                        className={`transition-colors ${errors.description ? 'text-destructive' : 'group-focus-within:text-primary'}`}
                                     >
                                         Description
                                     </Label>
@@ -110,10 +140,23 @@ const CreateShop = () => {
                                         id="shopDescription"
                                         name="description"
                                         value={description}
-                                        onChange={(e) => setDescription(e.target.value)}
+                                        onChange={(e) => {
+                                            setDescription(e.target.value);
+                                            if (errors.description)
+                                                setErrors((prev) => ({
+                                                    ...prev,
+                                                    description: undefined,
+                                                }));
+                                        }}
                                         placeholder="Describe your sticker style and what you offer..."
-                                        className="interactive-input focus:ring-primary/20 min-h-[120px] resize-none transition-all duration-300 focus:ring-2"
+                                        className={`interactive-input min-h-[120px] resize-none transition-all duration-300 focus:ring-2 ${errors.description ? 'border-destructive focus:ring-destructive/20' : 'focus:ring-primary/20'}`}
                                     />
+                                    {errors.description && (
+                                        <div className="text-destructive animate-in fade-in slide-in-from-top-1 flex items-center gap-1 text-xs">
+                                            <AlertCircle className="h-3 w-3" />
+                                            {errors.description}
+                                        </div>
+                                    )}
                                 </div>
 
                                 <Button

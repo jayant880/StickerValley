@@ -14,6 +14,8 @@ The frontend application for StickerValley, built with modern web technologies t
 - **State Management**: React Context & Hooks
 - **HTTP Client**: [Axios](https://axios-http.com/)
 
+[← Back to Root](../../README.md)
+
 ## 🚀 Scripts
 
 Run these commands from the root of the monorepo or inside `apps/client`:
@@ -21,6 +23,8 @@ Run these commands from the root of the monorepo or inside `apps/client`:
 - `npm run dev`: Start the development server
 - `npm run build`: Build for production
 - `npm run lint`: Lint the codebase
+- `npm run format`: Format the codebase using Prettier
+- `npm run format:check`: Check code formatting
 - `npm run preview`: Preview the production build locally
 
 ## 🔐 Environment Variables
